@@ -1,0 +1,1945 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="description" content="从零到一的企业级多模态智能工作流平台设计文档，涵盖架构、技术选型、模块设计与开发流程。">
+  <meta name="keywords" content="AI,Agent,LLM">
+  <title>AutoAgent — 多模态智能工作流平台设计文档 | Hiki的小站</title>
+  <link rel="icon" type="image/svg+xml" href="/img/favicon.svg">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            primary: { 50: '#fef7ff', 100: '#faeeff', 200: '#f5dfff', 300: '#edc6ff', 400: '#e2a2ff', 500: '#d675ff', 600: '#c146ff', 700: '#a828f9', 800: '#8d1fd0', 900: '#751eaa', 950: '#4f0d7a' },
+            secondary: { 50: '#f5f3ff', 100: '#ede9fe', 200: '#ddd6fe', 300: '#c4b5fd', 400: '#a78bfa', 500: '#8b5cf6', 600: '#7c3aed', 700: '#6d28d9', 800: '#5b21b6', 900: '#4c1d95' },
+            accent: { 50: '#fdf4ff', 100: '#fae8ff', 200: '#f5d0fe', 300: '#f0abfc', 400: '#e879f9', 500: '#d946ef', 600: '#c026d3', 700: '#a21caf', 800: '#86198f', 900: '#701a75' }
+          },
+          fontFamily: { sans: ['-apple-system', 'BlinkMacSystemFont', 'Helvetica Neue', 'Helvetica', 'Arial', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', 'sans-serif'] }
+        }
+      }
+    }
+  </script>
+  <link rel="stylesheet" href="/css/style.css">
+  <style>
+    .prose { line-height: 1.8; }
+    .prose h1, .prose h2, .prose h3, .prose h4, .prose h5, .prose h6 { font-weight: 700; line-height: 1.3; margin-top: 1.5em; margin-bottom: 0.75em; color: inherit; }
+    .prose h1 { font-size: 2em; } .prose h2 { font-size: 1.5em; } .prose h3 { font-size: 1.25em; }
+    .prose p { margin-bottom: 1em; }
+    .prose a { color: #d675ff; text-decoration: none; border-bottom: 1px solid transparent; transition: border-color 0.2s; }
+    .prose a:hover { border-bottom-color: #d675ff; }
+    .dark .prose a { color: #c4b5fd; }
+    .prose img { max-width: 100%; height: auto; margin: 1em auto; border-radius: 12px; display: block; }
+    .prose blockquote { border-left: 4px solid #d675ff; padding-left: 1em; margin: 1em 0; font-style: italic; color: #6b7280; }
+    .dark .prose blockquote { color: #9ca3af; }
+    .prose ul, .prose ol { margin: 1em 0; padding-left: 1.5em; }
+    .prose li { margin: 0.5em 0; }
+    .prose table { width: 100%; border-collapse: collapse; margin: 1em 0; }
+    .prose th, .prose td { border: 1px solid #e5e7eb; padding: 0.75em; text-align: left; }
+    .dark .prose th, .dark .prose td { border-color: #374151; }
+    .prose th { background: rgba(214, 117, 255, 0.1); font-weight: 600; }
+  </style>
+<meta name="generator" content="Hexo 8.1.1"></head>
+<body class="bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100 min-h-screen transition-colors duration-300" style="--background-image-api: url('https://uapis.cn/api/v1/random/image?category=landscape');">
+
+<article class="min-h-screen">
+  
+
+<header class="sticky top-0 z-50 backdrop-blur-md bg-white/90 dark:bg-gray-900/90 border-b border-gray-200 dark:border-gray-800 shadow-sm">
+  <div class="container mx-auto px-4 max-w-7xl">
+    <div class="flex items-center justify-between h-16">
+      <!-- Logo / Site Title -->
+      <a href="/" class="flex items-center gap-3 group">
+        <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-primary-500 to-secondary-600 flex items-center justify-center transform group-hover:scale-105 transition-transform duration-300 shadow-lg shadow-primary-500/25">
+          <span class="text-white font-bold text-lg">H</span>
+        </div>
+        <span class="text-xl font-bold bg-gradient-to-r from-primary-600 to-secondary-600 bg-clip-text text-transparent hidden sm:block">
+          Hiki的小站
+        </span>
+      </a>
+
+      <!-- Navigation -->
+      <nav class="hidden md:flex items-center gap-1">
+        
+          <a
+            href="/"
+            
+            class="px-4 py-2 rounded-lg text-gray-700 dark:text-gray-300 hover:bg-primary-50 dark:hover:bg-primary-900/20 hover:text-primary-600 dark:hover:text-primary-400 transition-all duration-200 font-medium relative group"
+          >
+            首页
+            <span class="absolute bottom-0 left-0 w-0 h-0.5 bg-gradient-to-r from-primary-500 to-secondary-600 transition-all duration-300 group-hover:w-full"></span>
+          </a>
+        
+          <a
+            href="/archives/"
+            
+            class="px-4 py-2 rounded-lg text-gray-700 dark:text-gray-300 hover:bg-primary-50 dark:hover:bg-primary-900/20 hover:text-primary-600 dark:hover:text-primary-400 transition-all duration-200 font-medium relative group"
+          >
+            归档
+            <span class="absolute bottom-0 left-0 w-0 h-0.5 bg-gradient-to-r from-primary-500 to-secondary-600 transition-all duration-300 group-hover:w-full"></span>
+          </a>
+        
+          <a
+            href="/quiz/"
+            
+            class="px-4 py-2 rounded-lg text-gray-700 dark:text-gray-300 hover:bg-primary-50 dark:hover:bg-primary-900/20 hover:text-primary-600 dark:hover:text-primary-400 transition-all duration-200 font-medium relative group"
+          >
+            趣味测试
+            <span class="absolute bottom-0 left-0 w-0 h-0.5 bg-gradient-to-r from-primary-500 to-secondary-600 transition-all duration-300 group-hover:w-full"></span>
+          </a>
+        
+          <a
+            href="/tags/"
+            
+            class="px-4 py-2 rounded-lg text-gray-700 dark:text-gray-300 hover:bg-primary-50 dark:hover:bg-primary-900/20 hover:text-primary-600 dark:hover:text-primary-400 transition-all duration-200 font-medium relative group"
+          >
+            标签
+            <span class="absolute bottom-0 left-0 w-0 h-0.5 bg-gradient-to-r from-primary-500 to-secondary-600 transition-all duration-300 group-hover:w-full"></span>
+          </a>
+        
+          <a
+            href="/about/"
+            
+            class="px-4 py-2 rounded-lg text-gray-700 dark:text-gray-300 hover:bg-primary-50 dark:hover:bg-primary-900/20 hover:text-primary-600 dark:hover:text-primary-400 transition-all duration-200 font-medium relative group"
+          >
+            关于
+            <span class="absolute bottom-0 left-0 w-0 h-0.5 bg-gradient-to-r from-primary-500 to-secondary-600 transition-all duration-300 group-hover:w-full"></span>
+          </a>
+        
+      </nav>
+
+      <!-- Right Actions -->
+      <div class="flex items-center gap-2">
+        <!-- Search Button (Optional) -->
+        <button class="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors duration-200" aria-label="搜索">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+          </svg>
+        </button>
+
+        <!-- Dark Mode Toggle -->
+        <button
+          id="dark-mode-toggle"
+          class="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors duration-200 relative group"
+          aria-label="切换深色模式"
+        >
+          <!-- Sun Icon -->
+          <svg class="w-5 h-5 hidden dark:block text-yellow-500 transition-transform duration-300 group-hover:rotate-12" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"></path>
+          </svg>
+          <!-- Moon Icon -->
+          <svg class="w-5 h-5 dark:hidden text-gray-700 transition-transform duration-300 group-hover:rotate-12" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-6.646z"></path>
+          </svg>
+        </button>
+
+        <!-- Mobile Menu Button -->
+        <button
+          id="mobile-menu-button"
+          class="md:hidden p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors duration-200"
+          aria-label="菜单"
+        >
+          <svg class="w-6 h-6 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+          </svg>
+        </button>
+      </div>
+    </div>
+
+    <!-- Mobile Menu -->
+    <div id="mobile-menu" class="md:hidden hidden pb-4 space-y-2 animate-fade-in">
+      
+        <a
+          href="/"
+          
+          class="block px-4 py-2 rounded-lg text-gray-700 dark:text-gray-300 hover:bg-primary-50 dark:hover:bg-primary-900/20 hover:text-primary-600 transition-all duration-200"
+        >
+          首页
+        </a>
+      
+        <a
+          href="/archives/"
+          
+          class="block px-4 py-2 rounded-lg text-gray-700 dark:text-gray-300 hover:bg-primary-50 dark:hover:bg-primary-900/20 hover:text-primary-600 transition-all duration-200"
+        >
+          归档
+        </a>
+      
+        <a
+          href="/quiz/"
+          
+          class="block px-4 py-2 rounded-lg text-gray-700 dark:text-gray-300 hover:bg-primary-50 dark:hover:bg-primary-900/20 hover:text-primary-600 transition-all duration-200"
+        >
+          趣味测试
+        </a>
+      
+        <a
+          href="/tags/"
+          
+          class="block px-4 py-2 rounded-lg text-gray-700 dark:text-gray-300 hover:bg-primary-50 dark:hover:bg-primary-900/20 hover:text-primary-600 transition-all duration-200"
+        >
+          标签
+        </a>
+      
+        <a
+          href="/about/"
+          
+          class="block px-4 py-2 rounded-lg text-gray-700 dark:text-gray-300 hover:bg-primary-50 dark:hover:bg-primary-900/20 hover:text-primary-600 transition-all duration-200"
+        >
+          关于
+        </a>
+      
+    </div>
+  </div>
+</header>
+
+<script>
+  // Mobile menu toggle
+  document.getElementById('mobile-menu-button')?.addEventListener('click', function() {
+    const menu = document.getElementById('mobile-menu');
+    menu?.classList.toggle('hidden');
+  });
+</script>
+
+
+  <main class="container mx-auto px-4 py-8 max-w-4xl">
+    <a href="/" class="inline-flex items-center gap-2 text-gray-600 dark:text-gray-400 hover:text-primary-500 dark:hover:text-primary-400 transition-colors mb-6 group">
+      <svg class="w-5 h-5 transform group-hover:-translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path></svg>
+      <span class="font-medium">返回</span>
+    </a>
+
+    <div class="bg-white dark:bg-gray-800 rounded-3xl shadow-xl overflow-hidden border border-gray-100 dark:border-gray-700">
+      
+
+      <div class="p-6 sm:p-10">
+        <header class="mb-8">
+          <h1 class="text-3xl sm:text-4xl font-bold mb-4 bg-gradient-to-r from-primary-600 to-secondary-600 bg-clip-text text-transparent">AutoAgent — 多模态智能工作流平台设计文档</h1>
+
+          <div class="flex flex-wrap items-center gap-4 text-sm text-gray-500 dark:text-gray-400">
+            <time class="flex items-center gap-1.5">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+              2026年4月25日
+            </time>
+
+            
+              <div class="flex items-center gap-2">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"></path></svg>
+                
+                  <a href="/categories/projects-autoagent/" class="px-2.5 py-1 rounded-lg bg-primary-100 dark:bg-primary-900/30 text-primary-700 dark:text-primary-400 hover:bg-primary-500 hover:text-white transition-colors">projects/autoagent</a>
+                
+              </div>
+            
+
+            
+              <div class="flex items-center gap-2">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"></path></svg>
+                
+                  <a href="/tags/AI/" class="px-2.5 py-1 rounded-lg bg-secondary-100 dark:bg-secondary-900/30 text-secondary-700 dark:text-secondary-400 hover:bg-secondary-500 hover:text-white transition-colors">AI</a>
+                
+                  <a href="/tags/Agent/" class="px-2.5 py-1 rounded-lg bg-secondary-100 dark:bg-secondary-900/30 text-secondary-700 dark:text-secondary-400 hover:bg-secondary-500 hover:text-white transition-colors">Agent</a>
+                
+                  <a href="/tags/LLM/" class="px-2.5 py-1 rounded-lg bg-secondary-100 dark:bg-secondary-900/30 text-secondary-700 dark:text-secondary-400 hover:bg-secondary-500 hover:text-white transition-colors">LLM</a>
+                
+              </div>
+            
+          </div>
+        </header>
+
+        <div class="prose prose-lg dark:prose-invert max-w-none">
+          <h1 id="AutoAgent-—-企业级多模态智能工作流平台"><a href="#AutoAgent-—-企业级多模态智能工作流平台" class="headerlink" title="AutoAgent — 企业级多模态智能工作流平台"></a>AutoAgent — 企业级多模态智能工作流平台</h1><h2 id="从零到一完整项目设计文档"><a href="#从零到一完整项目设计文档" class="headerlink" title="从零到一完整项目设计文档"></a>从零到一完整项目设计文档</h2><blockquote>
+<p><strong>文档版本</strong>：v1.0<br><strong>适用人群</strong>：有 Java &#x2F; Python 基础的开发者，首次构建 AI Agent 项目<br><strong>技术栈</strong>：Spring Boot 3.x + Python 3.11 + LangGraph + LangChain + gRPC + Kafka  </p>
+</blockquote>
+<hr>
+<h2 id="目录"><a href="#目录" class="headerlink" title="目录"></a>目录</h2><ol>
+<li><a href="#1-%E9%A1%B9%E7%9B%AE%E8%83%8C%E6%99%AF%E4%B8%8E%E7%9B%AE%E6%A0%87">项目背景与目标</a></li>
+<li><a href="#2-%E6%95%B4%E4%BD%93%E6%9E%B6%E6%9E%84%E8%AE%BE%E8%AE%A1">整体架构设计</a></li>
+<li><a href="#3-%E5%BC%80%E5%8F%91%E7%8E%AF%E5%A2%83%E6%90%AD%E5%BB%BA">开发环境搭建</a></li>
+<li><a href="#4-spring-boot-%E6%9C%8D%E5%8A%A1%E8%AF%A6%E7%BB%86%E8%AE%BE%E8%AE%A1">Spring Boot 服务详细设计</a></li>
+<li><a href="#5-python-agent-%E6%9C%8D%E5%8A%A1%E8%AF%A6%E7%BB%86%E8%AE%BE%E8%AE%A1">Python Agent 服务详细设计</a></li>
+<li><a href="#6-%E4%B8%A4%E6%9C%8D%E5%8A%A1%E9%80%9A%E4%BF%A1%E8%AE%BE%E8%AE%A1grpc--kafka">两服务通信设计（gRPC + Kafka）</a></li>
+<li><a href="#7-%E6%95%B0%E6%8D%AE%E5%BA%93%E8%AE%BE%E8%AE%A1">数据库设计</a></li>
+<li><a href="#8-%E5%89%8D%E7%AB%AF%E8%AE%BE%E8%AE%A1%E6%A6%82%E8%A6%81">前端设计概要</a></li>
+<li><a href="#9-%E5%8F%AF%E8%A7%82%E6%B5%8B%E6%80%A7%E8%AE%BE%E8%AE%A1">可观测性设计</a></li>
+<li><a href="#10-%E9%83%A8%E7%BD%B2%E6%96%B9%E6%A1%88">部署方案</a></li>
+<li><a href="#11-%E5%BC%80%E5%8F%91%E9%A1%BA%E5%BA%8F%E4%B8%8E%E9%87%8C%E7%A8%8B%E7%A2%91">开发顺序与里程碑</a></li>
+</ol>
+<hr>
+<h2 id="1-项目背景与目标"><a href="#1-项目背景与目标" class="headerlink" title="1. 项目背景与目标"></a>1. 项目背景与目标</h2><h3 id="1-1-项目背景"><a href="#1-1-项目背景" class="headerlink" title="1.1 项目背景"></a>1.1 项目背景</h3><p>中大型企业内部每天面临大量重复性、跨系统的知识型工作：</p>
+<ul>
+<li><strong>客服场景</strong>：用户反复询问产品文档、退款流程、合同条款，人工重复回答，效率低</li>
+<li><strong>数据聚合场景</strong>：销售人员需要从 CRM、ERP、邮件系统中手动拼凑客户信息</li>
+<li><strong>内容生产场景</strong>：运营需要每周整合多个数据源，生成报告并发送邮件</li>
+<li><strong>代码辅助场景</strong>：开发团队需要快速检索内部 SDK 文档、生成样板代码</li>
+</ul>
+<p>传统 RPA 方案无法处理自然语言理解，规则固化，维护成本高。本项目通过 <strong>LLM 驱动的多 Agent 协作</strong>，让系统具备自主规划、拆解并执行复杂任务的能力，同时通过 <strong>Human-in-the-loop</strong> 机制保障关键操作的可控性。</p>
+<h3 id="1-2-项目核心价值"><a href="#1-2-项目核心价值" class="headerlink" title="1.2 项目核心价值"></a>1.2 项目核心价值</h3><table>
+<thead>
+<tr>
+<th>价值维度</th>
+<th>描述</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>效率提升</td>
+<td>企业知识问答响应速度从分钟级降至秒级</td>
+</tr>
+<tr>
+<td>跨系统集成</td>
+<td>Agent 通过工具调用打通多个内部系统</td>
+</tr>
+<tr>
+<td>可解释性</td>
+<td>每一步推理过程可追溯，决策透明</td>
+</tr>
+<tr>
+<td>安全可控</td>
+<td>高风险操作需人工确认，不存在完全失控的自动化</td>
+</tr>
+<tr>
+<td>可扩展性</td>
+<td>新增工具或 Agent 只需实现标准接口，无需改动核心逻辑</td>
+</tr>
+</tbody></table>
+<h3 id="1-3-功能清单"><a href="#1-3-功能清单" class="headerlink" title="1.3 功能清单"></a>1.3 功能清单</h3><p><strong>核心功能（必须实现）：</strong></p>
+<ul>
+<li><input disabled="" type="checkbox"> 用户注册&#x2F;登录，JWT 鉴权</li>
+<li><input disabled="" type="checkbox"> 多轮对话（带记忆）</li>
+<li><input disabled="" type="checkbox"> RAG 知识库问答（上传文档 → 向量化 → 检索增强）</li>
+<li><input disabled="" type="checkbox"> 多 Agent 工作流执行（Supervisor + Worker 模式）</li>
+<li><input disabled="" type="checkbox"> 工具调用（搜索、代码执行、文件读写）</li>
+<li><input disabled="" type="checkbox"> 流式输出（前端实时显示 Agent 思考过程）</li>
+<li><input disabled="" type="checkbox"> Human-in-the-loop 审批节点</li>
+<li><input disabled="" type="checkbox"> Agent 执行日志与 Trace 查看</li>
+</ul>
+<p><strong>扩展功能（加分项）：</strong></p>
+<ul>
+<li><input disabled="" type="checkbox"> 企业内部系统 MCP 工具集成</li>
+<li><input disabled="" type="checkbox"> 多模型切换（OpenAI &#x2F; 本地 Ollama）</li>
+<li><input disabled="" type="checkbox"> 任务调度（定时执行 Agent 工作流）</li>
+<li><input disabled="" type="checkbox"> Prometheus + Grafana 监控大盘</li>
+<li><input disabled="" type="checkbox"> 多租户支持</li>
+</ul>
+<hr>
+<h2 id="2-整体架构设计"><a href="#2-整体架构设计" class="headerlink" title="2. 整体架构设计"></a>2. 整体架构设计</h2><h3 id="2-1-架构总览"><a href="#2-1-架构总览" class="headerlink" title="2.1 架构总览"></a>2.1 架构总览</h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br></pre></td><td class="code"><pre><span class="line">┌─────────────────────────────────────────────────────────────┐</span><br><span class="line">│                        前端 (React)                          │</span><br><span class="line">│         WebSocket / REST / SSE                              │</span><br><span class="line">└──────────────────────────┬──────────────────────────────────┘</span><br><span class="line">                           │</span><br><span class="line">┌──────────────────────────▼──────────────────────────────────┐</span><br><span class="line">│                  Spring Boot 服务 (:8080)                    │</span><br><span class="line">│  ┌─────────────┐  ┌──────────────┐  ┌───────────────────┐  │</span><br><span class="line">│  │  API 网关层  │  │  业务编排层   │  │  Agent 调用代理层  │  │</span><br><span class="line">│  │  (安全/限流) │  │  (会话/调度) │  │  (gRPC Client)   │  │</span><br><span class="line">│  └─────────────┘  └──────────────┘  └───────────────────┘  │</span><br><span class="line">│              │                              │               │</span><br><span class="line">│              ▼                              ▼               │</span><br><span class="line">│  ┌───────────────────────┐   ┌─────────────────────────┐   │</span><br><span class="line">│  │  MySQL + Redis + MinIO│   │       Kafka Broker       │   │</span><br><span class="line">│  └───────────────────────┘   └─────────────────────────┘   │</span><br><span class="line">└─────────────────────────────────────────────────────────────┘</span><br><span class="line">                      gRPC (:50051) ▲▼  Kafka ▲▼</span><br><span class="line">┌─────────────────────────────────────────────────────────────┐</span><br><span class="line">│                  Python Agent 服务 (:8000)                   │</span><br><span class="line">│  ┌──────────────┐  ┌──────────────┐  ┌───────────────────┐ │</span><br><span class="line">│  │  FastAPI 层  │  │  Agent 核心  │  │  记忆 &amp; 知识库     │ │</span><br><span class="line">│  │  (gRPC Srv)  │  │  (LangGraph) │  │  (RAG / Memory)   │ │</span><br><span class="line">│  └──────────────┘  └──────────────┘  └───────────────────┘ │</span><br><span class="line">│                           │                                 │</span><br><span class="line">│  ┌────────────────────────▼──────────────────────────────┐  │</span><br><span class="line">│  │              工具集 (Tools / MCP)                       │  │</span><br><span class="line">│  │  搜索工具 | 代码沙箱 | 文件工具 | 邮件工具 | 自定义工具  │  │</span><br><span class="line">│  └────────────────────────────────────────────────────────┘ │</span><br><span class="line">└─────────────────────────────────────────────────────────────┘</span><br><span class="line">                           │</span><br><span class="line">┌──────────────────────────▼──────────────────────────────────┐</span><br><span class="line">│                     向量数据库层                              │</span><br><span class="line">│            ChromaDB (开发) / Milvus (生产)                   │</span><br><span class="line">└─────────────────────────────────────────────────────────────┘</span><br></pre></td></tr></table></figure>
+
+<h3 id="2-2-请求链路说明"><a href="#2-2-请求链路说明" class="headerlink" title="2.2 请求链路说明"></a>2.2 请求链路说明</h3><p><strong>短任务链路（&lt; 30秒，同步 gRPC）：</strong></p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">用户发送消息</span><br><span class="line">  → Spring Boot 接收 REST 请求</span><br><span class="line">  → JWT 验证</span><br><span class="line">  → 创建会话记录 (MySQL)</span><br><span class="line">  → gRPC 调用 Python Agent 服务</span><br><span class="line">  → Python Agent 执行 (LangGraph)</span><br><span class="line">  → 返回结果 gRPC Response</span><br><span class="line">  → Spring Boot 保存对话历史</span><br><span class="line">  → 返回 HTTP Response 给前端</span><br></pre></td></tr></table></figure>
+
+<p><strong>长任务链路（&gt; 30秒，异步 Kafka）：</strong></p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">用户触发工作流任务</span><br><span class="line">  → Spring Boot 接收请求</span><br><span class="line">  → 任务入库 (status=PENDING)</span><br><span class="line">  → 发送消息到 Kafka topic: agent.task.input</span><br><span class="line">  → 立即返回 taskId 给前端</span><br><span class="line">  → 前端建立 WebSocket 连接，订阅任务进度</span><br><span class="line">  → Python Agent 消费 Kafka 消息</span><br><span class="line">  → Agent 执行过程中，实时发送进度到 Kafka topic: agent.task.progress</span><br><span class="line">  → Spring Boot 消费进度消息，通过 WebSocket 推送前端</span><br><span class="line">  → Agent 执行完成，结果发到 Kafka topic: agent.task.result</span><br><span class="line">  → Spring Boot 消费结果，更新数据库，WebSocket 通知前端</span><br></pre></td></tr></table></figure>
+
+<h3 id="2-3-模块划分原则"><a href="#2-3-模块划分原则" class="headerlink" title="2.3 模块划分原则"></a>2.3 模块划分原则</h3><ul>
+<li><strong>Spring Boot</strong> 负责：认证、业务逻辑、数据持久化、对外 API、消息路由</li>
+<li><strong>Python</strong> 负责：LLM 调用、Agent 编排、工具执行、向量检索</li>
+<li><strong>两者职责严格分离</strong>，Python 不直接操作业务数据库，Spring Boot 不直接调用 LLM</li>
+</ul>
+<hr>
+<h2 id="3-开发环境搭建"><a href="#3-开发环境搭建" class="headerlink" title="3. 开发环境搭建"></a>3. 开发环境搭建</h2><h3 id="3-1-基础依赖版本"><a href="#3-1-基础依赖版本" class="headerlink" title="3.1 基础依赖版本"></a>3.1 基础依赖版本</h3><table>
+<thead>
+<tr>
+<th>依赖</th>
+<th>版本</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>JDK</td>
+<td>17 LTS</td>
+<td>Spring Boot 3.x 最低要求</td>
+</tr>
+<tr>
+<td>Maven</td>
+<td>3.9+</td>
+<td>Java 构建工具</td>
+</tr>
+<tr>
+<td>Python</td>
+<td>3.11</td>
+<td>Agent 服务运行环境</td>
+</tr>
+<tr>
+<td>Poetry</td>
+<td>1.7+</td>
+<td>Python 依赖管理</td>
+</tr>
+<tr>
+<td>Docker</td>
+<td>24+</td>
+<td>中间件容器化</td>
+</tr>
+<tr>
+<td>Docker Compose</td>
+<td>2.x</td>
+<td>本地多服务编排</td>
+</tr>
+<tr>
+<td>Node.js</td>
+<td>20 LTS</td>
+<td>前端开发</td>
+</tr>
+<tr>
+<td>Redis</td>
+<td>7.x</td>
+<td>缓存与会话</td>
+</tr>
+<tr>
+<td>MySQL</td>
+<td>8.0</td>
+<td>业务数据库</td>
+</tr>
+<tr>
+<td>Kafka</td>
+<td>3.6</td>
+<td>异步消息</td>
+</tr>
+<tr>
+<td>MinIO</td>
+<td>latest</td>
+<td>文件对象存储</td>
+</tr>
+</tbody></table>
+<h3 id="3-2-本地-Docker-Compose-配置说明"><a href="#3-2-本地-Docker-Compose-配置说明" class="headerlink" title="3.2 本地 Docker Compose 配置说明"></a>3.2 本地 Docker Compose 配置说明</h3><p><strong>文件路径</strong>：<code>docker/docker-compose-dev.yml</code></p>
+<p>需要启动以下容器：</p>
+<ul>
+<li><code>mysql:8.0</code> — 端口 3306，初始化脚本挂载 <code>/docker-entrypoint-initdb.d/</code></li>
+<li><code>redis:7-alpine</code> — 端口 6379，开启 AOF 持久化</li>
+<li><code>bitnami/kafka:3.6</code> — 端口 9092（外部），9093（Controller），使用 KRaft 模式（无 Zookeeper）</li>
+<li><code>minio/minio</code> — 端口 9000（API），9001（Console）</li>
+<li><code>chromadb/chroma</code> — 端口 8100（开发向量库）</li>
+<li><code>prom/prometheus</code> — 端口 9090</li>
+<li><code>grafana/grafana</code> — 端口 3001</li>
+</ul>
+<p><strong>Kafka KRaft 模式关键环境变量：</strong></p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">KAFKA_CFG_NODE_ID=1</span><br><span class="line">KAFKA_CFG_PROCESS_ROLES=broker,controller</span><br><span class="line">KAFKA_CFG_LISTENERS=PLAINTEXT://:9092,CONTROLLER://:9093</span><br><span class="line">KAFKA_CFG_LISTENER_SECURITY_PROTOCOL_MAP=CONTROLLER:PLAINTEXT,PLAINTEXT:PLAINTEXT</span><br><span class="line">KAFKA_CFG_CONTROLLER_QUORUM_VOTERS=1@kafka:9093</span><br><span class="line">KAFKA_CFG_CONTROLLER_LISTENER_NAMES=CONTROLLER</span><br></pre></td></tr></table></figure>
+
+<h3 id="3-3-Kafka-Topic-初始化脚本"><a href="#3-3-Kafka-Topic-初始化脚本" class="headerlink" title="3.3 Kafka Topic 初始化脚本"></a>3.3 Kafka Topic 初始化脚本</h3><p>项目启动时需要预创建以下 Topic：</p>
+<table>
+<thead>
+<tr>
+<th>Topic 名称</th>
+<th>分区数</th>
+<th>副本数</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>agent.task.input</code></td>
+<td>3</td>
+<td>1</td>
+<td>任务下发</td>
+</tr>
+<tr>
+<td><code>agent.task.progress</code></td>
+<td>3</td>
+<td>1</td>
+<td>执行进度</td>
+</tr>
+<tr>
+<td><code>agent.task.result</code></td>
+<td>3</td>
+<td>1</td>
+<td>执行结果</td>
+</tr>
+<tr>
+<td><code>agent.task.humanhit</code></td>
+<td>1</td>
+<td>1</td>
+<td>人工审批通知</td>
+</tr>
+</tbody></table>
+<h3 id="3-4-项目目录结构总览"><a href="#3-4-项目目录结构总览" class="headerlink" title="3.4 项目目录结构总览"></a>3.4 项目目录结构总览</h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br></pre></td><td class="code"><pre><span class="line">autoagent/</span><br><span class="line">├── autoagent-backend/          # Spring Boot 项目</span><br><span class="line">│   ├── src/main/java/</span><br><span class="line">│   │   └── com/autoagent/</span><br><span class="line">│   │       ├── config/         # 配置类</span><br><span class="line">│   │       ├── controller/     # 控制器</span><br><span class="line">│   │       ├── service/        # 业务层</span><br><span class="line">│   │       ├── repository/     # 数据访问层</span><br><span class="line">│   │       ├── domain/         # 实体与 VO</span><br><span class="line">│   │       ├── grpc/           # gRPC 客户端</span><br><span class="line">│   │       ├── kafka/          # 消息生产/消费</span><br><span class="line">│   │       ├── websocket/      # WebSocket 处理</span><br><span class="line">│   │       ├── security/       # 安全相关</span><br><span class="line">│   │       └── common/         # 工具类/异常</span><br><span class="line">│   ├── src/main/proto/         # .proto 文件</span><br><span class="line">│   └── pom.xml</span><br><span class="line">│</span><br><span class="line">├── autoagent-python/           # Python Agent 项目</span><br><span class="line">│   ├── app/</span><br><span class="line">│   │   ├── api/                # FastAPI 路由</span><br><span class="line">│   │   ├── grpc_server/        # gRPC 服务端</span><br><span class="line">│   │   ├── agent/              # Agent 核心逻辑</span><br><span class="line">│   │   │   ├── graph/          # LangGraph 定义</span><br><span class="line">│   │   │   ├── nodes/          # 图节点</span><br><span class="line">│   │   │   └── supervisor/     # Supervisor Agent</span><br><span class="line">│   │   ├── tools/              # 工具集</span><br><span class="line">│   │   ├── memory/             # 记忆模块</span><br><span class="line">│   │   ├── rag/                # RAG 模块</span><br><span class="line">│   │   ├── llm/                # LLM 统一接口</span><br><span class="line">│   │   └── config/             # 配置</span><br><span class="line">│   ├── proto/                  # .proto 文件（与 Java 共享）</span><br><span class="line">│   ├── tests/</span><br><span class="line">│   ├── pyproject.toml</span><br><span class="line">│   └── Dockerfile</span><br><span class="line">│</span><br><span class="line">├── autoagent-frontend/         # React 前端</span><br><span class="line">│   ├── src/</span><br><span class="line">│   │   ├── pages/</span><br><span class="line">│   │   ├── components/</span><br><span class="line">│   │   ├── store/              # Zustand 状态管理</span><br><span class="line">│   │   ├── api/                # API 封装</span><br><span class="line">│   │   └── hooks/</span><br><span class="line">│   └── package.json</span><br><span class="line">│</span><br><span class="line">├── docker/</span><br><span class="line">│   ├── docker-compose-dev.yml</span><br><span class="line">│   └── docker-compose-prod.yml</span><br><span class="line">│</span><br><span class="line">├── proto/                      # 共享 proto 定义（软链接）</span><br><span class="line">└── docs/                       # 文档</span><br></pre></td></tr></table></figure>
+
+<hr>
+<h2 id="4-Spring-Boot-服务详细设计"><a href="#4-Spring-Boot-服务详细设计" class="headerlink" title="4. Spring Boot 服务详细设计"></a>4. Spring Boot 服务详细设计</h2><h3 id="4-1-Maven-依赖清单（pom-xml）"><a href="#4-1-Maven-依赖清单（pom-xml）" class="headerlink" title="4.1 Maven 依赖清单（pom.xml）"></a>4.1 Maven 依赖清单（pom.xml）</h3><p><strong>核心依赖：</strong></p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">&lt;!-- Spring Boot Starter --&gt;</span></span><br><span class="line">spring-boot-starter-web</span><br><span class="line">spring-boot-starter-security</span><br><span class="line">spring-boot-starter-websocket</span><br><span class="line">spring-boot-starter-data-redis</span><br><span class="line">spring-boot-starter-actuator</span><br><span class="line">spring-boot-starter-validation</span><br><span class="line">spring-boot-starter-aop</span><br><span class="line"></span><br><span class="line"><span class="comment">&lt;!-- 数据库 --&gt;</span></span><br><span class="line">mybatis-plus-boot-starter (3.5.x)</span><br><span class="line">mysql-connector-j</span><br><span class="line">druid-spring-boot-starter</span><br><span class="line"></span><br><span class="line"><span class="comment">&lt;!-- gRPC --&gt;</span></span><br><span class="line">grpc-spring-boot-starter (net.devh, 2.15.0)</span><br><span class="line"><span class="comment">&lt;!-- 注意：需要配合 protobuf-maven-plugin 生成代码 --&gt;</span></span><br><span class="line"></span><br><span class="line"><span class="comment">&lt;!-- Kafka --&gt;</span></span><br><span class="line">spring-kafka</span><br><span class="line"></span><br><span class="line"><span class="comment">&lt;!-- JWT --&gt;</span></span><br><span class="line">jjwt-api (0.12.x)</span><br><span class="line">jjwt-impl</span><br><span class="line">jjwt-jackson</span><br><span class="line"></span><br><span class="line"><span class="comment">&lt;!-- 限流熔断 --&gt;</span></span><br><span class="line">resilience4j-spring-boot3</span><br><span class="line">resilience4j-circuitbreaker</span><br><span class="line">resilience4j-ratelimiter</span><br><span class="line"></span><br><span class="line"><span class="comment">&lt;!-- 任务调度 --&gt;</span></span><br><span class="line">quartz</span><br><span class="line"></span><br><span class="line"><span class="comment">&lt;!-- 文件存储 --&gt;</span></span><br><span class="line">minio (8.5.x)</span><br><span class="line"></span><br><span class="line"><span class="comment">&lt;!-- API 文档 --&gt;</span></span><br><span class="line">springdoc-openapi-starter-webmvc-ui (2.x)</span><br><span class="line"></span><br><span class="line"><span class="comment">&lt;!-- 工具 --&gt;</span></span><br><span class="line">mapstruct</span><br><span class="line">lombok</span><br><span class="line">hutool-all</span><br></pre></td></tr></table></figure>
+
+<p><strong>Maven 插件：</strong></p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">&lt;!-- protobuf 代码生成 --&gt;</span></span><br><span class="line">protobuf-maven-plugin</span><br><span class="line">os-maven-plugin</span><br></pre></td></tr></table></figure>
+
+<h3 id="4-2-包结构与类职责详解"><a href="#4-2-包结构与类职责详解" class="headerlink" title="4.2 包结构与类职责详解"></a>4.2 包结构与类职责详解</h3><h4 id="4-2-1-config-包-—-配置类"><a href="#4-2-1-config-包-—-配置类" class="headerlink" title="4.2.1 config 包 — 配置类"></a>4.2.1 config 包 — 配置类</h4><p><strong><code>SecurityConfig</code></strong></p>
+<ul>
+<li>职责：Spring Security 全局安全配置</li>
+<li>核心配置：<ul>
+<li>关闭 CSRF（前后端分离）</li>
+<li>配置无需认证的白名单接口（<code>/api/auth/**</code>、<code>/actuator/health</code>、WebSocket 端点）</li>
+<li>配置 JWT 过滤器优先于 UsernamePasswordAuthenticationFilter</li>
+<li>配置 CORS 允许前端域名跨域</li>
+<li>密码加密器 Bean：<code>BCryptPasswordEncoder</code></li>
+<li>Session 策略设为 STATELESS</li>
+</ul>
+</li>
+</ul>
+<p><strong><code>JwtConfig</code></strong></p>
+<ul>
+<li>职责：JWT 相关配置读取与初始化</li>
+<li>从 <code>application.yml</code> 读取：<code>jwt.secret</code>、<code>jwt.expiration</code>（Access Token 过期时间，建议 2h）、<code>jwt.refresh-expiration</code>（Refresh Token，建议 7d）</li>
+<li>初始化签名 Key（使用 HMAC-SHA256）</li>
+</ul>
+<p><strong><code>RedisConfig</code></strong></p>
+<ul>
+<li>职责：Redis 连接池与序列化配置</li>
+<li>配置 <code>RedisTemplate&lt;String, Object&gt;</code>，Value 使用 Jackson2JsonRedisSerializer（避免乱码）</li>
+<li>配置 <code>StringRedisTemplate</code> 用于简单字符串操作</li>
+<li>配置连接池：Lettuce，最大连接数 20</li>
+</ul>
+<p><strong><code>KafkaConfig</code></strong></p>
+<ul>
+<li>职责：Kafka Producer 和 Consumer 的 Bean 配置</li>
+<li>Producer 配置：<code>StringSerializer</code>，<code>acks=all</code>，<code>retries=3</code>，<code>enable.idempotence=true</code></li>
+<li>Consumer 配置：<code>StringDeserializer</code>，<code>auto.offset.reset=earliest</code>，手动提交 offset（<code>enable.auto.commit=false</code>），<code>max.poll.records=10</code></li>
+<li>定义消费者组 ID：<code>autoagent-backend-group</code></li>
+</ul>
+<p><strong><code>WebSocketConfig</code></strong></p>
+<ul>
+<li>职责：STOMP over WebSocket 配置</li>
+<li>注册消息代理：<code>/topic</code>（广播）、<code>/queue</code>（点对点）</li>
+<li>设置应用前缀：<code>/app</code>（客户端发送目的地前缀）</li>
+<li>配置 WebSocket 端点：<code>/ws</code>，允许所有来源</li>
+<li>配置入站通道拦截器：用于 WebSocket 握手时验证 JWT Token</li>
+</ul>
+<p><strong><code>GrpcClientConfig</code></strong></p>
+<ul>
+<li>职责：gRPC Channel 连接配置（通过 <code>grpc-spring-boot-starter</code> 自动配置，此类补充定制）</li>
+<li>配置 Python 服务地址（从配置文件读取）</li>
+<li>配置连接超时、读取超时、最大消息大小（4MB）</li>
+<li>配置重试策略：指数退避，最多 3 次</li>
+</ul>
+<p><strong><code>MinioConfig</code></strong></p>
+<ul>
+<li>职责：MinIO 客户端 Bean</li>
+<li>从配置文件读取 endpoint、accessKey、secretKey</li>
+<li>初始化 <code>MinioClient</code> Bean</li>
+<li>配置默认 Bucket 名称（程序启动时自动创建 Bucket 若不存在）</li>
+</ul>
+<p><strong><code>QuartzConfig</code></strong></p>
+<ul>
+<li>职责：Quartz 调度器配置</li>
+<li>配置 JobStore 使用 JDBC（持久化调度任务到 MySQL，表名 <code>qrtz_*</code>）</li>
+<li>配置线程池大小：10</li>
+<li>配置错过触发策略</li>
+</ul>
+<p><strong><code>Resilience4jConfig</code></strong></p>
+<ul>
+<li>职责：限流与熔断规则配置（补充 yml 配置的自定义 Bean）</li>
+<li>配置 CircuitBreaker：<code>agent-python-cb</code>，失败率 50% 触发，等待 30s，半开状态允许 3 次探测</li>
+<li>配置 RateLimiter：<code>api-rate-limiter</code>，每秒 100 次请求</li>
+</ul>
+<p><strong><code>SwaggerConfig</code></strong></p>
+<ul>
+<li>职责：OpenAPI 3.0 文档配置</li>
+<li>定义 API 信息（标题、版本、描述）</li>
+<li>配置 Bearer Token 认证方案</li>
+</ul>
+<h4 id="4-2-2-security-包-—-安全相关"><a href="#4-2-2-security-包-—-安全相关" class="headerlink" title="4.2.2 security 包 — 安全相关"></a>4.2.2 security 包 — 安全相关</h4><p><strong><code>JwtTokenProvider</code></strong></p>
+<ul>
+<li>职责：JWT 令牌的生成、解析、验证</li>
+<li>方法：<ul>
+<li><code>generateAccessToken(UserDetails userDetails)</code> → 生成 Access Token，携带 userId、roles</li>
+<li><code>generateRefreshToken(String userId)</code> → 生成 Refresh Token</li>
+<li><code>validateToken(String token)</code> → 验证签名和过期时间，返回是否有效</li>
+<li><code>getUserIdFromToken(String token)</code> → 从 Token 中提取 userId</li>
+<li><code>getClaimsFromToken(String token)</code> → 提取全部 Claims</li>
+</ul>
+</li>
+<li>注意：Access Token 不存 Redis，通过签名验证；Refresh Token 存 Redis，支持主动吊销</li>
+</ul>
+<p><strong><code>JwtAuthenticationFilter</code></strong></p>
+<ul>
+<li>职责：每次请求的 JWT 校验过滤器，继承 <code>OncePerRequestFilter</code></li>
+<li>处理流程：<ol>
+<li>从 <code>Authorization</code> Header 提取 Bearer Token</li>
+<li>调用 <code>JwtTokenProvider.validateToken()</code></li>
+<li>若有效，从 Token 中提取 userId，从 Redis 或数据库加载 UserDetails</li>
+<li>构建 <code>UsernamePasswordAuthenticationToken</code> 放入 SecurityContext</li>
+<li>若无效或过期，直接放行（由后续 Security 配置决定是否拦截）</li>
+</ol>
+</li>
+</ul>
+<p><strong><code>CustomUserDetailsService</code></strong></p>
+<ul>
+<li>职责：实现 Spring Security 的 <code>UserDetailsService</code></li>
+<li>方法：<code>loadUserByUsername(String userId)</code> → 查 MySQL 用户表，构建 <code>UserDetails</code>，携带角色列表</li>
+</ul>
+<p><strong><code>CustomAuthenticationEntryPoint</code></strong></p>
+<ul>
+<li>职责：未认证请求的统一响应（返回 401 JSON 而非跳转）</li>
+</ul>
+<p><strong><code>CustomAccessDeniedHandler</code></strong></p>
+<ul>
+<li>职责：权限不足请求的统一响应（返回 403 JSON）</li>
+</ul>
+<h4 id="4-2-3-controller-包-—-控制器层"><a href="#4-2-3-controller-包-—-控制器层" class="headerlink" title="4.2.3 controller 包 — 控制器层"></a>4.2.3 controller 包 — 控制器层</h4><p><strong>设计规范：</strong></p>
+<ul>
+<li>所有 Controller 只做参数校验（<code>@Valid</code>）、调用 Service、封装统一响应</li>
+<li>禁止在 Controller 中写业务逻辑</li>
+<li>统一返回 <code>ApiResponse&lt;T&gt;</code> 包装类</li>
+</ul>
+<p><strong><code>AuthController</code></strong>（路径：<code>/api/auth</code>）</p>
+<table>
+<thead>
+<tr>
+<th>方法</th>
+<th>路径</th>
+<th>描述</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>POST</td>
+<td><code>/register</code></td>
+<td>用户注册</td>
+</tr>
+<tr>
+<td>POST</td>
+<td><code>/login</code></td>
+<td>用户登录，返回 Access + Refresh Token</td>
+</tr>
+<tr>
+<td>POST</td>
+<td><code>/refresh</code></td>
+<td>使用 Refresh Token 换取新 Access Token</td>
+</tr>
+<tr>
+<td>POST</td>
+<td><code>/logout</code></td>
+<td>吊销 Refresh Token</td>
+</tr>
+</tbody></table>
+<p><strong><code>ConversationController</code></strong>（路径：<code>/api/conversations</code>，需认证）</p>
+<table>
+<thead>
+<tr>
+<th>方法</th>
+<th>路径</th>
+<th>描述</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>POST</td>
+<td><code>/</code></td>
+<td>创建新会话</td>
+</tr>
+<tr>
+<td>GET</td>
+<td><code>/</code></td>
+<td>获取当前用户的会话列表</td>
+</tr>
+<tr>
+<td>GET</td>
+<td><code>/{conversationId}</code></td>
+<td>获取会话详情（含历史消息）</td>
+</tr>
+<tr>
+<td>DELETE</td>
+<td><code>/{conversationId}</code></td>
+<td>删除会话</td>
+</tr>
+<tr>
+<td>POST</td>
+<td><code>/{conversationId}/messages</code></td>
+<td>发送消息（短任务，同步）</td>
+</tr>
+<tr>
+<td>GET</td>
+<td><code>/{conversationId}/messages</code></td>
+<td>获取消息列表（分页）</td>
+</tr>
+</tbody></table>
+<p><strong><code>TaskController</code></strong>（路径：<code>/api/tasks</code>，需认证）</p>
+<table>
+<thead>
+<tr>
+<th>方法</th>
+<th>路径</th>
+<th>描述</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>POST</td>
+<td><code>/</code></td>
+<td>创建并触发长任务工作流</td>
+</tr>
+<tr>
+<td>GET</td>
+<td><code>/{taskId}</code></td>
+<td>查询任务状态</td>
+</tr>
+<tr>
+<td>GET</td>
+<td><code>/</code></td>
+<td>获取任务列表（分页、按状态筛选）</td>
+</tr>
+<tr>
+<td>POST</td>
+<td><code>/{taskId}/approve</code></td>
+<td>人工审批通过（Human-in-the-loop）</td>
+</tr>
+<tr>
+<td>POST</td>
+<td><code>/{taskId}/reject</code></td>
+<td>人工审批拒绝</td>
+</tr>
+</tbody></table>
+<p><strong><code>KnowledgeBaseController</code></strong>（路径：<code>/api/knowledge-bases</code>，需认证）</p>
+<table>
+<thead>
+<tr>
+<th>方法</th>
+<th>路径</th>
+<th>描述</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>POST</td>
+<td><code>/</code></td>
+<td>创建知识库</td>
+</tr>
+<tr>
+<td>GET</td>
+<td><code>/</code></td>
+<td>获取知识库列表</td>
+</tr>
+<tr>
+<td>POST</td>
+<td><code>/{kbId}/documents</code></td>
+<td>上传文档（触发向量化异步任务）</td>
+</tr>
+<tr>
+<td>GET</td>
+<td><code>/{kbId}/documents</code></td>
+<td>查看文档列表和向量化状态</td>
+</tr>
+<tr>
+<td>DELETE</td>
+<td><code>/{kbId}/documents/{docId}</code></td>
+<td>删除文档</td>
+</tr>
+<tr>
+<td>POST</td>
+<td><code>/{kbId}/query</code></td>
+<td>直接对知识库提问（测试用）</td>
+</tr>
+</tbody></table>
+<p><strong><code>AgentConfigController</code></strong>（路径：<code>/api/agent-configs</code>，管理员权限）</p>
+<table>
+<thead>
+<tr>
+<th>方法</th>
+<th>路径</th>
+<th>描述</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>GET</td>
+<td><code>/</code></td>
+<td>获取 Agent 配置列表（可用工具、模型）</td>
+</tr>
+<tr>
+<td>PUT</td>
+<td><code>/{agentId}</code></td>
+<td>更新 Agent 配置</td>
+</tr>
+</tbody></table>
+<p><strong><code>MonitorController</code></strong>（路径：<code>/api/monitor</code>，管理员权限）</p>
+<table>
+<thead>
+<tr>
+<th>方法</th>
+<th>路径</th>
+<th>描述</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>GET</td>
+<td><code>/traces/{taskId}</code></td>
+<td>获取任务的完整 Agent Trace 日志</td>
+</tr>
+<tr>
+<td>GET</td>
+<td><code>/stats</code></td>
+<td>获取系统统计信息</td>
+</tr>
+</tbody></table>
+<h4 id="4-2-4-service-包-—-业务层"><a href="#4-2-4-service-包-—-业务层" class="headerlink" title="4.2.4 service 包 — 业务层"></a>4.2.4 service 包 — 业务层</h4><p><strong><code>AuthService</code></strong></p>
+<ul>
+<li>职责：用户认证相关业务逻辑</li>
+<li>方法：<ul>
+<li><code>register(RegisterRequest req)</code> → 校验用户名不重复 → BCrypt 加密密码 → 插入用户表 → 返回用户信息</li>
+<li><code>login(LoginRequest req)</code> → 验证账密 → 生成双 Token → Refresh Token 存 Redis（key: <code>refresh:${userId}</code>，TTL 7天）→ 返回 TokenPair</li>
+<li><code>refreshToken(String refreshToken)</code> → 验证 Refresh Token → 查 Redis 确认未被吊销 → 生成新 Access Token → 返回</li>
+<li><code>logout(String userId)</code> → 删除 Redis 中 Refresh Token</li>
+</ul>
+</li>
+</ul>
+<p><strong><code>ConversationService</code></strong></p>
+<ul>
+<li>职责：会话和消息管理</li>
+<li>方法：<ul>
+<li><code>createConversation(String userId, CreateConversationRequest req)</code> → 创建会话记录，关联知识库（可选）→ 返回 ConversationVO</li>
+<li><code>sendMessage(String userId, String conversationId, SendMessageRequest req)</code> → <ol>
+<li>查询会话是否存在且属于当前用户</li>
+<li>保存用户消息到数据库</li>
+<li>从 Redis 获取对话历史（最近 20 条，控制 Token 消耗）</li>
+<li>调用 <code>AgentCallService.callAgent()</code> 获取回复</li>
+<li>保存 Agent 回复消息</li>
+<li>更新 Redis 中对话历史</li>
+<li>返回消息 VO</li>
+</ol>
+</li>
+<li><code>getMessages(String conversationId, PageRequest pageReq)</code> → 分页查询消息列表</li>
+</ul>
+</li>
+</ul>
+<p><strong><code>TaskService</code></strong></p>
+<ul>
+<li>职责：长任务的生命周期管理</li>
+<li>方法：<ul>
+<li><code>createTask(String userId, CreateTaskRequest req)</code> → 创建任务记录（status&#x3D;PENDING）→ 发 Kafka 消息 → 返回 taskId</li>
+<li><code>getTask(String taskId)</code> → 查询任务详情（含步骤列表）</li>
+<li><code>updateTaskStatus(String taskId, TaskStatus status)</code> → 更新任务状态</li>
+<li><code>handleHumanApproval(String taskId, boolean approved, String userId)</code> → 处理审批，发送 Kafka 消息通知 Python 继续&#x2F;取消执行</li>
+<li><code>saveTaskStep(String taskId, TaskStep step)</code> → 保存任务执行步骤记录</li>
+</ul>
+</li>
+</ul>
+<p><strong><code>AgentCallService</code></strong></p>
+<ul>
+<li>职责：封装对 Python Agent 的调用，屏蔽通信细节</li>
+<li>方法：<ul>
+<li><code>callAgent(AgentCallRequest req)</code> → 同步 gRPC 调用，超时 60s，支持 Resilience4j 熔断降级，降级返回”服务繁忙，请稍后再试”</li>
+<li><code>callAgentStream(AgentCallRequest req, StreamObserver observer)</code> → 流式 gRPC 调用，每收到一个 token 回调 observer</li>
+<li><code>dispatchAsyncTask(AsyncTaskRequest req)</code> → 异步任务下发到 Kafka</li>
+</ul>
+</li>
+</ul>
+<p><strong><code>KnowledgeBaseService</code></strong></p>
+<ul>
+<li>职责：知识库和文档管理</li>
+<li>方法：<ul>
+<li><code>createKnowledgeBase(String userId, CreateKBRequest req)</code> → 创建知识库记录</li>
+<li><code>uploadDocument(String kbId, MultipartFile file)</code> →<ol>
+<li>上传文件到 MinIO，获取文件 URL</li>
+<li>保存文档记录（status&#x3D;PROCESSING）</li>
+<li>发送 Kafka 消息：<code>agent.task.input</code>（type&#x3D;VECTORIZE_DOC），携带 docId 和文件 URL</li>
+<li>返回 docId</li>
+</ol>
+</li>
+<li><code>updateDocumentStatus(String docId, DocStatus status, int chunkCount)</code> → 由 Kafka 消费者调用，更新文档向量化状态</li>
+</ul>
+</li>
+</ul>
+<p><strong><code>FileStorageService</code></strong></p>
+<ul>
+<li>职责：封装 MinIO 文件操作</li>
+<li>方法：<ul>
+<li><code>uploadFile(String bucketName, String objectName, InputStream stream, String contentType)</code> → 上传文件，返回访问 URL</li>
+<li><code>getPresignedUrl(String bucketName, String objectName, int expirySecs)</code> → 生成预签名下载链接（有效期可配置）</li>
+<li><code>deleteFile(String bucketName, String objectName)</code> → 删除文件</li>
+<li><code>fileExists(String bucketName, String objectName)</code> → 检查文件是否存在</li>
+</ul>
+</li>
+</ul>
+<h4 id="4-2-5-grpc-包-—-gRPC-客户端"><a href="#4-2-5-grpc-包-—-gRPC-客户端" class="headerlink" title="4.2.5 grpc 包 — gRPC 客户端"></a>4.2.5 grpc 包 — gRPC 客户端</h4><p><strong><code>AgentServiceGrpcClient</code></strong></p>
+<ul>
+<li>职责：封装对 Python gRPC 服务的调用</li>
+<li>注入：<code>AgentServiceGrpc.AgentServiceBlockingStub</code>（同步）和 <code>AgentServiceGrpc.AgentServiceStub</code>（异步）</li>
+<li>方法：<ul>
+<li><code>chat(ChatRequest request)</code> → 调用 Python 的 <code>Chat</code> RPC，返回 <code>ChatResponse</code></li>
+<li><code>chatStream(ChatRequest request, StreamObserver&lt;ChatChunk&gt; observer)</code> → 调用 <code>ChatStream</code> RPC</li>
+<li><code>executeTask(TaskRequest request)</code> → 调用 <code>ExecuteTask</code> RPC</li>
+<li><code>vectorizeDocument(VectorizeRequest request)</code> → 调用文档向量化 RPC</li>
+<li><code>queryKnowledgeBase(QueryRequest request)</code> → 调用知识库查询 RPC</li>
+</ul>
+</li>
+<li>异常处理：捕获 <code>StatusRuntimeException</code>，转换为业务异常，触发 Resilience4j 熔断计数</li>
+</ul>
+<h4 id="4-2-6-kafka-包-—-消息生产与消费"><a href="#4-2-6-kafka-包-—-消息生产与消费" class="headerlink" title="4.2.6 kafka 包 — 消息生产与消费"></a>4.2.6 kafka 包 — 消息生产与消费</h4><p><strong><code>TaskMessageProducer</code></strong></p>
+<ul>
+<li>职责：向 Kafka 发送任务相关消息</li>
+<li>方法：<ul>
+<li><code>sendTaskInput(String taskId, TaskInputMessage msg)</code> → 发送到 <code>agent.task.input</code>，key&#x3D;taskId（保证同一任务有序）</li>
+<li><code>sendHumanApprovalDecision(String taskId, boolean approved)</code> → 发送审批结果</li>
+</ul>
+</li>
+</ul>
+<p><strong><code>TaskProgressConsumer</code></strong></p>
+<ul>
+<li>职责：消费 Python Agent 发出的进度消息</li>
+<li>监听：<code>agent.task.progress</code></li>
+<li>处理逻辑：<ol>
+<li>解析消息，获取 taskId 和进度信息</li>
+<li>更新数据库任务步骤记录</li>
+<li>通过 <code>WebSocketMessageBroker</code> 推送消息到前端订阅的 <code>/topic/task/{taskId}</code></li>
+<li>手动 ACK</li>
+</ol>
+</li>
+</ul>
+<p><strong><code>TaskResultConsumer</code></strong></p>
+<ul>
+<li>职责：消费 Python Agent 发出的最终结果消息</li>
+<li>监听：<code>agent.task.result</code></li>
+<li>处理逻辑：<ol>
+<li>解析消息，更新任务状态（COMPLETED &#x2F; FAILED）</li>
+<li>保存最终结果到数据库</li>
+<li>WebSocket 通知前端任务完成</li>
+<li>手动 ACK</li>
+</ol>
+</li>
+</ul>
+<p><strong><code>HumanApprovalConsumer</code></strong></p>
+<ul>
+<li>职责：消费 Python Agent 发出的需要人工审批的消息</li>
+<li>监听：<code>agent.task.humanhit</code></li>
+<li>处理逻辑：<ol>
+<li>更新任务状态为 AWAITING_APPROVAL</li>
+<li>保存审批上下文信息（需要审批的操作描述）</li>
+<li>WebSocket 通知相关用户弹出审批对话框</li>
+</ol>
+</li>
+</ul>
+<p><strong><code>DocumentVectorizeResultConsumer</code></strong></p>
+<ul>
+<li>职责：消费文档向量化完成的消息</li>
+<li>处理逻辑：更新文档状态为 COMPLETED，记录 chunk 数量</li>
+</ul>
+<h4 id="4-2-7-websocket-包-—-WebSocket-处理"><a href="#4-2-7-websocket-包-—-WebSocket-处理" class="headerlink" title="4.2.7 websocket 包 — WebSocket 处理"></a>4.2.7 websocket 包 — WebSocket 处理</h4><p><strong><code>WebSocketChannelInterceptor</code></strong></p>
+<ul>
+<li>职责：WebSocket 握手时的认证拦截</li>
+<li>实现 <code>ChannelInterceptor</code>，重写 <code>preSend()</code></li>
+<li>当消息类型为 <code>CONNECT</code> 时，从 Header 中提取 JWT Token 验证，失败则抛出异常断开连接</li>
+</ul>
+<p><strong><code>WebSocketEventListener</code></strong></p>
+<ul>
+<li>职责：监听 WebSocket 连接&#x2F;断开事件</li>
+<li>监听 <code>SessionConnectedEvent</code>：记录用户 sessionId → userId 映射（存 Redis）</li>
+<li>监听 <code>SessionDisconnectEvent</code>：清理映射关系</li>
+</ul>
+<p><strong><code>NotificationService</code></strong></p>
+<ul>
+<li>职责：封装 WebSocket 消息发送</li>
+<li>方法：<ul>
+<li><code>sendToUser(String userId, String destination, Object payload)</code> → 发送给特定用户（点对点）</li>
+<li><code>sendToTopic(String topic, Object payload)</code> → 广播</li>
+</ul>
+</li>
+</ul>
+<h4 id="4-2-8-domain-包-—-数据模型"><a href="#4-2-8-domain-包-—-数据模型" class="headerlink" title="4.2.8 domain 包 — 数据模型"></a>4.2.8 domain 包 — 数据模型</h4><p><strong>实体类（Entity，与数据库表对应）：</strong></p>
+<ul>
+<li><code>User</code> — 用户表</li>
+<li><code>Conversation</code> — 会话表</li>
+<li><code>Message</code> — 消息表</li>
+<li><code>Task</code> — 任务表</li>
+<li><code>TaskStep</code> — 任务步骤表</li>
+<li><code>AgentTrace</code> — Agent 推理链路日志表</li>
+<li><code>KnowledgeBase</code> — 知识库表</li>
+<li><code>Document</code> — 文档表</li>
+</ul>
+<p><strong>值对象（VO，用于 API 响应）：</strong></p>
+<ul>
+<li><code>UserVO</code></li>
+<li><code>ConversationVO</code></li>
+<li><code>MessageVO</code></li>
+<li><code>TaskVO</code>（含 TaskStepVO 列表）</li>
+<li><code>KnowledgeBaseVO</code></li>
+<li><code>DocumentVO</code></li>
+</ul>
+<p><strong>请求对象（Request）：</strong></p>
+<ul>
+<li><code>RegisterRequest</code>（用户名、密码、邮件、验证码）</li>
+<li><code>LoginRequest</code>（用户名、密码）</li>
+<li><code>CreateConversationRequest</code>（标题、关联知识库 ID 列表、Agent 配置 ID）</li>
+<li><code>SendMessageRequest</code>（消息内容、消息类型 TEXT&#x2F;FILE）</li>
+<li><code>CreateTaskRequest</code>（任务类型、任务描述、输入参数 JSON、关联知识库）</li>
+<li><code>CreateKBRequest</code>（知识库名称、描述、Embedding 模型选择）</li>
+</ul>
+<p><strong>消息对象（Kafka Message）：</strong></p>
+<ul>
+<li><code>TaskInputMessage</code>（taskId、taskType、inputParams、userId、knowledgeBaseIds）</li>
+<li><code>TaskProgressMessage</code>（taskId、stepName、stepIndex、totalSteps、content、timestamp）</li>
+<li><code>TaskResultMessage</code>（taskId、success、result、errorMsg、totalTokens、duration）</li>
+<li><code>HumanApprovalMessage</code>（taskId、actionDescription、context、requiredByAgent）</li>
+</ul>
+<p><strong>统一响应类：</strong></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// ApiResponse&lt;T&gt;</span></span><br><span class="line"><span class="comment">// code: 200=成功, 400=参数错误, 401=未认证, 403=权限不足, 500=服务器错误</span></span><br><span class="line"><span class="comment">// message: 描述</span></span><br><span class="line"><span class="comment">// data: 业务数据</span></span><br><span class="line"><span class="comment">// timestamp: 时间戳</span></span><br></pre></td></tr></table></figure>
+
+<h4 id="4-2-9-repository-包-—-数据访问层"><a href="#4-2-9-repository-包-—-数据访问层" class="headerlink" title="4.2.9 repository 包 — 数据访问层"></a>4.2.9 repository 包 — 数据访问层</h4><p>使用 <strong>MyBatis-Plus</strong>，大部分 CRUD 通过 <code>BaseMapper&lt;T&gt;</code> 自动实现。</p>
+<p><strong><code>UserMapper</code></strong></p>
+<ul>
+<li>继承 <code>BaseMapper&lt;User&gt;</code></li>
+<li>自定义方法：<code>selectByUsername(String username)</code> → 通过用户名查用户（XML 或注解）</li>
+</ul>
+<p><strong><code>ConversationMapper</code></strong></p>
+<ul>
+<li>继承 <code>BaseMapper&lt;Conversation&gt;</code></li>
+<li>自定义：<code>selectByUserId(String userId, PageParam page)</code> → 分页查询用户会话列表</li>
+</ul>
+<p><strong><code>MessageMapper</code></strong></p>
+<ul>
+<li>继承 <code>BaseMapper&lt;Message&gt;</code></li>
+<li>自定义：<code>selectByConversationId(String conversationId, int limit)</code> → 查询最近 N 条消息（用于构建历史上下文）</li>
+</ul>
+<p><strong><code>TaskMapper</code></strong></p>
+<ul>
+<li>继承 <code>BaseMapper&lt;Task&gt;</code></li>
+<li>自定义：<code>selectByUserIdAndStatus(String userId, TaskStatus status, PageParam page)</code></li>
+</ul>
+<p><strong><code>TaskStepMapper</code></strong></p>
+<ul>
+<li>继承 <code>BaseMapper&lt;TaskStep&gt;</code></li>
+<li>自定义：<code>selectByTaskId(String taskId)</code> → 查询任务的所有步骤（按 stepIndex 排序）</li>
+</ul>
+<p><strong><code>AgentTraceMapper</code></strong></p>
+<ul>
+<li>继承 <code>BaseMapper&lt;AgentTrace&gt;</code></li>
+<li>自定义：<code>selectByTaskId(String taskId)</code> → 查询任务的完整 Trace 日志</li>
+</ul>
+<p><strong><code>DocumentMapper</code></strong></p>
+<ul>
+<li>继承 <code>BaseMapper&lt;Document&gt;</code></li>
+<li>自定义：<code>selectByKnowledgeBaseId(String kbId, PageParam page)</code></li>
+</ul>
+<h4 id="4-2-10-common-包-—-通用工具"><a href="#4-2-10-common-包-—-通用工具" class="headerlink" title="4.2.10 common 包 — 通用工具"></a>4.2.10 common 包 — 通用工具</h4><p><strong><code>GlobalExceptionHandler</code></strong></p>
+<ul>
+<li>使用 <code>@RestControllerAdvice</code></li>
+<li>处理：<code>MethodArgumentNotValidException</code>（参数校验失败）、<code>BusinessException</code>（业务异常）、<code>AuthenticationException</code>（认证异常）、<code>AccessDeniedException</code>（权限异常）、<code>StatusRuntimeException</code>（gRPC 异常）、<code>Exception</code>（兜底）</li>
+<li>统一返回 <code>ApiResponse</code> 格式</li>
+</ul>
+<p><strong><code>BusinessException</code></strong></p>
+<ul>
+<li>自定义业务异常，携带错误码枚举 <code>ErrorCode</code></li>
+</ul>
+<p><strong><code>ErrorCode</code> 枚举</strong></p>
+<ul>
+<li>定义所有业务错误码，如：<code>USER_NOT_FOUND(1001)</code>、<code>CONVERSATION_NOT_FOUND(2001)</code>、<code>AGENT_SERVICE_UNAVAILABLE(5001)</code></li>
+</ul>
+<p><strong><code>PageResult&lt;T&gt;</code></strong></p>
+<ul>
+<li>分页结果包装类：total、pageNum、pageSize、list</li>
+</ul>
+<p><strong><code>RedisKeyConstants</code></strong></p>
+<ul>
+<li>所有 Redis Key 的常量定义，如：<code>REFRESH_TOKEN_PREFIX</code>、<code>CONVERSATION_HISTORY_PREFIX</code>、<code>USER_SESSION_PREFIX</code></li>
+</ul>
+<p><strong><code>SnowflakeIdGenerator</code></strong></p>
+<ul>
+<li>基于雪花算法的 ID 生成器（或直接使用 <code>cn.hutool.core.lang.Snowflake</code>）</li>
+</ul>
+<p><strong><code>DateTimeUtils</code></strong></p>
+<ul>
+<li>时间工具类</li>
+</ul>
+<h3 id="4-3-配置文件设计（application-yml）"><a href="#4-3-配置文件设计（application-yml）" class="headerlink" title="4.3 配置文件设计（application.yml）"></a>4.3 配置文件设计（application.yml）</h3><p><strong>分环境配置结构：</strong></p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">src/main/resources/</span><br><span class="line">├── application.yml          # 公共配置</span><br><span class="line">├── application-dev.yml      # 开发环境</span><br><span class="line">├── application-prod.yml     # 生产环境</span><br><span class="line">└── application-test.yml     # 测试环境</span><br></pre></td></tr></table></figure>
+
+<p><strong>公共配置（application.yml）关键项：</strong></p>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">server:</span></span><br><span class="line">  <span class="attr">port:</span> <span class="number">8080</span></span><br><span class="line">  <span class="attr">servlet:</span></span><br><span class="line">    <span class="attr">context-path:</span> <span class="string">/</span></span><br><span class="line"></span><br><span class="line"><span class="attr">spring:</span></span><br><span class="line">  <span class="attr">application:</span></span><br><span class="line">    <span class="attr">name:</span> <span class="string">autoagent-backend</span></span><br><span class="line">  <span class="attr">profiles:</span></span><br><span class="line">    <span class="attr">active:</span> <span class="string">dev</span>  <span class="comment"># 默认激活 dev</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># JWT 配置（实际密钥通过环境变量注入）</span></span><br><span class="line"><span class="attr">jwt:</span></span><br><span class="line">  <span class="attr">secret:</span> <span class="string">$&#123;JWT_SECRET:default-dev-secret-change-in-prod&#125;</span></span><br><span class="line">  <span class="attr">expiration:</span> <span class="number">7200</span>        <span class="comment"># Access Token 2小时，单位秒</span></span><br><span class="line">  <span class="attr">refresh-expiration:</span> <span class="number">604800</span>  <span class="comment"># Refresh Token 7天</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># gRPC 客户端配置（net.devh）</span></span><br><span class="line"><span class="attr">grpc:</span></span><br><span class="line">  <span class="attr">client:</span></span><br><span class="line">    <span class="attr">agent-python:</span></span><br><span class="line">      <span class="attr">address:</span> <span class="string">static://$&#123;PYTHON_AGENT_HOST:localhost&#125;:$&#123;PYTHON_AGENT_PORT:50051&#125;</span></span><br><span class="line">      <span class="attr">negotiation-type:</span> <span class="string">plaintext</span></span><br><span class="line">      <span class="attr">deadline:</span> <span class="number">60000</span>  <span class="comment"># 60秒超时</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># MinIO 配置</span></span><br><span class="line"><span class="attr">minio:</span></span><br><span class="line">  <span class="attr">endpoint:</span> <span class="string">$&#123;MINIO_ENDPOINT:http://localhost:9000&#125;</span></span><br><span class="line">  <span class="attr">access-key:</span> <span class="string">$&#123;MINIO_ACCESS_KEY:minioadmin&#125;</span></span><br><span class="line">  <span class="attr">secret-key:</span> <span class="string">$&#123;MINIO_SECRET_KEY:minioadmin&#125;</span></span><br><span class="line">  <span class="attr">default-bucket:</span> <span class="string">autoagent-files</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># Resilience4j 熔断配置</span></span><br><span class="line"><span class="attr">resilience4j:</span></span><br><span class="line">  <span class="attr">circuitbreaker:</span></span><br><span class="line">    <span class="attr">instances:</span></span><br><span class="line">      <span class="attr">agent-python-cb:</span></span><br><span class="line">        <span class="attr">failure-rate-threshold:</span> <span class="number">50</span></span><br><span class="line">        <span class="attr">slow-call-rate-threshold:</span> <span class="number">80</span></span><br><span class="line">        <span class="attr">slow-call-duration-threshold:</span> <span class="string">30s</span></span><br><span class="line">        <span class="attr">wait-duration-in-open-state:</span> <span class="string">30s</span></span><br><span class="line">        <span class="attr">permitted-number-of-calls-in-half-open-state:</span> <span class="number">3</span></span><br><span class="line">  <span class="attr">ratelimiter:</span></span><br><span class="line">    <span class="attr">instances:</span></span><br><span class="line">      <span class="attr">api-rate-limiter:</span></span><br><span class="line">        <span class="attr">limit-for-period:</span> <span class="number">100</span></span><br><span class="line">        <span class="attr">limit-refresh-period:</span> <span class="string">1s</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># MyBatis Plus 配置</span></span><br><span class="line"><span class="attr">mybatis-plus:</span></span><br><span class="line">  <span class="attr">mapper-locations:</span> <span class="string">classpath*:mapper/**/*.xml</span></span><br><span class="line">  <span class="attr">type-aliases-package:</span> <span class="string">com.autoagent.domain.entity</span></span><br><span class="line">  <span class="attr">global-config:</span></span><br><span class="line">    <span class="attr">db-config:</span></span><br><span class="line">      <span class="attr">id-type:</span> <span class="string">ASSIGN_ID</span>   <span class="comment"># 使用雪花算法</span></span><br><span class="line">      <span class="attr">logic-delete-field:</span> <span class="string">isDeleted</span></span><br><span class="line">      <span class="attr">logic-delete-value:</span> <span class="number">1</span></span><br><span class="line">      <span class="attr">logic-not-delete-value:</span> <span class="number">0</span></span><br></pre></td></tr></table></figure>
+
+<hr>
+<h2 id="5-Python-Agent-服务详细设计"><a href="#5-Python-Agent-服务详细设计" class="headerlink" title="5. Python Agent 服务详细设计"></a>5. Python Agent 服务详细设计</h2><h3 id="5-1-依赖管理（pyproject-toml）"><a href="#5-1-依赖管理（pyproject-toml）" class="headerlink" title="5.1 依赖管理（pyproject.toml）"></a>5.1 依赖管理（pyproject.toml）</h3><p><strong>核心依赖：</strong></p>
+<figure class="highlight toml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br></pre></td><td class="code"><pre><span class="line"><span class="section">[tool.poetry.dependencies]</span></span><br><span class="line"><span class="attr">python</span> = <span class="string">&quot;^3.11&quot;</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># Web 框架</span></span><br><span class="line"><span class="attr">fastapi</span> = <span class="string">&quot;^0.111&quot;</span></span><br><span class="line"><span class="attr">uvicorn</span> = &#123;extras = [<span class="string">&quot;standard&quot;</span>], version = <span class="string">&quot;^0.29&quot;</span>&#125;</span><br><span class="line"><span class="attr">pydantic</span> = <span class="string">&quot;^2.7&quot;</span></span><br><span class="line"><span class="attr">pydantic-settings</span> = <span class="string">&quot;^2.2&quot;</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># gRPC</span></span><br><span class="line"><span class="attr">grpcio</span> = <span class="string">&quot;^1.63&quot;</span></span><br><span class="line"><span class="attr">grpcio-tools</span> = <span class="string">&quot;^1.63&quot;</span></span><br><span class="line"><span class="attr">protobuf</span> = <span class="string">&quot;^4.25&quot;</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># LangChain &amp; LangGraph（核心！）</span></span><br><span class="line"><span class="attr">langchain</span> = <span class="string">&quot;^0.2&quot;</span></span><br><span class="line"><span class="attr">langchain-openai</span> = <span class="string">&quot;^0.1&quot;</span></span><br><span class="line"><span class="attr">langchain-community</span> = <span class="string">&quot;^0.2&quot;</span></span><br><span class="line"><span class="attr">langgraph</span> = <span class="string">&quot;^0.1&quot;</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 向量数据库</span></span><br><span class="line"><span class="attr">chromadb</span> = <span class="string">&quot;^0.5&quot;</span></span><br><span class="line"><span class="comment"># pymilvus = &quot;^2.4&quot;  # 生产环境</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># Kafka</span></span><br><span class="line"><span class="attr">aiokafka</span> = <span class="string">&quot;^0.11&quot;</span>   <span class="comment"># 异步 Kafka 客户端</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># RAG 工具</span></span><br><span class="line"><span class="attr">pypdf</span> = <span class="string">&quot;^4.2&quot;</span></span><br><span class="line"><span class="attr">python-docx</span> = <span class="string">&quot;^1.1&quot;</span></span><br><span class="line"><span class="attr">unstructured</span> = <span class="string">&quot;^0.14&quot;</span>   <span class="comment"># 文档解析</span></span><br><span class="line"><span class="attr">tiktoken</span> = <span class="string">&quot;^0.7&quot;</span>    <span class="comment"># Token 计数</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 工具相关</span></span><br><span class="line"><span class="attr">httpx</span> = <span class="string">&quot;^0.27&quot;</span>      <span class="comment"># HTTP 工具</span></span><br><span class="line"><span class="attr">docker</span> = <span class="string">&quot;^7.0&quot;</span>      <span class="comment"># 代码沙箱（Docker SDK）</span></span><br><span class="line"><span class="attr">python-minio</span> = <span class="string">&quot;^7.2&quot;</span>   <span class="comment"># MinIO 客户端</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 监控</span></span><br><span class="line"><span class="attr">prometheus-client</span> = <span class="string">&quot;^0.20&quot;</span></span><br><span class="line"><span class="attr">opentelemetry-sdk</span> = <span class="string">&quot;^1.24&quot;</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 工具</span></span><br><span class="line"><span class="attr">python-dotenv</span> = <span class="string">&quot;^1.0&quot;</span></span><br><span class="line"><span class="attr">structlog</span> = <span class="string">&quot;^24.1&quot;</span>   <span class="comment"># 结构化日志</span></span><br><span class="line"><span class="attr">tenacity</span> = <span class="string">&quot;^8.3&quot;</span>     <span class="comment"># 重试</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="5-2-应用入口与启动流程"><a href="#5-2-应用入口与启动流程" class="headerlink" title="5.2 应用入口与启动流程"></a>5.2 应用入口与启动流程</h3><p><strong><code>app/main.py</code></strong></p>
+<p>职责：FastAPI 应用创建与生命周期管理</p>
+<p>启动流程：</p>
+<ol>
+<li>加载配置（<code>app/config/settings.py</code>）</li>
+<li>初始化日志</li>
+<li>初始化 LLM 连接（验证 API Key 可用）</li>
+<li>初始化向量数据库连接</li>
+<li>初始化 gRPC Server（在独立线程中启动）</li>
+<li>初始化 Kafka Consumer（在后台任务中启动）</li>
+<li>注册 FastAPI 路由（健康检查、内部管理接口）</li>
+<li>注册 Prometheus 指标端点</li>
+</ol>
+<p><strong><code>app/config/settings.py</code></strong></p>
+<p>使用 Pydantic <code>BaseSettings</code>，从环境变量和 <code>.env</code> 文件读取：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 关键配置项（类型标注示意）</span></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">Settings</span>(<span class="title class_ inherited__">BaseSettings</span>):</span><br><span class="line">    <span class="comment"># LLM</span></span><br><span class="line">    openai_api_key: <span class="built_in">str</span></span><br><span class="line">    openai_base_url: <span class="built_in">str</span> = <span class="string">&quot;https://api.openai.com/v1&quot;</span></span><br><span class="line">    default_model: <span class="built_in">str</span> = <span class="string">&quot;gpt-4o&quot;</span></span><br><span class="line">    embedding_model: <span class="built_in">str</span> = <span class="string">&quot;text-embedding-3-small&quot;</span></span><br><span class="line">    </span><br><span class="line">    <span class="comment"># 本地 LLM（可选）</span></span><br><span class="line">    ollama_base_url: <span class="built_in">str</span> = <span class="string">&quot;http://localhost:11434&quot;</span></span><br><span class="line">    use_local_llm: <span class="built_in">bool</span> = <span class="literal">False</span></span><br><span class="line">    </span><br><span class="line">    <span class="comment"># 向量数据库</span></span><br><span class="line">    chroma_host: <span class="built_in">str</span> = <span class="string">&quot;localhost&quot;</span></span><br><span class="line">    chroma_port: <span class="built_in">int</span> = <span class="number">8100</span></span><br><span class="line">    </span><br><span class="line">    <span class="comment"># Kafka</span></span><br><span class="line">    kafka_bootstrap_servers: <span class="built_in">str</span> = <span class="string">&quot;localhost:9092&quot;</span></span><br><span class="line">    kafka_consumer_group: <span class="built_in">str</span> = <span class="string">&quot;autoagent-python-group&quot;</span></span><br><span class="line">    </span><br><span class="line">    <span class="comment"># gRPC</span></span><br><span class="line">    grpc_port: <span class="built_in">int</span> = <span class="number">50051</span></span><br><span class="line">    </span><br><span class="line">    <span class="comment"># MinIO</span></span><br><span class="line">    minio_endpoint: <span class="built_in">str</span> = <span class="string">&quot;localhost:9000&quot;</span></span><br><span class="line">    minio_access_key: <span class="built_in">str</span></span><br><span class="line">    minio_secret_key: <span class="built_in">str</span></span><br><span class="line">    </span><br><span class="line">    <span class="comment"># Agent 行为</span></span><br><span class="line">    max_iterations: <span class="built_in">int</span> = <span class="number">10</span>  <span class="comment"># Agent 最大推理步数，防止死循环</span></span><br><span class="line">    max_tokens_per_call: <span class="built_in">int</span> = <span class="number">4000</span></span><br><span class="line">    temperature: <span class="built_in">float</span> = <span class="number">0.7</span></span><br><span class="line">    </span><br><span class="line">    <span class="keyword">class</span> <span class="title class_">Config</span>:</span><br><span class="line">        env_file = <span class="string">&quot;.env&quot;</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="5-3-LLM-统一接口层"><a href="#5-3-LLM-统一接口层" class="headerlink" title="5.3 LLM 统一接口层"></a>5.3 LLM 统一接口层</h3><p><strong><code>app/llm/llm_factory.py</code></strong></p>
+<p>职责：根据配置创建 LLM 实例，屏蔽具体 LLM 实现</p>
+<p>方法：</p>
+<ul>
+<li><code>get_llm(model_name: str = None, temperature: float = None) -&gt; BaseChatModel</code> → 返回 LangChain <code>BaseChatModel</code> 实例<ul>
+<li>若 <code>use_local_llm=True</code>，返回 <code>ChatOllama</code></li>
+<li>否则返回 <code>ChatOpenAI</code>（支持 Azure OpenAI，通过 base_url 切换）</li>
+</ul>
+</li>
+<li><code>get_embedding_model() -&gt; Embeddings</code> → 返回 Embedding 模型实例</li>
+</ul>
+<p><strong><code>app/llm/token_counter.py</code></strong></p>
+<p>职责：Token 计数与成本估算</p>
+<p>方法：</p>
+<ul>
+<li><code>count_tokens(text: str, model: str) -&gt; int</code> → 使用 <code>tiktoken</code> 计算 Token 数</li>
+<li><code>estimate_cost(input_tokens: int, output_tokens: int, model: str) -&gt; float</code> → 估算调用成本</li>
+</ul>
+<h3 id="5-4-Agent-核心设计（LangGraph）"><a href="#5-4-Agent-核心设计（LangGraph）" class="headerlink" title="5.4 Agent 核心设计（LangGraph）"></a>5.4 Agent 核心设计（LangGraph）</h3><h4 id="5-4-1-LangGraph-核心概念"><a href="#5-4-1-LangGraph-核心概念" class="headerlink" title="5.4.1 LangGraph 核心概念"></a>5.4.1 LangGraph 核心概念</h4><p>LangGraph 基于<strong>有向状态图</strong>构建 Agent：</p>
+<ul>
+<li><strong>State</strong>：贯穿整个工作流的共享状态（TypedDict）</li>
+<li><strong>Node</strong>：图中的处理节点，是普通的 Python 函数</li>
+<li><strong>Edge</strong>：节点之间的连接，可以是条件边</li>
+<li><strong>Graph</strong>：将 Node 和 Edge 组合，编译后得到可执行的 Agent</li>
+</ul>
+<h4 id="5-4-2-共享状态定义"><a href="#5-4-2-共享状态定义" class="headerlink" title="5.4.2 共享状态定义"></a>5.4.2 共享状态定义</h4><p><strong><code>app/agent/state.py</code></strong></p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># AgentState — 多 Agent 系统共享状态</span></span><br><span class="line"><span class="comment"># 字段说明（TypedDict）：</span></span><br><span class="line"><span class="comment"># - messages: List[BaseMessage]  → 对话历史（使用 add_messages reducer）</span></span><br><span class="line"><span class="comment"># - task_id: str                 → 任务 ID</span></span><br><span class="line"><span class="comment"># - user_id: str                 → 用户 ID</span></span><br><span class="line"><span class="comment"># - task_type: str               → 任务类型（CHAT/WORKFLOW/VECTORIZE）</span></span><br><span class="line"><span class="comment"># - input_params: dict           → 输入参数</span></span><br><span class="line"><span class="comment"># - knowledge_base_ids: List[str]→ 关联知识库 ID 列表</span></span><br><span class="line"><span class="comment"># - current_agent: str           → 当前执行的子 Agent 名称</span></span><br><span class="line"><span class="comment"># - agent_outputs: dict          → 各子 Agent 的输出结果</span></span><br><span class="line"><span class="comment"># - tool_calls: List[dict]       → 工具调用记录</span></span><br><span class="line"><span class="comment"># - pending_approval: Optional[dict] → 等待审批的操作（Human-in-the-loop）</span></span><br><span class="line"><span class="comment"># - error: Optional[str]         → 错误信息</span></span><br><span class="line"><span class="comment"># - is_finished: bool            → 是否完成</span></span><br><span class="line"><span class="comment"># - metadata: dict               → 元数据（token 消耗、耗时等）</span></span><br></pre></td></tr></table></figure>
+
+<h4 id="5-4-3-Supervisor-Agent（总控）"><a href="#5-4-3-Supervisor-Agent（总控）" class="headerlink" title="5.4.3 Supervisor Agent（总控）"></a>5.4.3 Supervisor Agent（总控）</h4><p><strong><code>app/agent/supervisor/supervisor.py</code></strong></p>
+<p>职责：接收任务，分析任务复杂度，决定调用哪个子 Agent，合并结果</p>
+<p><code>SupervisorAgent</code> 类：</p>
+<ul>
+<li><code>__init__(self, llm, available_agents: List[str])</code> → 初始化，配置可用的子 Agent 列表</li>
+<li><code>create_graph(self) -&gt; CompiledGraph</code> → 创建并编译 LangGraph 工作流</li>
+</ul>
+<p>Supervisor 图的节点：</p>
+<ol>
+<li><code>route_task</code> 节点：根据 task_type 路由到对应子 Agent</li>
+<li><code>aggregate_results</code> 节点：合并子 Agent 的输出，生成最终回复</li>
+<li><code>handle_error</code> 节点：错误处理，记录错误并返回友好提示</li>
+</ol>
+<p>条件路由逻辑（<code>route_after_supervisor</code>函数）：</p>
+<ul>
+<li>若 <code>state.task_type == &quot;CHAT&quot;</code> → 路由到 <code>chat_agent</code></li>
+<li>若 <code>state.task_type == &quot;WORKFLOW&quot;</code> → 路由到 <code>workflow_agent</code></li>
+<li>若 <code>state.task_type == &quot;VECTORIZE&quot;</code> → 路由到 <code>vectorize_agent</code></li>
+<li>若 <code>state.pending_approval</code> → 路由到 <code>END</code>（等待人工审批）</li>
+<li>若 <code>state.is_finished</code> → 路由到 <code>END</code></li>
+</ul>
+<h4 id="5-4-4-Chat-Agent（对话智能体）"><a href="#5-4-4-Chat-Agent（对话智能体）" class="headerlink" title="5.4.4 Chat Agent（对话智能体）"></a>5.4.4 Chat Agent（对话智能体）</h4><p><strong><code>app/agent/nodes/chat_node.py</code></strong></p>
+<p>职责：处理普通对话，支持 RAG 检索增强、工具调用</p>
+<p><code>chat_node(state: AgentState) -&gt; AgentState</code> 函数：</p>
+<ol>
+<li>从 state 中提取对话历史和用户最新消息</li>
+<li>若关联了知识库，调用 <code>RagService.retrieve()</code> 检索相关文档块</li>
+<li>构建 System Prompt（注入检索到的上下文、当前时间、用户信息）</li>
+<li>创建绑定了工具的 LLM（<code>llm.bind_tools(tools)</code>）</li>
+<li>调用 LLM</li>
+<li>若 LLM 返回 tool_call，执行工具（使用 LangGraph 的 <code>ToolNode</code>）</li>
+<li>将工具结果加入消息历史，再次调用 LLM</li>
+<li>返回更新后的 state</li>
+</ol>
+<p>绑定的工具列表（基础对话 Agent）：</p>
+<ul>
+<li><code>WebSearchTool</code>（联网搜索）</li>
+<li><code>CalculatorTool</code>（计算）</li>
+</ul>
+<h4 id="5-4-5-Workflow-Agent（工作流智能体）"><a href="#5-4-5-Workflow-Agent（工作流智能体）" class="headerlink" title="5.4.5 Workflow Agent（工作流智能体）"></a>5.4.5 Workflow Agent（工作流智能体）</h4><p><strong><code>app/agent/nodes/workflow_node.py</code></strong></p>
+<p>职责：执行复杂多步骤任务，支持并行子任务</p>
+<p><code>WorkflowAgent</code> 类：</p>
+<ul>
+<li>内部维护一个 LangGraph 子图</li>
+<li>子图节点：<code>plan</code> → <code>execute_steps</code> → <code>check_approval</code> → <code>aggregate</code> → END</li>
+<li><code>plan</code> 节点：调用 LLM 将复杂任务拆解为有序步骤列表（JSON 格式）</li>
+<li><code>execute_steps</code> 节点：<ul>
+<li>遍历步骤列表</li>
+<li>每步调用对应工具或子 Agent</li>
+<li>每步执行完发送进度消息到 Kafka（通过 <code>KafkaProducerService</code>）</li>
+<li>若某步骤标记为 <code>requires_approval=True</code>，发送 Human-in-the-loop 消息并暂停</li>
+</ul>
+</li>
+<li><code>check_approval</code> 节点：轮询审批状态（或通过外部中断机制）</li>
+<li><code>aggregate</code> 节点：汇总所有步骤结果，生成最终报告</li>
+</ul>
+<p>支持的工具列表（工作流 Agent）：</p>
+<ul>
+<li>全部基础工具</li>
+<li><code>CodeExecutionTool</code>（代码沙箱执行）</li>
+<li><code>FileReadTool</code>、<code>FileWriteTool</code></li>
+<li><code>EmailSendTool</code></li>
+<li>自定义 MCP 工具</li>
+</ul>
+<h4 id="5-4-6-Vectorize-Agent（文档向量化智能体）"><a href="#5-4-6-Vectorize-Agent（文档向量化智能体）" class="headerlink" title="5.4.6 Vectorize Agent（文档向量化智能体）"></a>5.4.6 Vectorize Agent（文档向量化智能体）</h4><p><strong><code>app/agent/nodes/vectorize_node.py</code></strong></p>
+<p><code>vectorize_node(state: AgentState) -&gt; AgentState</code> 函数：</p>
+<ol>
+<li>从 state.input_params 获取 docId 和文件 URL</li>
+<li>从 MinIO 下载文档</li>
+<li>调用 <code>DocumentParser.parse()</code>，提取纯文本</li>
+<li>调用 <code>TextSplitter.split()</code>，切分为 chunks（默认 512 token，100 token 重叠）</li>
+<li>批量调用 Embedding 模型（批量大小 100）</li>
+<li>批量写入向量数据库</li>
+<li>发送完成消息到 Kafka（包含 docId、chunk 数量）</li>
+<li>更新 state 为完成</li>
+</ol>
+<h4 id="5-4-7-LangGraph-工作流编译"><a href="#5-4-7-LangGraph-工作流编译" class="headerlink" title="5.4.7 LangGraph 工作流编译"></a>5.4.7 LangGraph 工作流编译</h4><p><strong><code>app/agent/graph/main_graph.py</code></strong></p>
+<p>职责：将所有节点和边组合，编译为可执行的 Graph</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 图结构描述（非代码）：</span></span><br><span class="line"><span class="comment"># </span></span><br><span class="line"><span class="comment"># StateGraph(AgentState)</span></span><br><span class="line"><span class="comment">#   .add_node(&quot;supervisor&quot;, supervisor_node)</span></span><br><span class="line"><span class="comment">#   .add_node(&quot;chat_agent&quot;, chat_node)</span></span><br><span class="line"><span class="comment">#   .add_node(&quot;workflow_agent&quot;, workflow_node)</span></span><br><span class="line"><span class="comment">#   .add_node(&quot;vectorize_agent&quot;, vectorize_node)</span></span><br><span class="line"><span class="comment">#   .add_node(&quot;tools&quot;, ToolNode(all_tools))</span></span><br><span class="line"><span class="comment">#   .add_node(&quot;error_handler&quot;, error_handler_node)</span></span><br><span class="line"><span class="comment"># </span></span><br><span class="line"><span class="comment"># 边：</span></span><br><span class="line"><span class="comment">#   START -&gt; supervisor</span></span><br><span class="line"><span class="comment">#   supervisor -&gt; (条件路由) -&gt; chat_agent / workflow_agent / vectorize_agent</span></span><br><span class="line"><span class="comment">#   chat_agent -&gt; tools (若有 tool_call)</span></span><br><span class="line"><span class="comment">#   tools -&gt; chat_agent (继续对话)</span></span><br><span class="line"><span class="comment">#   chat_agent -&gt; END (若无 tool_call)</span></span><br><span class="line"><span class="comment">#   workflow_agent -&gt; END</span></span><br><span class="line"><span class="comment">#   vectorize_agent -&gt; END</span></span><br><span class="line"><span class="comment"># </span></span><br><span class="line"><span class="comment"># 编译时配置 Checkpointer（使用 MemorySaver 或自定义持久化 Checkpointer）</span></span><br><span class="line"><span class="comment"># Checkpointer 用于支持 Human-in-the-loop（中断后恢复执行）</span></span><br></pre></td></tr></table></figure>
+
+<p><strong>关于 Checkpointer（重要）：</strong></p>
+<p>LangGraph 的 Checkpointer 是实现 Human-in-the-loop 的关键。每次节点执行后，状态被保存到 Checkpointer。当 Agent 触发审批节点时：</p>
+<ol>
+<li>抛出 <code>NodeInterrupt</code> 异常（LangGraph 内置）</li>
+<li>图执行暂停，状态保存到 Checkpointer</li>
+<li>人工审批后，调用 <code>graph.invoke(None, config, interrupt_before=None)</code> 从断点恢复</li>
+</ol>
+<p>开发阶段使用 <code>MemorySaver</code>（内存）；生产阶段需实现基于 Redis 或 PostgreSQL 的持久化 Checkpointer。</p>
+<h3 id="5-5-工具集设计"><a href="#5-5-工具集设计" class="headerlink" title="5.5 工具集设计"></a>5.5 工具集设计</h3><p><strong><code>app/tools/</code> 目录结构：</strong></p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">tools/</span><br><span class="line">├── __init__.py           # 工具注册与导出</span><br><span class="line">├── base_tool.py          # 工具基类</span><br><span class="line">├── web_search.py         # 联网搜索</span><br><span class="line">├── code_executor.py      # 代码执行沙箱</span><br><span class="line">├── file_tools.py         # 文件读写工具</span><br><span class="line">├── calculator.py         # 计算器</span><br><span class="line">├── email_tool.py         # 邮件发送</span><br><span class="line">└── mcp/                  # MCP 自定义工具</span><br><span class="line">    ├── mcp_client.py     # MCP 协议客户端</span><br><span class="line">    └── custom_tools/     # 企业内部系统工具</span><br></pre></td></tr></table></figure>
+
+<p><strong><code>BaseTool</code>（继承 LangChain <code>BaseTool</code>）</strong></p>
+<p>所有工具必须实现的属性和方法：</p>
+<ul>
+<li><code>name: str</code> → 工具名称（唯一标识，Agent 通过此名称选择工具）</li>
+<li><code>description: str</code> → 工具功能描述（<strong>非常重要</strong>，LLM 通过此判断何时使用该工具）</li>
+<li><code>args_schema: Type[BaseModel]</code> → 输入参数的 Pydantic Schema</li>
+<li><code>_run(self, **kwargs) -&gt; str</code> → 同步执行逻辑</li>
+<li><code>_arun(self, **kwargs) -&gt; str</code> → 异步执行逻辑</li>
+</ul>
+<p><strong><code>WebSearchTool</code></strong></p>
+<ul>
+<li>描述：搜索互联网获取最新信息，当需要实时数据、新闻、当前事件时使用</li>
+<li>输入：<code>query: str</code>（搜索关键词）</li>
+<li>实现：调用 Tavily Search API（或 SerpAPI），返回 Top 5 搜索结果摘要</li>
+<li>返回格式：JSON 字符串，包含 title、url、snippet</li>
+</ul>
+<p><strong><code>CodeExecutorTool</code></strong></p>
+<ul>
+<li>描述：在安全沙箱中执行 Python 代码，用于数据分析、计算、文件处理</li>
+<li>输入：<code>code: str</code>（Python 代码）、<code>timeout: int = 30</code>（超时秒数）</li>
+<li>实现：<ol>
+<li>使用 Docker SDK 创建临时容器（<code>python:3.11-slim</code> 镜像）</li>
+<li>将代码写入临时文件</li>
+<li>在容器中执行，捕获 stdout&#x2F;stderr</li>
+<li>超时后强制停止容器</li>
+<li>删除临时容器</li>
+</ol>
+</li>
+<li>安全限制：禁止网络访问（<code>--network none</code>），内存限制 256MB，只读文件系统（除 &#x2F;tmp）</li>
+<li>返回：执行输出或错误信息</li>
+</ul>
+<p><strong><code>FileReadTool</code></strong></p>
+<ul>
+<li>描述：从 MinIO 对象存储中读取文件内容，适合读取之前上传的文档</li>
+<li>输入：<code>file_path: str</code>（MinIO 中的对象路径）</li>
+<li>实现：调用 MinIO SDK 下载文件，支持 txt&#x2F;csv&#x2F;json 格式直接返回内容，其他格式返回下载链接</li>
+</ul>
+<p><strong><code>FileWriteTool</code></strong></p>
+<ul>
+<li>描述：将内容写入 MinIO 对象存储</li>
+<li>输入：<code>content: str</code>、<code>file_name: str</code>、<code>content_type: str</code></li>
+<li>实现：将内容上传到 MinIO，返回访问 URL</li>
+</ul>
+<p><strong><code>EmailTool</code></strong>（需要人工审批）</p>
+<ul>
+<li>描述：发送电子邮件，<strong>此操作需要人工确认才能执行</strong></li>
+<li>输入：<code>to: str</code>、<code>subject: str</code>、<code>body: str</code></li>
+<li>实现：<ol>
+<li>触发 Human-in-the-loop（设置 <code>state.pending_approval</code>）</li>
+<li>等待人工审批</li>
+<li>审批通过后，调用 SMTP 发送邮件</li>
+</ol>
+</li>
+<li>返回：发送成功&#x2F;失败</li>
+</ul>
+<p><strong>MCP 工具集成（<code>app/tools/mcp/</code>）</strong></p>
+<p>MCP（Model Context Protocol）是 Anthropic 提出的工具调用标准协议。通过实现 MCP 接口，可以快速将企业内部系统封装为 Agent 可调用的工具。</p>
+<p><code>MCPClient</code> 类：</p>
+<ul>
+<li>通过 HTTP 或 STDIO 连接 MCP Server</li>
+<li><code>list_tools() -&gt; List[MCPToolDef]</code> → 获取 MCP Server 暴露的工具列表</li>
+<li><code>call_tool(tool_name: str, params: dict) -&gt; str</code> → 调用指定工具</li>
+</ul>
+<p><code>MCPToolAdapter</code> 类：</p>
+<ul>
+<li>将 MCP 工具定义适配为 LangChain <code>BaseTool</code></li>
+<li>自动根据 MCP 工具的 schema 生成 Pydantic 参数模型</li>
+</ul>
+<h3 id="5-6-RAG-模块设计"><a href="#5-6-RAG-模块设计" class="headerlink" title="5.6 RAG 模块设计"></a>5.6 RAG 模块设计</h3><p><strong><code>app/rag/</code> 目录：</strong></p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">rag/</span><br><span class="line">├── document_parser.py     # 文档解析</span><br><span class="line">├── text_splitter.py       # 文本切分</span><br><span class="line">├── embedding_service.py   # Embedding 服务</span><br><span class="line">├── vector_store.py        # 向量数据库封装</span><br><span class="line">└── rag_service.py         # RAG 主服务（组合上述模块）</span><br></pre></td></tr></table></figure>
+
+<p><strong><code>DocumentParser</code></strong></p>
+<p>方法：<code>parse(file_path: str, file_type: str) -&gt; List[Document]</code></p>
+<p>支持文件类型与解析方式：</p>
+<ul>
+<li><code>.pdf</code> → 使用 <code>pypdf</code> 或 <code>unstructured</code>，按页分割</li>
+<li><code>.docx</code> → 使用 <code>python-docx</code>，提取段落</li>
+<li><code>.txt</code> &#x2F; <code>.md</code> → 直接读取</li>
+<li><code>.csv</code> → 转换为 Markdown 表格格式（便于 LLM 理解）</li>
+<li><code>.html</code> → 使用 <code>BeautifulSoup</code> 提取正文</li>
+</ul>
+<p>每个解析结果包含：</p>
+<ul>
+<li><code>page_content: str</code>（文本内容）</li>
+<li><code>metadata: dict</code>（docId、知识库 ID、文件名、页码&#x2F;段落序号、创建时间）</li>
+</ul>
+<p><strong><code>SmartTextSplitter</code></strong></p>
+<p>职责：将长文档切分为合适大小的 chunk，同时保持语义完整性</p>
+<p>配置参数（从 settings 读取）：</p>
+<ul>
+<li><code>chunk_size: int = 512</code>（每个 chunk 的最大 token 数）</li>
+<li><code>chunk_overlap: int = 100</code>（相邻 chunk 重叠 token 数，保证上下文连续性）</li>
+<li><code>separators: List[str]</code>（按优先级：<code>\n\n</code> → <code>\n</code> → <code>. </code> → <code> </code>）</li>
+</ul>
+<p>使用 LangChain 的 <code>RecursiveCharacterTextSplitter</code>，配置 <code>length_function=tiktoken_length</code>（基于 Token 计数而非字符数）。</p>
+<p><strong><code>EmbeddingService</code></strong></p>
+<p>职责：批量生成文本的向量表示</p>
+<p>方法：</p>
+<ul>
+<li><code>embed_texts(texts: List[str], batch_size: int = 100) -&gt; List[List[float]]</code> → 批量 Embedding，控制并发请求速率（rate limit）</li>
+<li><code>embed_query(query: str) -&gt; List[float]</code> → 单个 query 的 Embedding（检索时使用）</li>
+</ul>
+<p>注意：Embedding 调用有 API 限流，需使用 <code>tenacity</code> 实现指数退避重试。</p>
+<p><strong><code>VectorStoreService</code></strong></p>
+<p>职责：封装向量数据库操作，屏蔽 ChromaDB &#x2F; Milvus 差异</p>
+<p>方法：</p>
+<ul>
+<li><code>create_collection(collection_name: str, dimension: int)</code> → 创建集合（知识库对应一个 collection）</li>
+<li><code>upsert(collection_name: str, ids: List[str], embeddings: List[List[float]], documents: List[str], metadatas: List[dict])</code> → 批量插入&#x2F;更新</li>
+<li><code>query(collection_name: str, query_embedding: List[float], top_k: int = 5, filter: dict = None) -&gt; List[RetrievedDocument]</code> → 向量相似度检索</li>
+<li><code>delete(collection_name: str, ids: List[str])</code> → 删除文档向量</li>
+<li><code>delete_collection(collection_name: str)</code> → 删除整个集合（删除知识库时调用）</li>
+</ul>
+<p><strong><code>RagService</code></strong>（核心 RAG 流程）</p>
+<p>方法：</p>
+<ul>
+<li><code>retrieve(query: str, knowledge_base_ids: List[str], top_k: int = 5) -&gt; List[RetrievedDocument]</code><ol>
+<li>对 query 做 Embedding</li>
+<li>在指定知识库的 collection 中并行检索（asyncio.gather）</li>
+<li>合并结果，按相似度分数排序，去重</li>
+<li>过滤低分结果（相似度 &lt; 0.5 的丢弃）</li>
+<li>返回 Top-K 结果（含原文和来源信息）</li>
+</ol>
+</li>
+<li><code>format_context(retrieved_docs: List[RetrievedDocument]) -&gt; str</code> → 将检索结果格式化为注入 Prompt 的上下文字符串，附带来源引用</li>
+</ul>
+<p><strong>Prompt 模板（RAG System Prompt）：</strong></p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">你是一个专业的企业知识助手。回答问题时，请优先基于以下参考资料：</span><br><span class="line"></span><br><span class="line">[参考资料]</span><br><span class="line">&#123;context&#125;</span><br><span class="line"></span><br><span class="line">[要求]</span><br><span class="line">1. 答案必须基于参考资料，如果资料不足，明确说明</span><br><span class="line">2. 在回答末尾标注引用来源（文档名 + 页码）</span><br><span class="line">3. 用中文回答，专业、简洁</span><br><span class="line"></span><br><span class="line">当前时间：&#123;current_time&#125;</span><br><span class="line">用户信息：&#123;user_info&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="5-7-记忆模块设计"><a href="#5-7-记忆模块设计" class="headerlink" title="5.7 记忆模块设计"></a>5.7 记忆模块设计</h3><p><strong><code>app/memory/</code> 目录：</strong></p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">memory/</span><br><span class="line">├── short_term_memory.py   # 短期对话记忆</span><br><span class="line">├── long_term_memory.py    # 长期用户画像记忆</span><br><span class="line">└── memory_manager.py      # 记忆管理器（组合）</span><br></pre></td></tr></table></figure>
+
+<p><strong>短期记忆（Short-term Memory）</strong></p>
+<ul>
+<li>存储：Redis List，key &#x3D; <code>memory:short:{userId}:{conversationId}</code></li>
+<li>内容：最近 20 条对话（Human + AI 消息对）</li>
+<li>格式：JSON 序列化的 <code>BaseMessage</code> 列表</li>
+<li>TTL：7天（会话不活跃自动清理）</li>
+<li>方法：<ul>
+<li><code>add_messages(userId, conversationId, messages: List[BaseMessage])</code> → 追加消息，超出 20 条时 LPOP 最旧的</li>
+<li><code>get_messages(userId, conversationId) -&gt; List[BaseMessage]</code> → 读取历史</li>
+<li><code>clear(userId, conversationId)</code> → 清空</li>
+</ul>
+</li>
+</ul>
+<p><strong>长期记忆（Long-term Memory）</strong></p>
+<ul>
+<li>存储：向量数据库（独立 collection：<code>user_memory_{userId}</code>）</li>
+<li>内容：从对话中提取的用户偏好、知识背景、重要事实</li>
+<li>更新时机：每次对话结束后，异步调用 LLM 提取记忆摘要，向量化存储</li>
+<li>检索时机：新会话开始时，用当前问题检索相关长期记忆，注入 System Prompt</li>
+</ul>
+<p><code>LongTermMemoryExtractor</code>：</p>
+<ul>
+<li><code>extract(messages: List[BaseMessage]) -&gt; List[MemoryItem]</code> → 调用 LLM，提取对话中值得记住的信息点<ul>
+<li>Prompt 指引 LLM 只提取：用户姓名&#x2F;角色、技术偏好、重要约束、已完成的事项</li>
+<li>返回结构化的记忆列表（每条记忆含内容、重要度分级）</li>
+</ul>
+</li>
+</ul>
+<h3 id="5-8-gRPC-Server-设计"><a href="#5-8-gRPC-Server-设计" class="headerlink" title="5.8 gRPC Server 设计"></a>5.8 gRPC Server 设计</h3><p><strong><code>app/grpc_server/</code> 目录：</strong></p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">grpc_server/</span><br><span class="line">├── server.py              # gRPC Server 启动</span><br><span class="line">├── agent_servicer.py      # AgentService 实现</span><br><span class="line">└── interceptors.py        # gRPC 拦截器（日志、认证）</span><br></pre></td></tr></table></figure>
+
+<p><strong><code>AgentServicer</code>（实现 proto 定义的 AgentService）</strong></p>
+<p>方法（与 .proto 定义对应）：</p>
+<ul>
+<li><p><code>Chat(request, context)</code> → 同步对话接口</p>
+<ol>
+<li>将 gRPC Request 转换为 <code>AgentState</code></li>
+<li>调用 compiled_graph.invoke()</li>
+<li>从最终 state 提取回复消息</li>
+<li>构建 gRPC Response 返回</li>
+</ol>
+</li>
+<li><p><code>ChatStream(request, context)</code> → 流式对话接口</p>
+<ol>
+<li>使用 <code>graph.astream()</code> 异步流式执行</li>
+<li>每收到一个 LLM token，yield 一个 <code>ChatChunk</code> gRPC 消息</li>
+<li>最后 yield 一个 <code>is_finish=True</code> 的消息</li>
+</ol>
+</li>
+<li><p><code>ExecuteTask(request, context)</code> → 异步任务执行（Kafka 模式下不常用此接口）</p>
+<ol>
+<li>在后台启动 asyncio 任务</li>
+<li>立即返回 taskId</li>
+<li>任务进度&#x2F;结果通过 Kafka 发送</li>
+</ol>
+</li>
+<li><p><code>VectorizeDocument(request, context)</code> → 文档向量化</p>
+<ol>
+<li>下载文件</li>
+<li>解析、切分、Embedding</li>
+<li>存入向量数据库</li>
+<li>返回成功状态和 chunk 数量</li>
+</ol>
+</li>
+<li><p><code>QueryKnowledgeBase(request, context)</code> → 知识库查询</p>
+<ol>
+<li>调用 <code>RagService.retrieve()</code></li>
+<li>格式化检索结果</li>
+<li>返回</li>
+</ol>
+</li>
+</ul>
+<p><strong><code>LoggingInterceptor</code></strong></p>
+<ul>
+<li>记录每次 gRPC 调用的方法名、耗时、状态码</li>
+</ul>
+<h3 id="5-9-Kafka-消费者设计（Python-侧）"><a href="#5-9-Kafka-消费者设计（Python-侧）" class="headerlink" title="5.9 Kafka 消费者设计（Python 侧）"></a>5.9 Kafka 消费者设计（Python 侧）</h3><p><strong><code>app/kafka/consumer.py</code></strong></p>
+<p>使用 <code>aiokafka</code>（异步）消费 <code>agent.task.input</code> Topic：</p>
+<p>处理流程：</p>
+<ol>
+<li>消费到消息后，解析 <code>TaskInputMessage</code></li>
+<li>根据 <code>task_type</code> 分发：<ul>
+<li><code>CHAT</code> → 调用 graph，结果发到 <code>agent.task.result</code></li>
+<li><code>WORKFLOW</code> → 启动 workflow_agent，进度实时发到 <code>agent.task.progress</code></li>
+<li><code>VECTORIZE_DOC</code> → 调用 vectorize_node，完成后发结果</li>
+</ul>
+</li>
+<li>执行过程中异常 → 发送到 <code>agent.task.result</code>（success&#x3D;false）</li>
+<li>手动 commit offset</li>
+</ol>
+<p><strong><code>app/kafka/producer.py</code></strong></p>
+<p>职责：发送进度和结果消息回 Spring Boot 侧</p>
+<p>方法：</p>
+<ul>
+<li><code>send_progress(task_id: str, progress: TaskProgressMessage)</code> → 发送进度</li>
+<li><code>send_result(task_id: str, result: TaskResultMessage)</code> → 发送结果</li>
+<li><code>send_human_approval_needed(task_id: str, msg: HumanApprovalMessage)</code> → 发送审批请求</li>
+</ul>
+<hr>
+<h2 id="6-两服务通信设计（gRPC-Kafka）"><a href="#6-两服务通信设计（gRPC-Kafka）" class="headerlink" title="6. 两服务通信设计（gRPC + Kafka）"></a>6. 两服务通信设计（gRPC + Kafka）</h2><h3 id="6-1-Proto-文件定义"><a href="#6-1-Proto-文件定义" class="headerlink" title="6.1 Proto 文件定义"></a>6.1 Proto 文件定义</h3><p><strong>文件路径</strong>：<code>proto/agent_service.proto</code></p>
+<figure class="highlight protobuf"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br></pre></td><td class="code"><pre><span class="line">syntax = <span class="string">&quot;proto3&quot;</span>;</span><br><span class="line"></span><br><span class="line"><span class="keyword">package</span> autoagent;</span><br><span class="line"></span><br><span class="line"><span class="keyword">option</span> java_multiple_files = <span class="literal">true</span>;</span><br><span class="line"><span class="keyword">option</span> java_package = <span class="string">&quot;com.autoagent.grpc&quot;</span>;</span><br><span class="line"><span class="keyword">option</span> java_outer_classname = <span class="string">&quot;AgentServiceProto&quot;</span>;</span><br><span class="line"></span><br><span class="line"><span class="comment">// ====================== 消息定义 ======================</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">message </span><span class="title class_">ChatRequest</span> &#123;</span><br><span class="line">  <span class="type">string</span> user_id = <span class="number">1</span>;</span><br><span class="line">  <span class="type">string</span> conversation_id = <span class="number">2</span>;</span><br><span class="line">  <span class="type">string</span> message = <span class="number">3</span>;</span><br><span class="line">  <span class="keyword">repeated</span> <span class="type">string</span> knowledge_base_ids = <span class="number">4</span>;</span><br><span class="line">  <span class="keyword">repeated</span> HistoryMessage history = <span class="number">5</span>;  <span class="comment">// 最近 N 条历史</span></span><br><span class="line">  <span class="type">string</span> agent_config_id = <span class="number">6</span>;</span><br><span class="line">  map&lt;<span class="type">string</span>, <span class="type">string</span>&gt; metadata = <span class="number">7</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">message </span><span class="title class_">HistoryMessage</span> &#123;</span><br><span class="line">  <span class="type">string</span> role = <span class="number">1</span>;  <span class="comment">// &quot;human&quot; 或 &quot;ai&quot;</span></span><br><span class="line">  <span class="type">string</span> content = <span class="number">2</span>;</span><br><span class="line">  <span class="type">int64</span> timestamp = <span class="number">3</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">message </span><span class="title class_">ChatResponse</span> &#123;</span><br><span class="line">  <span class="type">string</span> message_id = <span class="number">1</span>;</span><br><span class="line">  <span class="type">string</span> content = <span class="number">2</span>;</span><br><span class="line">  <span class="keyword">repeated</span> SourceReference sources = <span class="number">3</span>;  <span class="comment">// RAG 引用来源</span></span><br><span class="line">  <span class="type">int32</span> input_tokens = <span class="number">4</span>;</span><br><span class="line">  <span class="type">int32</span> output_tokens = <span class="number">5</span>;</span><br><span class="line">  <span class="type">int64</span> duration_ms = <span class="number">6</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">message </span><span class="title class_">ChatChunk</span> &#123;</span><br><span class="line">  <span class="type">string</span> chunk_id = <span class="number">1</span>;</span><br><span class="line">  <span class="type">string</span> content = <span class="number">2</span>;   <span class="comment">// 每次 LLM 输出的 token 片段</span></span><br><span class="line">  <span class="type">bool</span> is_finish = <span class="number">3</span>;</span><br><span class="line">  <span class="type">string</span> finish_reason = <span class="number">4</span>;  <span class="comment">// &quot;stop&quot; / &quot;tool_call&quot; / &quot;error&quot;</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">message </span><span class="title class_">SourceReference</span> &#123;</span><br><span class="line">  <span class="type">string</span> document_name = <span class="number">1</span>;</span><br><span class="line">  <span class="type">string</span> chunk_content = <span class="number">2</span>;</span><br><span class="line">  <span class="type">float</span> similarity_score = <span class="number">3</span>;</span><br><span class="line">  <span class="type">string</span> document_id = <span class="number">4</span>;</span><br><span class="line">  <span class="type">int32</span> page_number = <span class="number">5</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">message </span><span class="title class_">VectorizeRequest</span> &#123;</span><br><span class="line">  <span class="type">string</span> doc_id = <span class="number">1</span>;</span><br><span class="line">  <span class="type">string</span> knowledge_base_id = <span class="number">2</span>;</span><br><span class="line">  <span class="type">string</span> file_url = <span class="number">3</span>;       <span class="comment">// MinIO 文件 URL</span></span><br><span class="line">  <span class="type">string</span> file_type = <span class="number">4</span>;      <span class="comment">// pdf/docx/txt</span></span><br><span class="line">  <span class="type">string</span> file_name = <span class="number">5</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">message </span><span class="title class_">VectorizeResponse</span> &#123;</span><br><span class="line">  <span class="type">bool</span> success = <span class="number">1</span>;</span><br><span class="line">  <span class="type">int32</span> chunk_count = <span class="number">2</span>;</span><br><span class="line">  <span class="type">string</span> error_message = <span class="number">3</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">message </span><span class="title class_">QueryRequest</span> &#123;</span><br><span class="line">  <span class="type">string</span> query = <span class="number">1</span>;</span><br><span class="line">  <span class="keyword">repeated</span> <span class="type">string</span> knowledge_base_ids = <span class="number">2</span>;</span><br><span class="line">  <span class="type">int32</span> top_k = <span class="number">3</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">message </span><span class="title class_">QueryResponse</span> &#123;</span><br><span class="line">  <span class="keyword">repeated</span> SourceReference results = <span class="number">1</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// ====================== 服务定义 ======================</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">service </span><span class="title class_">AgentService</span> &#123;</span><br><span class="line">  <span class="comment">// 同步对话（短任务）</span></span><br><span class="line">  <span class="function"><span class="keyword">rpc</span> Chat(ChatRequest) <span class="keyword">returns</span> (ChatResponse)</span>;</span><br><span class="line">  </span><br><span class="line">  <span class="comment">// 流式对话（SSE 场景）</span></span><br><span class="line">  <span class="function"><span class="keyword">rpc</span> ChatStream(ChatRequest) <span class="keyword">returns</span> (stream ChatChunk)</span>;</span><br><span class="line">  </span><br><span class="line">  <span class="comment">// 文档向量化</span></span><br><span class="line">  <span class="function"><span class="keyword">rpc</span> VectorizeDocument(VectorizeRequest) <span class="keyword">returns</span> (VectorizeResponse)</span>;</span><br><span class="line">  </span><br><span class="line">  <span class="comment">// 知识库查询</span></span><br><span class="line">  <span class="function"><span class="keyword">rpc</span> QueryKnowledgeBase(QueryRequest) <span class="keyword">returns</span> (QueryResponse)</span>;</span><br><span class="line">  </span><br><span class="line">  <span class="comment">// 健康检查</span></span><br><span class="line">  <span class="function"><span class="keyword">rpc</span> HealthCheck(google.protobuf.Empty) <span class="keyword">returns</span> (HealthResponse)</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">message </span><span class="title class_">HealthResponse</span> &#123;</span><br><span class="line">  <span class="type">bool</span> healthy = <span class="number">1</span>;</span><br><span class="line">  <span class="type">string</span> version = <span class="number">2</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="6-2-Kafka-消息格式规范"><a href="#6-2-Kafka-消息格式规范" class="headerlink" title="6.2 Kafka 消息格式规范"></a>6.2 Kafka 消息格式规范</h3><p>所有 Kafka 消息使用 JSON 格式，包含统一的 <code>messageType</code> 字段便于路由。</p>
+<p><strong><code>agent.task.input</code> Topic 消息格式：</strong></p>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="punctuation">&#123;</span></span><br><span class="line">  <span class="attr">&quot;messageType&quot;</span><span class="punctuation">:</span> <span class="string">&quot;TASK_INPUT&quot;</span><span class="punctuation">,</span></span><br><span class="line">  <span class="attr">&quot;taskId&quot;</span><span class="punctuation">:</span> <span class="string">&quot;uuid&quot;</span><span class="punctuation">,</span></span><br><span class="line">  <span class="attr">&quot;taskType&quot;</span><span class="punctuation">:</span> <span class="string">&quot;WORKFLOW&quot;</span><span class="punctuation">,</span></span><br><span class="line">  <span class="attr">&quot;userId&quot;</span><span class="punctuation">:</span> <span class="string">&quot;uuid&quot;</span><span class="punctuation">,</span></span><br><span class="line">  <span class="attr">&quot;knowledgeBaseIds&quot;</span><span class="punctuation">:</span> <span class="punctuation">[</span><span class="string">&quot;kb-1&quot;</span><span class="punctuation">,</span> <span class="string">&quot;kb-2&quot;</span><span class="punctuation">]</span><span class="punctuation">,</span></span><br><span class="line">  <span class="attr">&quot;inputParams&quot;</span><span class="punctuation">:</span> <span class="punctuation">&#123;</span></span><br><span class="line">    <span class="attr">&quot;description&quot;</span><span class="punctuation">:</span> <span class="string">&quot;帮我搜集最新的 AI 新闻并生成周报&quot;</span><span class="punctuation">,</span></span><br><span class="line">    <span class="attr">&quot;output_format&quot;</span><span class="punctuation">:</span> <span class="string">&quot;markdown&quot;</span><span class="punctuation">,</span></span><br><span class="line">    <span class="attr">&quot;send_email&quot;</span><span class="punctuation">:</span> <span class="literal"><span class="keyword">true</span></span><span class="punctuation">,</span></span><br><span class="line">    <span class="attr">&quot;email_recipients&quot;</span><span class="punctuation">:</span> <span class="punctuation">[</span><span class="string">&quot;xxx@company.com&quot;</span><span class="punctuation">]</span></span><br><span class="line">  <span class="punctuation">&#125;</span><span class="punctuation">,</span></span><br><span class="line">  <span class="attr">&quot;agentConfigId&quot;</span><span class="punctuation">:</span> <span class="string">&quot;default&quot;</span><span class="punctuation">,</span></span><br><span class="line">  <span class="attr">&quot;timestamp&quot;</span><span class="punctuation">:</span> <span class="number">1717000000000</span></span><br><span class="line"><span class="punctuation">&#125;</span></span><br></pre></td></tr></table></figure>
+
+<p><strong><code>agent.task.progress</code> Topic 消息格式：</strong></p>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="punctuation">&#123;</span></span><br><span class="line">  <span class="attr">&quot;messageType&quot;</span><span class="punctuation">:</span> <span class="string">&quot;TASK_PROGRESS&quot;</span><span class="punctuation">,</span></span><br><span class="line">  <span class="attr">&quot;taskId&quot;</span><span class="punctuation">:</span> <span class="string">&quot;uuid&quot;</span><span class="punctuation">,</span></span><br><span class="line">  <span class="attr">&quot;stepName&quot;</span><span class="punctuation">:</span> <span class="string">&quot;联网搜索&quot;</span><span class="punctuation">,</span></span><br><span class="line">  <span class="attr">&quot;stepIndex&quot;</span><span class="punctuation">:</span> <span class="number">2</span><span class="punctuation">,</span></span><br><span class="line">  <span class="attr">&quot;totalSteps&quot;</span><span class="punctuation">:</span> <span class="number">5</span><span class="punctuation">,</span></span><br><span class="line">  <span class="attr">&quot;content&quot;</span><span class="punctuation">:</span> <span class="string">&quot;正在搜索过去 7 天的 AI 新闻...&quot;</span><span class="punctuation">,</span></span><br><span class="line">  <span class="attr">&quot;toolName&quot;</span><span class="punctuation">:</span> <span class="string">&quot;web_search&quot;</span><span class="punctuation">,</span></span><br><span class="line">  <span class="attr">&quot;toolInput&quot;</span><span class="punctuation">:</span> <span class="punctuation">&#123;</span><span class="attr">&quot;query&quot;</span><span class="punctuation">:</span> <span class="string">&quot;AI news past 7 days&quot;</span><span class="punctuation">&#125;</span><span class="punctuation">,</span></span><br><span class="line">  <span class="attr">&quot;toolOutput&quot;</span><span class="punctuation">:</span> <span class="string">&quot;找到 15 篇相关文章&quot;</span><span class="punctuation">,</span></span><br><span class="line">  <span class="attr">&quot;status&quot;</span><span class="punctuation">:</span> <span class="string">&quot;RUNNING&quot;</span><span class="punctuation">,</span></span><br><span class="line">  <span class="attr">&quot;timestamp&quot;</span><span class="punctuation">:</span> <span class="number">1717000005000</span></span><br><span class="line"><span class="punctuation">&#125;</span></span><br></pre></td></tr></table></figure>
+
+<p><strong><code>agent.task.result</code> Topic 消息格式：</strong></p>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="punctuation">&#123;</span></span><br><span class="line">  <span class="attr">&quot;messageType&quot;</span><span class="punctuation">:</span> <span class="string">&quot;TASK_RESULT&quot;</span><span class="punctuation">,</span></span><br><span class="line">  <span class="attr">&quot;taskId&quot;</span><span class="punctuation">:</span> <span class="string">&quot;uuid&quot;</span><span class="punctuation">,</span></span><br><span class="line">  <span class="attr">&quot;success&quot;</span><span class="punctuation">:</span> <span class="literal"><span class="keyword">true</span></span><span class="punctuation">,</span></span><br><span class="line">  <span class="attr">&quot;result&quot;</span><span class="punctuation">:</span> <span class="string">&quot;# AI 周报\n\n## 本周重要进展\n...&quot;</span><span class="punctuation">,</span></span><br><span class="line">  <span class="attr">&quot;errorMessage&quot;</span><span class="punctuation">:</span> <span class="literal"><span class="keyword">null</span></span><span class="punctuation">,</span></span><br><span class="line">  <span class="attr">&quot;totalInputTokens&quot;</span><span class="punctuation">:</span> <span class="number">8500</span><span class="punctuation">,</span></span><br><span class="line">  <span class="attr">&quot;totalOutputTokens&quot;</span><span class="punctuation">:</span> <span class="number">1200</span><span class="punctuation">,</span></span><br><span class="line">  <span class="attr">&quot;durationMs&quot;</span><span class="punctuation">:</span> <span class="number">45000</span><span class="punctuation">,</span></span><br><span class="line">  <span class="attr">&quot;timestamp&quot;</span><span class="punctuation">:</span> <span class="number">1717000050000</span></span><br><span class="line"><span class="punctuation">&#125;</span></span><br></pre></td></tr></table></figure>
+
+<p><strong><code>agent.task.humanhit</code> Topic 消息格式：</strong></p>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="punctuation">&#123;</span></span><br><span class="line">  <span class="attr">&quot;messageType&quot;</span><span class="punctuation">:</span> <span class="string">&quot;HUMAN_APPROVAL_NEEDED&quot;</span><span class="punctuation">,</span></span><br><span class="line">  <span class="attr">&quot;taskId&quot;</span><span class="punctuation">:</span> <span class="string">&quot;uuid&quot;</span><span class="punctuation">,</span></span><br><span class="line">  <span class="attr">&quot;approvalId&quot;</span><span class="punctuation">:</span> <span class="string">&quot;uuid&quot;</span><span class="punctuation">,</span></span><br><span class="line">  <span class="attr">&quot;actionType&quot;</span><span class="punctuation">:</span> <span class="string">&quot;SEND_EMAIL&quot;</span><span class="punctuation">,</span></span><br><span class="line">  <span class="attr">&quot;actionDescription&quot;</span><span class="punctuation">:</span> <span class="string">&quot;Agent 即将发送邮件给以下收件人：xxx@company.com&quot;</span><span class="punctuation">,</span></span><br><span class="line">  <span class="attr">&quot;actionContext&quot;</span><span class="punctuation">:</span> <span class="punctuation">&#123;</span></span><br><span class="line">    <span class="attr">&quot;to&quot;</span><span class="punctuation">:</span> <span class="string">&quot;xxx@company.com&quot;</span><span class="punctuation">,</span></span><br><span class="line">    <span class="attr">&quot;subject&quot;</span><span class="punctuation">:</span> <span class="string">&quot;AI 周报 - 2024年第22周&quot;</span><span class="punctuation">,</span></span><br><span class="line">    <span class="attr">&quot;bodyPreview&quot;</span><span class="punctuation">:</span> <span class="string">&quot;邮件正文前200字...&quot;</span></span><br><span class="line">  <span class="punctuation">&#125;</span><span class="punctuation">,</span></span><br><span class="line">  <span class="attr">&quot;waitTimeoutMs&quot;</span><span class="punctuation">:</span> <span class="number">300000</span><span class="punctuation">,</span></span><br><span class="line">  <span class="attr">&quot;timestamp&quot;</span><span class="punctuation">:</span> <span class="number">1717000040000</span></span><br><span class="line"><span class="punctuation">&#125;</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="6-3-gRPC-代码生成流程"><a href="#6-3-gRPC-代码生成流程" class="headerlink" title="6.3 gRPC 代码生成流程"></a>6.3 gRPC 代码生成流程</h3><p><strong>Java 侧（Maven Plugin）：</strong></p>
+<p>pom.xml 中配置 <code>protobuf-maven-plugin</code>：</p>
+<ul>
+<li>插件会自动下载 <code>protoc</code> 编译器</li>
+<li>执行 <code>mvn generate-sources</code> 命令</li>
+<li>在 <code>target/generated-sources/protobuf/</code> 生成 Java 类</li>
+<li>需要将此目录添加为 Source Root</li>
+</ul>
+<p><strong>Python 侧：</strong></p>
+<p>执行命令：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">python -m grpc_tools.protoc \</span><br><span class="line">  -I./proto \</span><br><span class="line">  --python_out=./app/grpc_server/generated \</span><br><span class="line">  --grpc_python_out=./app/grpc_server/generated \</span><br><span class="line">  ./proto/agent_service.proto</span><br></pre></td></tr></table></figure>
+
+<p>建议将此命令写入 <code>Makefile</code> 的 <code>proto</code> 目标，每次 proto 文件变更后执行。</p>
+<hr>
+<h2 id="7-数据库设计"><a href="#7-数据库设计" class="headerlink" title="7. 数据库设计"></a>7. 数据库设计</h2><h3 id="7-1-MySQL-表设计"><a href="#7-1-MySQL-表设计" class="headerlink" title="7.1 MySQL 表设计"></a>7.1 MySQL 表设计</h3><h4 id="t-user-用户表"><a href="#t-user-用户表" class="headerlink" title="t_user 用户表"></a><code>t_user</code> 用户表</h4><figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">CREATE TABLE</span> t_user (</span><br><span class="line">  id            <span class="type">BIGINT</span>       <span class="keyword">NOT NULL</span> COMMENT <span class="string">&#x27;雪花 ID&#x27;</span>,</span><br><span class="line">  username      <span class="type">VARCHAR</span>(<span class="number">50</span>)  <span class="keyword">NOT NULL</span> COMMENT <span class="string">&#x27;用户名&#x27;</span>,</span><br><span class="line">  password      <span class="type">VARCHAR</span>(<span class="number">100</span>) <span class="keyword">NOT NULL</span> COMMENT <span class="string">&#x27;BCrypt 加密密码&#x27;</span>,</span><br><span class="line">  email         <span class="type">VARCHAR</span>(<span class="number">100</span>) COMMENT <span class="string">&#x27;邮箱&#x27;</span>,</span><br><span class="line">  nickname      <span class="type">VARCHAR</span>(<span class="number">50</span>)  COMMENT <span class="string">&#x27;昵称&#x27;</span>,</span><br><span class="line">  avatar_url    <span class="type">VARCHAR</span>(<span class="number">500</span>) COMMENT <span class="string">&#x27;头像 URL&#x27;</span>,</span><br><span class="line">  role          <span class="type">VARCHAR</span>(<span class="number">20</span>)  <span class="keyword">NOT NULL</span> <span class="keyword">DEFAULT</span> <span class="string">&#x27;USER&#x27;</span> COMMENT <span class="string">&#x27;USER/ADMIN&#x27;</span>,</span><br><span class="line">  status        TINYINT      <span class="keyword">NOT NULL</span> <span class="keyword">DEFAULT</span> <span class="number">1</span> COMMENT <span class="string">&#x27;1=正常, 0=禁用&#x27;</span>,</span><br><span class="line">  last_login_at DATETIME     COMMENT <span class="string">&#x27;最后登录时间&#x27;</span>,</span><br><span class="line">  created_at    DATETIME     <span class="keyword">NOT NULL</span> <span class="keyword">DEFAULT</span> <span class="built_in">CURRENT_TIMESTAMP</span>,</span><br><span class="line">  updated_at    DATETIME     <span class="keyword">NOT NULL</span> <span class="keyword">DEFAULT</span> <span class="built_in">CURRENT_TIMESTAMP</span> <span class="keyword">ON</span> <span class="keyword">UPDATE</span> <span class="built_in">CURRENT_TIMESTAMP</span>,</span><br><span class="line">  is_deleted    TINYINT      <span class="keyword">NOT NULL</span> <span class="keyword">DEFAULT</span> <span class="number">0</span>,</span><br><span class="line">  <span class="keyword">PRIMARY KEY</span> (id),</span><br><span class="line">  <span class="keyword">UNIQUE</span> KEY uk_username (username),</span><br><span class="line">  <span class="keyword">UNIQUE</span> KEY uk_email (email)</span><br><span class="line">) ENGINE<span class="operator">=</span>InnoDB <span class="keyword">DEFAULT</span> CHARSET<span class="operator">=</span>utf8mb4 COMMENT<span class="operator">=</span><span class="string">&#x27;用户表&#x27;</span>;</span><br></pre></td></tr></table></figure>
+
+<h4 id="t-conversation-会话表"><a href="#t-conversation-会话表" class="headerlink" title="t_conversation 会话表"></a><code>t_conversation</code> 会话表</h4><figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">CREATE TABLE</span> t_conversation (</span><br><span class="line">  id                 <span class="type">BIGINT</span>       <span class="keyword">NOT NULL</span>,</span><br><span class="line">  user_id            <span class="type">BIGINT</span>       <span class="keyword">NOT NULL</span> COMMENT <span class="string">&#x27;所属用户&#x27;</span>,</span><br><span class="line">  title              <span class="type">VARCHAR</span>(<span class="number">200</span>) COMMENT <span class="string">&#x27;会话标题（自动提取或用户命名）&#x27;</span>,</span><br><span class="line">  agent_config_id    <span class="type">VARCHAR</span>(<span class="number">50</span>)  COMMENT <span class="string">&#x27;使用的 Agent 配置&#x27;</span>,</span><br><span class="line">  knowledge_base_ids <span class="type">VARCHAR</span>(<span class="number">500</span>) COMMENT <span class="string">&#x27;关联知识库 ID，逗号分隔&#x27;</span>,</span><br><span class="line">  message_count      <span class="type">INT</span>          <span class="keyword">NOT NULL</span> <span class="keyword">DEFAULT</span> <span class="number">0</span> COMMENT <span class="string">&#x27;消息数量&#x27;</span>,</span><br><span class="line">  last_message_at    DATETIME     COMMENT <span class="string">&#x27;最后消息时间&#x27;</span>,</span><br><span class="line">  created_at         DATETIME     <span class="keyword">NOT NULL</span> <span class="keyword">DEFAULT</span> <span class="built_in">CURRENT_TIMESTAMP</span>,</span><br><span class="line">  updated_at         DATETIME     <span class="keyword">NOT NULL</span> <span class="keyword">DEFAULT</span> <span class="built_in">CURRENT_TIMESTAMP</span> <span class="keyword">ON</span> <span class="keyword">UPDATE</span> <span class="built_in">CURRENT_TIMESTAMP</span>,</span><br><span class="line">  is_deleted         TINYINT      <span class="keyword">NOT NULL</span> <span class="keyword">DEFAULT</span> <span class="number">0</span>,</span><br><span class="line">  <span class="keyword">PRIMARY KEY</span> (id),</span><br><span class="line">  KEY idx_user_id (user_id),</span><br><span class="line">  KEY idx_last_message_at (last_message_at)</span><br><span class="line">) ENGINE<span class="operator">=</span>InnoDB <span class="keyword">DEFAULT</span> CHARSET<span class="operator">=</span>utf8mb4 COMMENT<span class="operator">=</span><span class="string">&#x27;对话会话表&#x27;</span>;</span><br></pre></td></tr></table></figure>
+
+<h4 id="t-message-消息表"><a href="#t-message-消息表" class="headerlink" title="t_message 消息表"></a><code>t_message</code> 消息表</h4><figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">CREATE TABLE</span> t_message (</span><br><span class="line">  id              <span class="type">BIGINT</span>       <span class="keyword">NOT NULL</span>,</span><br><span class="line">  conversation_id <span class="type">BIGINT</span>       <span class="keyword">NOT NULL</span> COMMENT <span class="string">&#x27;所属会话&#x27;</span>,</span><br><span class="line">  user_id         <span class="type">BIGINT</span>       <span class="keyword">NOT NULL</span> COMMENT <span class="string">&#x27;所属用户&#x27;</span>,</span><br><span class="line">  role            <span class="type">VARCHAR</span>(<span class="number">20</span>)  <span class="keyword">NOT NULL</span> COMMENT <span class="string">&#x27;USER/ASSISTANT/SYSTEM&#x27;</span>,</span><br><span class="line">  content         LONGTEXT     <span class="keyword">NOT NULL</span> COMMENT <span class="string">&#x27;消息内容&#x27;</span>,</span><br><span class="line">  content_type    <span class="type">VARCHAR</span>(<span class="number">20</span>)  <span class="keyword">NOT NULL</span> <span class="keyword">DEFAULT</span> <span class="string">&#x27;TEXT&#x27;</span> COMMENT <span class="string">&#x27;TEXT/IMAGE/FILE&#x27;</span>,</span><br><span class="line">  sources         JSON         COMMENT <span class="string">&#x27;RAG 引用来源（JSON 数组）&#x27;</span>,</span><br><span class="line">  input_tokens    <span class="type">INT</span>          COMMENT <span class="string">&#x27;LLM 输入 Token 数&#x27;</span>,</span><br><span class="line">  output_tokens   <span class="type">INT</span>          COMMENT <span class="string">&#x27;LLM 输出 Token 数&#x27;</span>,</span><br><span class="line">  duration_ms     <span class="type">INT</span>          COMMENT <span class="string">&#x27;响应耗时毫秒&#x27;</span>,</span><br><span class="line">  created_at      DATETIME     <span class="keyword">NOT NULL</span> <span class="keyword">DEFAULT</span> <span class="built_in">CURRENT_TIMESTAMP</span>,</span><br><span class="line">  is_deleted      TINYINT      <span class="keyword">NOT NULL</span> <span class="keyword">DEFAULT</span> <span class="number">0</span>,</span><br><span class="line">  <span class="keyword">PRIMARY KEY</span> (id),</span><br><span class="line">  KEY idx_conversation_id (conversation_id),</span><br><span class="line">  KEY idx_created_at (created_at)</span><br><span class="line">) ENGINE<span class="operator">=</span>InnoDB <span class="keyword">DEFAULT</span> CHARSET<span class="operator">=</span>utf8mb4 COMMENT<span class="operator">=</span><span class="string">&#x27;对话消息表&#x27;</span>;</span><br></pre></td></tr></table></figure>
+
+<h4 id="t-task-任务表"><a href="#t-task-任务表" class="headerlink" title="t_task 任务表"></a><code>t_task</code> 任务表</h4><figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">CREATE TABLE</span> t_task (</span><br><span class="line">  id              <span class="type">BIGINT</span>       <span class="keyword">NOT NULL</span>,</span><br><span class="line">  user_id         <span class="type">BIGINT</span>       <span class="keyword">NOT NULL</span> COMMENT <span class="string">&#x27;创建用户&#x27;</span>,</span><br><span class="line">  title           <span class="type">VARCHAR</span>(<span class="number">200</span>) <span class="keyword">NOT NULL</span> COMMENT <span class="string">&#x27;任务标题&#x27;</span>,</span><br><span class="line">  task_type       <span class="type">VARCHAR</span>(<span class="number">50</span>)  <span class="keyword">NOT NULL</span> COMMENT <span class="string">&#x27;WORKFLOW/VECTORIZE/etc&#x27;</span>,</span><br><span class="line">  status          <span class="type">VARCHAR</span>(<span class="number">20</span>)  <span class="keyword">NOT NULL</span> <span class="keyword">DEFAULT</span> <span class="string">&#x27;PENDING&#x27;</span> </span><br><span class="line">                               COMMENT <span class="string">&#x27;PENDING/RUNNING/AWAITING_APPROVAL/COMPLETED/FAILED/CANCELLED&#x27;</span>,</span><br><span class="line">  input_params    JSON         COMMENT <span class="string">&#x27;任务输入参数&#x27;</span>,</span><br><span class="line">  <span class="keyword">result</span>          LONGTEXT     COMMENT <span class="string">&#x27;任务最终结果&#x27;</span>,</span><br><span class="line">  error_message   <span class="type">VARCHAR</span>(<span class="number">1000</span>)COMMENT <span class="string">&#x27;错误信息&#x27;</span>,</span><br><span class="line">  knowledge_base_ids <span class="type">VARCHAR</span>(<span class="number">500</span>) COMMENT <span class="string">&#x27;关联知识库&#x27;</span>,</span><br><span class="line">  agent_config_id <span class="type">VARCHAR</span>(<span class="number">50</span>),</span><br><span class="line">  total_input_tokens  <span class="type">INT</span>      COMMENT <span class="string">&#x27;总输入 Token&#x27;</span>,</span><br><span class="line">  total_output_tokens <span class="type">INT</span>      COMMENT <span class="string">&#x27;总输出 Token&#x27;</span>,</span><br><span class="line">  started_at      DATETIME     COMMENT <span class="string">&#x27;开始执行时间&#x27;</span>,</span><br><span class="line">  finished_at     DATETIME     COMMENT <span class="string">&#x27;完成时间&#x27;</span>,</span><br><span class="line">  created_at      DATETIME     <span class="keyword">NOT NULL</span> <span class="keyword">DEFAULT</span> <span class="built_in">CURRENT_TIMESTAMP</span>,</span><br><span class="line">  updated_at      DATETIME     <span class="keyword">NOT NULL</span> <span class="keyword">DEFAULT</span> <span class="built_in">CURRENT_TIMESTAMP</span> <span class="keyword">ON</span> <span class="keyword">UPDATE</span> <span class="built_in">CURRENT_TIMESTAMP</span>,</span><br><span class="line">  is_deleted      TINYINT      <span class="keyword">NOT NULL</span> <span class="keyword">DEFAULT</span> <span class="number">0</span>,</span><br><span class="line">  <span class="keyword">PRIMARY KEY</span> (id),</span><br><span class="line">  KEY idx_user_id (user_id),</span><br><span class="line">  KEY idx_status (status),</span><br><span class="line">  KEY idx_created_at (created_at)</span><br><span class="line">) ENGINE<span class="operator">=</span>InnoDB <span class="keyword">DEFAULT</span> CHARSET<span class="operator">=</span>utf8mb4 COMMENT<span class="operator">=</span><span class="string">&#x27;Agent 任务表&#x27;</span>;</span><br></pre></td></tr></table></figure>
+
+<h4 id="t-task-step-任务步骤表"><a href="#t-task-step-任务步骤表" class="headerlink" title="t_task_step 任务步骤表"></a><code>t_task_step</code> 任务步骤表</h4><figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">CREATE TABLE</span> t_task_step (</span><br><span class="line">  id            <span class="type">BIGINT</span>       <span class="keyword">NOT NULL</span>,</span><br><span class="line">  task_id       <span class="type">BIGINT</span>       <span class="keyword">NOT NULL</span> COMMENT <span class="string">&#x27;所属任务&#x27;</span>,</span><br><span class="line">  step_index    <span class="type">INT</span>          <span class="keyword">NOT NULL</span> COMMENT <span class="string">&#x27;步骤序号，从 1 开始&#x27;</span>,</span><br><span class="line">  step_name     <span class="type">VARCHAR</span>(<span class="number">100</span>) COMMENT <span class="string">&#x27;步骤名称&#x27;</span>,</span><br><span class="line">  status        <span class="type">VARCHAR</span>(<span class="number">20</span>)  <span class="keyword">NOT NULL</span> <span class="keyword">DEFAULT</span> <span class="string">&#x27;PENDING&#x27;</span> </span><br><span class="line">                             COMMENT <span class="string">&#x27;PENDING/RUNNING/COMPLETED/FAILED/SKIPPED&#x27;</span>,</span><br><span class="line">  tool_name     <span class="type">VARCHAR</span>(<span class="number">100</span>) COMMENT <span class="string">&#x27;调用的工具名称&#x27;</span>,</span><br><span class="line">  tool_input    JSON         COMMENT <span class="string">&#x27;工具输入参数&#x27;</span>,</span><br><span class="line">  tool_output   LONGTEXT     COMMENT <span class="string">&#x27;工具输出结果&#x27;</span>,</span><br><span class="line">  error_message <span class="type">VARCHAR</span>(<span class="number">500</span>),</span><br><span class="line">  started_at    DATETIME,</span><br><span class="line">  finished_at   DATETIME,</span><br><span class="line">  created_at    DATETIME     <span class="keyword">NOT NULL</span> <span class="keyword">DEFAULT</span> <span class="built_in">CURRENT_TIMESTAMP</span>,</span><br><span class="line">  <span class="keyword">PRIMARY KEY</span> (id),</span><br><span class="line">  KEY idx_task_id (task_id),</span><br><span class="line">  KEY idx_task_step (task_id, step_index)</span><br><span class="line">) ENGINE<span class="operator">=</span>InnoDB <span class="keyword">DEFAULT</span> CHARSET<span class="operator">=</span>utf8mb4 COMMENT<span class="operator">=</span><span class="string">&#x27;任务步骤记录表&#x27;</span>;</span><br></pre></td></tr></table></figure>
+
+<h4 id="t-agent-trace-Agent-推理链路表"><a href="#t-agent-trace-Agent-推理链路表" class="headerlink" title="t_agent_trace Agent 推理链路表"></a><code>t_agent_trace</code> Agent 推理链路表</h4><figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">CREATE TABLE</span> t_agent_trace (</span><br><span class="line">  id            <span class="type">BIGINT</span>       <span class="keyword">NOT NULL</span>,</span><br><span class="line">  task_id       <span class="type">BIGINT</span>       COMMENT <span class="string">&#x27;关联任务 ID（长任务）&#x27;</span>,</span><br><span class="line">  message_id    <span class="type">BIGINT</span>       COMMENT <span class="string">&#x27;关联消息 ID（对话）&#x27;</span>,</span><br><span class="line">  trace_type    <span class="type">VARCHAR</span>(<span class="number">50</span>)  COMMENT <span class="string">&#x27;THOUGHT/ACTION/OBSERVATION/FINAL_ANSWER&#x27;</span>,</span><br><span class="line">  agent_name    <span class="type">VARCHAR</span>(<span class="number">100</span>) COMMENT <span class="string">&#x27;执行的 Agent 节点名&#x27;</span>,</span><br><span class="line">  content       LONGTEXT     COMMENT <span class="string">&#x27;Trace 内容（LLM 思考过程/工具调用/工具结果）&#x27;</span>,</span><br><span class="line">  sequence      <span class="type">INT</span>          COMMENT <span class="string">&#x27;在当次执行中的顺序&#x27;</span>,</span><br><span class="line">  tokens        <span class="type">INT</span>          COMMENT <span class="string">&#x27;本步骤消耗 Token&#x27;</span>,</span><br><span class="line">  duration_ms   <span class="type">INT</span>          COMMENT <span class="string">&#x27;本步骤耗时&#x27;</span>,</span><br><span class="line">  created_at    DATETIME     <span class="keyword">NOT NULL</span> <span class="keyword">DEFAULT</span> <span class="built_in">CURRENT_TIMESTAMP</span>,</span><br><span class="line">  <span class="keyword">PRIMARY KEY</span> (id),</span><br><span class="line">  KEY idx_task_id (task_id),</span><br><span class="line">  KEY idx_message_id (message_id)</span><br><span class="line">) ENGINE<span class="operator">=</span>InnoDB <span class="keyword">DEFAULT</span> CHARSET<span class="operator">=</span>utf8mb4 COMMENT<span class="operator">=</span><span class="string">&#x27;Agent 推理链路日志&#x27;</span>;</span><br></pre></td></tr></table></figure>
+
+<h4 id="t-knowledge-base-知识库表"><a href="#t-knowledge-base-知识库表" class="headerlink" title="t_knowledge_base 知识库表"></a><code>t_knowledge_base</code> 知识库表</h4><figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">CREATE TABLE</span> t_knowledge_base (</span><br><span class="line">  id               <span class="type">BIGINT</span>       <span class="keyword">NOT NULL</span>,</span><br><span class="line">  user_id          <span class="type">BIGINT</span>       <span class="keyword">NOT NULL</span> COMMENT <span class="string">&#x27;创建用户&#x27;</span>,</span><br><span class="line">  name             <span class="type">VARCHAR</span>(<span class="number">100</span>) <span class="keyword">NOT NULL</span> COMMENT <span class="string">&#x27;知识库名称&#x27;</span>,</span><br><span class="line">  description      <span class="type">VARCHAR</span>(<span class="number">500</span>) COMMENT <span class="string">&#x27;描述&#x27;</span>,</span><br><span class="line">  embedding_model  <span class="type">VARCHAR</span>(<span class="number">100</span>) <span class="keyword">NOT NULL</span> <span class="keyword">DEFAULT</span> <span class="string">&#x27;text-embedding-3-small&#x27;</span> COMMENT <span class="string">&#x27;使用的 Embedding 模型&#x27;</span>,</span><br><span class="line">  chunk_size       <span class="type">INT</span>          <span class="keyword">NOT NULL</span> <span class="keyword">DEFAULT</span> <span class="number">512</span>,</span><br><span class="line">  chunk_overlap    <span class="type">INT</span>          <span class="keyword">NOT NULL</span> <span class="keyword">DEFAULT</span> <span class="number">100</span>,</span><br><span class="line">  document_count   <span class="type">INT</span>          <span class="keyword">NOT NULL</span> <span class="keyword">DEFAULT</span> <span class="number">0</span>,</span><br><span class="line">  total_chunks     <span class="type">INT</span>          <span class="keyword">NOT NULL</span> <span class="keyword">DEFAULT</span> <span class="number">0</span>,</span><br><span class="line">  status           <span class="type">VARCHAR</span>(<span class="number">20</span>)  <span class="keyword">NOT NULL</span> <span class="keyword">DEFAULT</span> <span class="string">&#x27;ACTIVE&#x27;</span> COMMENT <span class="string">&#x27;ACTIVE/INACTIVE&#x27;</span>,</span><br><span class="line">  created_at       DATETIME     <span class="keyword">NOT NULL</span> <span class="keyword">DEFAULT</span> <span class="built_in">CURRENT_TIMESTAMP</span>,</span><br><span class="line">  updated_at       DATETIME     <span class="keyword">NOT NULL</span> <span class="keyword">DEFAULT</span> <span class="built_in">CURRENT_TIMESTAMP</span> <span class="keyword">ON</span> <span class="keyword">UPDATE</span> <span class="built_in">CURRENT_TIMESTAMP</span>,</span><br><span class="line">  is_deleted       TINYINT      <span class="keyword">NOT NULL</span> <span class="keyword">DEFAULT</span> <span class="number">0</span>,</span><br><span class="line">  <span class="keyword">PRIMARY KEY</span> (id),</span><br><span class="line">  KEY idx_user_id (user_id)</span><br><span class="line">) ENGINE<span class="operator">=</span>InnoDB <span class="keyword">DEFAULT</span> CHARSET<span class="operator">=</span>utf8mb4 COMMENT<span class="operator">=</span><span class="string">&#x27;知识库表&#x27;</span>;</span><br></pre></td></tr></table></figure>
+
+<h4 id="t-document-文档表"><a href="#t-document-文档表" class="headerlink" title="t_document 文档表"></a><code>t_document</code> 文档表</h4><figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">CREATE TABLE</span> t_document (</span><br><span class="line">  id               <span class="type">BIGINT</span>       <span class="keyword">NOT NULL</span>,</span><br><span class="line">  knowledge_base_id <span class="type">BIGINT</span>      <span class="keyword">NOT NULL</span> COMMENT <span class="string">&#x27;所属知识库&#x27;</span>,</span><br><span class="line">  user_id          <span class="type">BIGINT</span>       <span class="keyword">NOT NULL</span> COMMENT <span class="string">&#x27;上传用户&#x27;</span>,</span><br><span class="line">  file_name        <span class="type">VARCHAR</span>(<span class="number">200</span>) <span class="keyword">NOT NULL</span> COMMENT <span class="string">&#x27;原始文件名&#x27;</span>,</span><br><span class="line">  file_type        <span class="type">VARCHAR</span>(<span class="number">20</span>)  <span class="keyword">NOT NULL</span> COMMENT <span class="string">&#x27;pdf/docx/txt/csv&#x27;</span>,</span><br><span class="line">  file_size        <span class="type">BIGINT</span>       <span class="keyword">NOT NULL</span> COMMENT <span class="string">&#x27;文件大小（字节）&#x27;</span>,</span><br><span class="line">  minio_path       <span class="type">VARCHAR</span>(<span class="number">500</span>) <span class="keyword">NOT NULL</span> COMMENT <span class="string">&#x27;MinIO 对象路径&#x27;</span>,</span><br><span class="line">  status           <span class="type">VARCHAR</span>(<span class="number">20</span>)  <span class="keyword">NOT NULL</span> <span class="keyword">DEFAULT</span> <span class="string">&#x27;PROCESSING&#x27;</span> </span><br><span class="line">                               COMMENT <span class="string">&#x27;PROCESSING/COMPLETED/FAILED&#x27;</span>,</span><br><span class="line">  chunk_count      <span class="type">INT</span>          COMMENT <span class="string">&#x27;切分后的 chunk 数量&#x27;</span>,</span><br><span class="line">  error_message    <span class="type">VARCHAR</span>(<span class="number">500</span>),</span><br><span class="line">  created_at       DATETIME     <span class="keyword">NOT NULL</span> <span class="keyword">DEFAULT</span> <span class="built_in">CURRENT_TIMESTAMP</span>,</span><br><span class="line">  updated_at       DATETIME     <span class="keyword">NOT NULL</span> <span class="keyword">DEFAULT</span> <span class="built_in">CURRENT_TIMESTAMP</span> <span class="keyword">ON</span> <span class="keyword">UPDATE</span> <span class="built_in">CURRENT_TIMESTAMP</span>,</span><br><span class="line">  is_deleted       TINYINT      <span class="keyword">NOT NULL</span> <span class="keyword">DEFAULT</span> <span class="number">0</span>,</span><br><span class="line">  <span class="keyword">PRIMARY KEY</span> (id),</span><br><span class="line">  KEY idx_knowledge_base_id (knowledge_base_id)</span><br><span class="line">) ENGINE<span class="operator">=</span>InnoDB <span class="keyword">DEFAULT</span> CHARSET<span class="operator">=</span>utf8mb4 COMMENT<span class="operator">=</span><span class="string">&#x27;知识库文档表&#x27;</span>;</span><br></pre></td></tr></table></figure>
+
+<h4 id="t-agent-config-Agent-配置表"><a href="#t-agent-config-Agent-配置表" class="headerlink" title="t_agent_config Agent 配置表"></a><code>t_agent_config</code> Agent 配置表</h4><figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">CREATE TABLE</span> t_agent_config (</span><br><span class="line">  id              <span class="type">VARCHAR</span>(<span class="number">50</span>)  <span class="keyword">NOT NULL</span> COMMENT <span class="string">&#x27;配置 ID（如 default, creative）&#x27;</span>,</span><br><span class="line">  name            <span class="type">VARCHAR</span>(<span class="number">100</span>) <span class="keyword">NOT NULL</span> COMMENT <span class="string">&#x27;配置名称&#x27;</span>,</span><br><span class="line">  description     <span class="type">VARCHAR</span>(<span class="number">500</span>),</span><br><span class="line">  llm_model       <span class="type">VARCHAR</span>(<span class="number">100</span>) <span class="keyword">NOT NULL</span> <span class="keyword">DEFAULT</span> <span class="string">&#x27;gpt-4o&#x27;</span> COMMENT <span class="string">&#x27;使用的 LLM 模型&#x27;</span>,</span><br><span class="line">  temperature     <span class="type">DECIMAL</span>(<span class="number">3</span>,<span class="number">2</span>) <span class="keyword">NOT NULL</span> <span class="keyword">DEFAULT</span> <span class="number">0.70</span>,</span><br><span class="line">  max_iterations  <span class="type">INT</span>          <span class="keyword">NOT NULL</span> <span class="keyword">DEFAULT</span> <span class="number">10</span> COMMENT <span class="string">&#x27;最大推理步数&#x27;</span>,</span><br><span class="line">  enabled_tools   JSON         COMMENT <span class="string">&#x27;启用的工具列表（JSON 数组）&#x27;</span>,</span><br><span class="line">  system_prompt   LONGTEXT     COMMENT <span class="string">&#x27;自定义 System Prompt&#x27;</span>,</span><br><span class="line">  is_default      TINYINT      <span class="keyword">NOT NULL</span> <span class="keyword">DEFAULT</span> <span class="number">0</span>,</span><br><span class="line">  status          <span class="type">VARCHAR</span>(<span class="number">20</span>)  <span class="keyword">NOT NULL</span> <span class="keyword">DEFAULT</span> <span class="string">&#x27;ACTIVE&#x27;</span>,</span><br><span class="line">  created_at      DATETIME     <span class="keyword">NOT NULL</span> <span class="keyword">DEFAULT</span> <span class="built_in">CURRENT_TIMESTAMP</span>,</span><br><span class="line">  updated_at      DATETIME     <span class="keyword">NOT NULL</span> <span class="keyword">DEFAULT</span> <span class="built_in">CURRENT_TIMESTAMP</span> <span class="keyword">ON</span> <span class="keyword">UPDATE</span> <span class="built_in">CURRENT_TIMESTAMP</span>,</span><br><span class="line">  <span class="keyword">PRIMARY KEY</span> (id)</span><br><span class="line">) ENGINE<span class="operator">=</span>InnoDB <span class="keyword">DEFAULT</span> CHARSET<span class="operator">=</span>utf8mb4 COMMENT<span class="operator">=</span><span class="string">&#x27;Agent 配置表&#x27;</span>;</span><br></pre></td></tr></table></figure>
+
+<h3 id="7-2-Redis-数据结构设计"><a href="#7-2-Redis-数据结构设计" class="headerlink" title="7.2 Redis 数据结构设计"></a>7.2 Redis 数据结构设计</h3><table>
+<thead>
+<tr>
+<th>Key 模式</th>
+<th>数据类型</th>
+<th>TTL</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>refresh:{userId}</code></td>
+<td>String</td>
+<td>7天</td>
+<td>Refresh Token 存储</td>
+</tr>
+<tr>
+<td><code>conv:history:{userId}:{conversationId}</code></td>
+<td>List</td>
+<td>7天</td>
+<td>对话历史消息（JSON 序列化）</td>
+</tr>
+<tr>
+<td><code>ws:session:{sessionId}</code></td>
+<td>String</td>
+<td>1天</td>
+<td>WebSocket sessionId → userId 映射</td>
+</tr>
+<tr>
+<td><code>task:approval:{approvalId}</code></td>
+<td>Hash</td>
+<td>5分钟</td>
+<td>审批上下文缓存</td>
+</tr>
+<tr>
+<td><code>rate:limit:{userId}</code></td>
+<td>String</td>
+<td>1分钟</td>
+<td>用户请求频率计数</td>
+</tr>
+<tr>
+<td><code>llm:cache:{queryHash}</code></td>
+<td>String</td>
+<td>1小时</td>
+<td>LLM 响应缓存（相同 query 复用）</td>
+</tr>
+</tbody></table>
+<h3 id="7-3-向量数据库-Collection-设计"><a href="#7-3-向量数据库-Collection-设计" class="headerlink" title="7.3 向量数据库 Collection 设计"></a>7.3 向量数据库 Collection 设计</h3><p>每个知识库对应一个 ChromaDB Collection，命名规则：<code>kb_{knowledgeBaseId}</code></p>
+<p>Collection 字段：</p>
+<ul>
+<li><code>id</code>：chunk 唯一 ID（<code>{docId}_chunk_{index}</code>）</li>
+<li><code>embedding</code>：向量（维度取决于 Embedding 模型，text-embedding-3-small 为 1536 维）</li>
+<li><code>document</code>：chunk 原文内容</li>
+<li><code>metadata</code>：<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="punctuation">&#123;</span></span><br><span class="line">  <span class="attr">&quot;doc_id&quot;</span><span class="punctuation">:</span> <span class="string">&quot;uuid&quot;</span><span class="punctuation">,</span></span><br><span class="line">  <span class="attr">&quot;knowledge_base_id&quot;</span><span class="punctuation">:</span> <span class="string">&quot;uuid&quot;</span><span class="punctuation">,</span></span><br><span class="line">  <span class="attr">&quot;file_name&quot;</span><span class="punctuation">:</span> <span class="string">&quot;技术文档.pdf&quot;</span><span class="punctuation">,</span></span><br><span class="line">  <span class="attr">&quot;file_type&quot;</span><span class="punctuation">:</span> <span class="string">&quot;pdf&quot;</span><span class="punctuation">,</span></span><br><span class="line">  <span class="attr">&quot;chunk_index&quot;</span><span class="punctuation">:</span> <span class="number">3</span><span class="punctuation">,</span></span><br><span class="line">  <span class="attr">&quot;page_number&quot;</span><span class="punctuation">:</span> <span class="number">2</span><span class="punctuation">,</span></span><br><span class="line">  <span class="attr">&quot;created_at&quot;</span><span class="punctuation">:</span> <span class="string">&quot;2024-06-01T10:00:00Z&quot;</span></span><br><span class="line"><span class="punctuation">&#125;</span></span><br></pre></td></tr></table></figure></li>
+</ul>
+<hr>
+<h2 id="8-前端设计概要"><a href="#8-前端设计概要" class="headerlink" title="8. 前端设计概要"></a>8. 前端设计概要</h2><h3 id="8-1-技术栈"><a href="#8-1-技术栈" class="headerlink" title="8.1 技术栈"></a>8.1 技术栈</h3><table>
+<thead>
+<tr>
+<th>技术</th>
+<th>版本</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>React</td>
+<td>18.x</td>
+<td>UI 框架</td>
+</tr>
+<tr>
+<td>TypeScript</td>
+<td>5.x</td>
+<td>类型安全</td>
+</tr>
+<tr>
+<td>Vite</td>
+<td>5.x</td>
+<td>构建工具</td>
+</tr>
+<tr>
+<td>React Router</td>
+<td>6.x</td>
+<td>路由</td>
+</tr>
+<tr>
+<td>Zustand</td>
+<td>4.x</td>
+<td>状态管理（轻量，适合中小型应用）</td>
+</tr>
+<tr>
+<td>TanStack Query</td>
+<td>5.x</td>
+<td>服务端状态管理与缓存</td>
+</tr>
+<tr>
+<td>Axios</td>
+<td>1.x</td>
+<td>HTTP 请求</td>
+</tr>
+<tr>
+<td>STOMP.js</td>
+<td>7.x</td>
+<td>WebSocket STOMP 客户端</td>
+</tr>
+<tr>
+<td>Tailwind CSS</td>
+<td>3.x</td>
+<td>原子化 CSS</td>
+</tr>
+<tr>
+<td>shadcn&#x2F;ui</td>
+<td>latest</td>
+<td>组件库（基于 Radix UI）</td>
+</tr>
+<tr>
+<td>React Markdown</td>
+<td>9.x</td>
+<td>Markdown 渲染</td>
+</tr>
+<tr>
+<td>Prism.js</td>
+<td>1.x</td>
+<td>代码高亮</td>
+</tr>
+<tr>
+<td>React Hot Toast</td>
+<td>2.x</td>
+<td>消息提示</td>
+</tr>
+</tbody></table>
+<h3 id="8-2-页面结构"><a href="#8-2-页面结构" class="headerlink" title="8.2 页面结构"></a>8.2 页面结构</h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line">pages/</span><br><span class="line">├── LoginPage              # 登录页</span><br><span class="line">├── RegisterPage           # 注册页</span><br><span class="line">├── ChatPage               # 对话主页（核心）</span><br><span class="line">│   ├── ConversationList   # 左侧会话列表</span><br><span class="line">│   ├── MessageArea        # 中间消息区</span><br><span class="line">│   │   ├── MessageItem    # 单条消息（支持 Markdown 渲染）</span><br><span class="line">│   │   └── SourceCard     # RAG 引用来源卡片</span><br><span class="line">│   └── InputArea          # 底部输入框</span><br><span class="line">├── TaskPage               # 工作流任务管理页</span><br><span class="line">│   ├── TaskList           # 任务列表</span><br><span class="line">│   ├── TaskDetail         # 任务详情（步骤进度）</span><br><span class="line">│   └── ApprovalModal      # 人工审批弹窗</span><br><span class="line">├── KnowledgeBasePage      # 知识库管理页</span><br><span class="line">│   ├── KBList             # 知识库列表</span><br><span class="line">│   ├── DocumentList       # 文档列表</span><br><span class="line">│   └── UploadModal        # 文件上传弹窗</span><br><span class="line">└── MonitorPage            # 监控页（管理员）</span><br><span class="line">    └── TraceViewer        # Agent Trace 可视化</span><br></pre></td></tr></table></figure>
+
+<h3 id="8-3-核心交互设计"><a href="#8-3-核心交互设计" class="headerlink" title="8.3 核心交互设计"></a>8.3 核心交互设计</h3><p><strong>对话流式输出：</strong></p>
+<ol>
+<li>用户发送消息</li>
+<li>前端调用 <code>/api/conversations/{id}/messages</code> POST 接口</li>
+<li>响应为普通 JSON（短任务）或立即返回 taskId（长任务）</li>
+<li>短任务：直接展示返回内容</li>
+<li>长任务：建立 WebSocket 订阅 <code>/topic/task/{taskId}</code>，逐步展示进度</li>
+</ol>
+<p><strong>Agent Trace 展示：</strong></p>
+<ul>
+<li>消息右下角有”查看推理过程”按钮</li>
+<li>点击展开侧边栏，展示：<ul>
+<li>🤔 思考（Thought）</li>
+<li>🔧 调用工具（Action）</li>
+<li>📊 工具结果（Observation）</li>
+<li>✅ 最终回答（Final Answer）</li>
+</ul>
+</li>
+</ul>
+<p><strong>人工审批弹窗：</strong></p>
+<ul>
+<li>WebSocket 收到 <code>HUMAN_APPROVAL_NEEDED</code> 消息时，全局弹出审批对话框</li>
+<li>展示 Agent 即将执行的操作描述和上下文</li>
+<li>用户点击「允许」→ 调用 <code>/api/tasks/{taskId}/approve</code></li>
+<li>用户点击「拒绝」→ 调用 <code>/api/tasks/{taskId}/reject</code></li>
+<li>有倒计时（5分钟），超时自动拒绝</li>
+</ul>
+<h3 id="8-4-Zustand-Store-设计"><a href="#8-4-Zustand-Store-设计" class="headerlink" title="8.4 Zustand Store 设计"></a>8.4 Zustand Store 设计</h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">stores/</span><br><span class="line">├── authStore.ts           # 用户认证状态（user, tokens, login/logout）</span><br><span class="line">├── conversationStore.ts   # 当前会话列表和激活会话 ID</span><br><span class="line">├── messageStore.ts        # 消息列表（按 conversationId 分组）</span><br><span class="line">├── taskStore.ts           # 任务列表和任务详情</span><br><span class="line">├── wsStore.ts             # WebSocket 连接状态和消息队列</span><br><span class="line">└── uiStore.ts             # UI 状态（弹窗开关、加载状态）</span><br></pre></td></tr></table></figure>
+
+<hr>
+<h2 id="9-可观测性设计"><a href="#9-可观测性设计" class="headerlink" title="9. 可观测性设计"></a>9. 可观测性设计</h2><h3 id="9-1-日志规范"><a href="#9-1-日志规范" class="headerlink" title="9.1 日志规范"></a>9.1 日志规范</h3><p><strong>Java 侧（Logback + SLF4J）：</strong></p>
+<p>日志格式（JSON 结构化，便于 ELK 采集）：</p>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="punctuation">&#123;</span></span><br><span class="line">  <span class="attr">&quot;timestamp&quot;</span><span class="punctuation">:</span> <span class="string">&quot;2024-06-01T10:00:00.000Z&quot;</span><span class="punctuation">,</span></span><br><span class="line">  <span class="attr">&quot;level&quot;</span><span class="punctuation">:</span> <span class="string">&quot;INFO&quot;</span><span class="punctuation">,</span></span><br><span class="line">  <span class="attr">&quot;logger&quot;</span><span class="punctuation">:</span> <span class="string">&quot;com.autoagent.service.AgentCallService&quot;</span><span class="punctuation">,</span></span><br><span class="line">  <span class="attr">&quot;traceId&quot;</span><span class="punctuation">:</span> <span class="string">&quot;abc123&quot;</span><span class="punctuation">,</span></span><br><span class="line">  <span class="attr">&quot;userId&quot;</span><span class="punctuation">:</span> <span class="string">&quot;uuid&quot;</span><span class="punctuation">,</span></span><br><span class="line">  <span class="attr">&quot;message&quot;</span><span class="punctuation">:</span> <span class="string">&quot;gRPC call to Python agent succeeded&quot;</span><span class="punctuation">,</span></span><br><span class="line">  <span class="attr">&quot;duration&quot;</span><span class="punctuation">:</span> <span class="number">1234</span></span><br><span class="line"><span class="punctuation">&#125;</span></span><br></pre></td></tr></table></figure>
+
+<p>关键日志点：</p>
+<ul>
+<li>每次 gRPC 调用：方法名、耗时、成功&#x2F;失败</li>
+<li>每次 Kafka 消息发送&#x2F;消费：topic、offset、耗时</li>
+<li>每次 JWT 验证失败：IP、userId（若有）</li>
+<li>业务异常：完整 stacktrace</li>
+</ul>
+<p><strong>Python 侧（structlog）：</strong></p>
+<p>使用 structlog 的 JSON 渲染器，格式与 Java 侧一致，便于 ELK 统一处理。</p>
+<p>关键日志点：</p>
+<ul>
+<li>每次 LLM 调用：模型名、token 数、耗时、成功&#x2F;失败</li>
+<li>每次工具调用：工具名、输入、耗时</li>
+<li>每次 Embedding 调用</li>
+<li>Agent 每步推理节点进入&#x2F;退出</li>
+</ul>
+<h3 id="9-2-Prometheus-指标"><a href="#9-2-Prometheus-指标" class="headerlink" title="9.2 Prometheus 指标"></a>9.2 Prometheus 指标</h3><p><strong>Java 侧（Micrometer，Spring Boot Actuator 自动暴露）：</strong></p>
+<p>自定义指标：</p>
+<ul>
+<li><code>agent_call_total</code>（Counter）：gRPC 调用总次数，标签：success&#x3D;true&#x2F;false</li>
+<li><code>agent_call_duration_seconds</code>（Histogram）：gRPC 调用耗时</li>
+<li><code>kafka_message_produced_total</code>（Counter）：Kafka 消息发送次数，标签：topic</li>
+<li><code>active_websocket_connections</code>（Gauge）：当前 WebSocket 连接数</li>
+<li><code>task_total</code>（Counter）：任务总数，标签：status（completed&#x2F;failed）</li>
+</ul>
+<p><strong>Python 侧（prometheus-client）：</strong></p>
+<p>自定义指标：</p>
+<ul>
+<li><code>llm_call_total</code>（Counter）：LLM 调用次数，标签：model、success</li>
+<li><code>llm_call_duration_seconds</code>（Histogram）：LLM 调用耗时</li>
+<li><code>llm_tokens_total</code>（Counter）：Token 消耗，标签：type（input&#x2F;output）</li>
+<li><code>tool_call_total</code>（Counter）：工具调用次数，标签：tool_name、success</li>
+<li><code>embedding_call_total</code>（Counter）：Embedding 调用次数</li>
+<li><code>vector_search_duration_seconds</code>（Histogram）：向量检索耗时</li>
+</ul>
+<h3 id="9-3-Grafana-监控大盘"><a href="#9-3-Grafana-监控大盘" class="headerlink" title="9.3 Grafana 监控大盘"></a>9.3 Grafana 监控大盘</h3><p>创建以下 Dashboard Panel：</p>
+<p><strong>系统总览 Dashboard：</strong></p>
+<ul>
+<li>请求 QPS 折线图</li>
+<li>平均响应时间（p50&#x2F;p95&#x2F;p99）</li>
+<li>错误率</li>
+<li>活跃 WebSocket 连接数</li>
+</ul>
+<p><strong>AI Agent Dashboard：</strong></p>
+<ul>
+<li>LLM 调用频率与耗时</li>
+<li>Token 消耗趋势（每日&#x2F;每周）</li>
+<li>预估 API 成本</li>
+<li>工具调用分布（饼图）</li>
+<li>Agent 成功&#x2F;失败率</li>
+</ul>
+<p><strong>基础设施 Dashboard：</strong></p>
+<ul>
+<li>JVM 内存使用</li>
+<li>GC 频率</li>
+<li>MySQL 连接池使用率</li>
+<li>Redis 内存使用</li>
+<li>Kafka 消费延迟（Consumer Lag）</li>
+</ul>
+<h3 id="9-4-OpenTelemetry-Trace-集成"><a href="#9-4-OpenTelemetry-Trace-集成" class="headerlink" title="9.4 OpenTelemetry Trace 集成"></a>9.4 OpenTelemetry Trace 集成</h3><p>Spring Boot 侧：引入 <code>spring-boot-starter-actuator</code> + <code>micrometer-tracing-bridge-otel</code> + <code>opentelemetry-exporter-jaeger</code></p>
+<p>配置：自动为每次 HTTP 请求生成 Trace ID，并在 gRPC 调用时通过 Header 传播到 Python 侧</p>
+<p>Python 侧：引入 <code>opentelemetry-sdk</code>，在 gRPC Server Interceptor 中提取 Trace ID，关联所有 LLM 调用和工具调用 Span</p>
+<p>效果：从前端请求 → Spring Boot → gRPC → Python Agent → LLM 调用，全链路追踪，在 Jaeger UI 中可视化。</p>
+<hr>
+<h2 id="10-部署方案"><a href="#10-部署方案" class="headerlink" title="10. 部署方案"></a>10. 部署方案</h2><h3 id="10-1-开发环境"><a href="#10-1-开发环境" class="headerlink" title="10.1 开发环境"></a>10.1 开发环境</h3><p><strong>本地开发流程：</strong></p>
+<ol>
+<li><p>启动中间件（一键）：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">cd</span> docker &amp;&amp; docker-compose -f docker-compose-dev.yml up -d</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>启动 Spring Boot：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">cd</span> autoagent-backend &amp;&amp; mvn spring-boot:run -Dspring-boot.run.profiles=dev</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>启动 Python Agent：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">cd</span> autoagent-python &amp;&amp; poetry run uvicorn app.main:app --reload --port 8000</span><br></pre></td></tr></table></figure>
+<p>（gRPC Server 在 main.py 中自动启动，监听 50051 端口）</p>
+</li>
+<li><p>启动前端：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">cd</span> autoagent-frontend &amp;&amp; npm run dev</span><br></pre></td></tr></table></figure></li>
+</ol>
+<h3 id="10-2-生产环境-Docker-Compose"><a href="#10-2-生产环境-Docker-Compose" class="headerlink" title="10.2 生产环境 Docker Compose"></a>10.2 生产环境 Docker Compose</h3><p><strong><code>docker/docker-compose-prod.yml</code> 服务列表：</strong></p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">services:</span><br><span class="line">  mysql          # 挂载数据卷，开启 slow_query_log</span><br><span class="line">  redis          # 开启持久化（RDB + AOF）</span><br><span class="line">  kafka          # KRaft 模式</span><br><span class="line">  minio          # 挂载数据卷</span><br><span class="line">  milvus         # 生产向量数据库（替换 ChromaDB）</span><br><span class="line">  autoagent-backend    # Spring Boot 镜像</span><br><span class="line">  autoagent-python     # Python Agent 镜像</span><br><span class="line">  autoagent-frontend   # Nginx + React 打包产物</span><br><span class="line">  prometheus</span><br><span class="line">  grafana</span><br><span class="line">  elasticsearch  # ELK 日志</span><br><span class="line">  logstash</span><br><span class="line">  kibana</span><br><span class="line">  nginx          # 反向代理（统一入口，SSL 终止）</span><br></pre></td></tr></table></figure>
+
+<p><strong>Nginx 配置要点：</strong></p>
+<ul>
+<li><code>location /api</code> → 代理到 Spring Boot 8080</li>
+<li><code>location /ws</code> → WebSocket 代理（需设置 <code>Upgrade</code> 和 <code>Connection</code> Header）</li>
+<li><code>location /</code> → React 静态文件（try_files 支持 History Router）</li>
+<li>SSL 证书配置</li>
+<li>Gzip 压缩静态资源</li>
+</ul>
+<h3 id="10-3-Dockerfile-设计"><a href="#10-3-Dockerfile-设计" class="headerlink" title="10.3 Dockerfile 设计"></a>10.3 Dockerfile 设计</h3><p><strong>Spring Boot Dockerfile（多阶段构建）：</strong></p>
+<figure class="highlight dockerfile"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 阶段1：Maven 构建</span></span><br><span class="line"><span class="keyword">FROM</span> maven:<span class="number">3.9</span>-eclipse-temurin-<span class="number">17</span> AS builder</span><br><span class="line"><span class="keyword">WORKDIR</span><span class="language-bash"> /app</span></span><br><span class="line"><span class="keyword">COPY</span><span class="language-bash"> pom.xml .</span></span><br><span class="line"><span class="keyword">RUN</span><span class="language-bash"> mvn dependency:go-offline  <span class="comment"># 预下载依赖，利用 Docker 缓存层</span></span></span><br><span class="line"><span class="keyword">COPY</span><span class="language-bash"> src ./src</span></span><br><span class="line"><span class="keyword">RUN</span><span class="language-bash"> mvn package -DskipTests</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 阶段2：运行镜像</span></span><br><span class="line"><span class="keyword">FROM</span> eclipse-temurin:<span class="number">17</span>-jre-alpine</span><br><span class="line"><span class="keyword">WORKDIR</span><span class="language-bash"> /app</span></span><br><span class="line"><span class="keyword">COPY</span><span class="language-bash"> --from=builder /app/target/*.jar app.jar</span></span><br><span class="line"><span class="keyword">EXPOSE</span> <span class="number">8080</span></span><br><span class="line"><span class="keyword">ENTRYPOINT</span><span class="language-bash"> [<span class="string">&quot;java&quot;</span>, <span class="string">&quot;-Xms512m&quot;</span>, <span class="string">&quot;-Xmx1g&quot;</span>, <span class="string">&quot;-jar&quot;</span>, <span class="string">&quot;app.jar&quot;</span>]</span></span><br></pre></td></tr></table></figure>
+
+<p><strong>Python Dockerfile：</strong></p>
+<figure class="highlight dockerfile"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">FROM</span> python:<span class="number">3.11</span>-slim</span><br><span class="line"><span class="keyword">WORKDIR</span><span class="language-bash"> /app</span></span><br><span class="line"><span class="keyword">RUN</span><span class="language-bash"> pip install poetry</span></span><br><span class="line"><span class="keyword">COPY</span><span class="language-bash"> pyproject.toml poetry.lock ./</span></span><br><span class="line"><span class="keyword">RUN</span><span class="language-bash"> poetry install --no-dev --no-root</span></span><br><span class="line"><span class="keyword">COPY</span><span class="language-bash"> app ./app</span></span><br><span class="line"><span class="keyword">EXPOSE</span> <span class="number">8000</span> <span class="number">50051</span></span><br><span class="line"><span class="keyword">CMD</span><span class="language-bash"> [<span class="string">&quot;poetry&quot;</span>, <span class="string">&quot;run&quot;</span>, <span class="string">&quot;uvicorn&quot;</span>, <span class="string">&quot;app.main:app&quot;</span>, <span class="string">&quot;--host&quot;</span>, <span class="string">&quot;0.0.0.0&quot;</span>, <span class="string">&quot;--port&quot;</span>, <span class="string">&quot;8000&quot;</span>]</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="10-4-环境变量管理"><a href="#10-4-环境变量管理" class="headerlink" title="10.4 环境变量管理"></a>10.4 环境变量管理</h3><p>生产环境所有敏感配置通过环境变量注入（不写入代码和配置文件）：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># Spring Boot</span></span><br><span class="line">JWT_SECRET=xxx</span><br><span class="line">MYSQL_URL=jdbc:mysql://mysql:3306/autoagent</span><br><span class="line">MYSQL_USER=xxx</span><br><span class="line">MYSQL_PASSWORD=xxx</span><br><span class="line">REDIS_HOST=redis</span><br><span class="line">MINIO_ACCESS_KEY=xxx</span><br><span class="line">MINIO_SECRET_KEY=xxx</span><br><span class="line"></span><br><span class="line"><span class="comment"># Python</span></span><br><span class="line">OPENAI_API_KEY=sk-xxx</span><br><span class="line">MINIO_ACCESS_KEY=xxx</span><br><span class="line">MINIO_SECRET_KEY=xxx</span><br><span class="line">KAFKA_BOOTSTRAP_SERVERS=kafka:9092</span><br></pre></td></tr></table></figure>
+
+<hr>
+<h2 id="11-开发顺序与里程碑"><a href="#11-开发顺序与里程碑" class="headerlink" title="11. 开发顺序与里程碑"></a>11. 开发顺序与里程碑</h2><h3 id="阶段一：基础设施搭建（第1-2周）"><a href="#阶段一：基础设施搭建（第1-2周）" class="headerlink" title="阶段一：基础设施搭建（第1-2周）"></a>阶段一：基础设施搭建（第1-2周）</h3><p><strong>目标：</strong> 两个服务能启动，gRPC 通信正常</p>
+<ul>
+<li><input disabled="" type="checkbox"> 搭建 Spring Boot 项目骨架（包结构、Maven 依赖、配置文件）</li>
+<li><input disabled="" type="checkbox"> 搭建 Python 项目骨架（包结构、Poetry 依赖、settings）</li>
+<li><input disabled="" type="checkbox"> Docker Compose 中间件全部启动（MySQL、Redis、Kafka、MinIO、ChromaDB）</li>
+<li><input disabled="" type="checkbox"> 定义 .proto 文件，生成 Java 和 Python 代码</li>
+<li><input disabled="" type="checkbox"> 实现 Python gRPC Server，提供 HealthCheck 接口</li>
+<li><input disabled="" type="checkbox"> 实现 Java gRPC Client，调用 HealthCheck 确认连通</li>
+<li><input disabled="" type="checkbox"> Kafka 主题创建脚本</li>
+<li><input disabled="" type="checkbox"> 数据库建表脚本</li>
+</ul>
+<p><strong>验收标准：</strong> Spring Boot 启动成功，调用 <code>GET /actuator/health</code> 返回 UP，调用 Python HealthCheck 成功</p>
+<hr>
+<h3 id="阶段二：用户认证体系（第3周）"><a href="#阶段二：用户认证体系（第3周）" class="headerlink" title="阶段二：用户认证体系（第3周）"></a>阶段二：用户认证体系（第3周）</h3><p><strong>目标：</strong> 用户可以注册、登录，JWT 鉴权正常</p>
+<ul>
+<li><input disabled="" type="checkbox"> <code>t_user</code> 建表</li>
+<li><input disabled="" type="checkbox"> <code>AuthController</code> + <code>AuthService</code> + <code>UserMapper</code></li>
+<li><input disabled="" type="checkbox"> <code>JwtTokenProvider</code> + <code>JwtAuthenticationFilter</code></li>
+<li><input disabled="" type="checkbox"> <code>SecurityConfig</code> 配置白名单</li>
+<li><input disabled="" type="checkbox"> Redis Refresh Token 存储</li>
+<li><input disabled="" type="checkbox"> Postman 测试：注册 → 登录 → 拿 Token → 访问受保护接口</li>
+</ul>
+<p><strong>验收标准：</strong> 完整的注册登录流程，Token 过期后使用 Refresh Token 刷新成功</p>
+<hr>
+<h3 id="阶段三：基础对话功能（第4-5周）"><a href="#阶段三：基础对话功能（第4-5周）" class="headerlink" title="阶段三：基础对话功能（第4-5周）"></a>阶段三：基础对话功能（第4-5周）</h3><p><strong>目标：</strong> 用户能和 Agent 进行多轮对话，有记忆</p>
+<ul>
+<li><input disabled="" type="checkbox"> <code>t_conversation</code>、<code>t_message</code> 建表</li>
+<li><input disabled="" type="checkbox"> <code>ConversationController</code> + <code>ConversationService</code> + 相关 Mapper</li>
+<li><input disabled="" type="checkbox"> Python 侧：<code>LLMFactory</code>、<code>ShortTermMemory</code>（Redis）、基础 <code>chat_node</code></li>
+<li><input disabled="" type="checkbox"> Python gRPC <code>Chat</code> 接口实现（不带 RAG，先跑通）</li>
+<li><input disabled="" type="checkbox"> Java <code>AgentCallService.callAgent()</code>，调用 gRPC，结果存库</li>
+<li><input disabled="" type="checkbox"> 前端：登录页 → 对话页（简单版）</li>
+</ul>
+<p><strong>验收标准：</strong> 前端能正常对话，刷新页面后历史消息不丢失，多轮对话有上下文记忆</p>
+<hr>
+<h3 id="阶段四：RAG-知识库（第6-7周）"><a href="#阶段四：RAG-知识库（第6-7周）" class="headerlink" title="阶段四：RAG 知识库（第6-7周）"></a>阶段四：RAG 知识库（第6-7周）</h3><p><strong>目标：</strong> 上传文档，对话时自动检索增强</p>
+<ul>
+<li><input disabled="" type="checkbox"> <code>t_knowledge_base</code>、<code>t_document</code> 建表</li>
+<li><input disabled="" type="checkbox"> MinIO 配置和 <code>FileStorageService</code></li>
+<li><input disabled="" type="checkbox"> <code>KnowledgeBaseController</code> + <code>KnowledgeBaseService</code></li>
+<li><input disabled="" type="checkbox"> Python 侧：<code>DocumentParser</code>、<code>SmartTextSplitter</code>、<code>EmbeddingService</code>、<code>VectorStoreService</code></li>
+<li><input disabled="" type="checkbox"> Python 侧：<code>vectorize_node</code> + Kafka 消费（触发向量化）</li>
+<li><input disabled="" type="checkbox"> Java 侧：文档上传 → Kafka 下发 → Python 向量化 → 结果回写 MySQL</li>
+<li><input disabled="" type="checkbox"> Python 侧：<code>RagService.retrieve()</code> + RAG Prompt 构建</li>
+<li><input disabled="" type="checkbox"> 对话时若关联知识库，自动检索并注入上下文</li>
+</ul>
+<p><strong>验收标准：</strong> 上传一份 PDF，提问文档中的内容，回答准确且有来源引用</p>
+<hr>
+<h3 id="阶段五：多-Agent-工作流（第8-9周）"><a href="#阶段五：多-Agent-工作流（第8-9周）" class="headerlink" title="阶段五：多 Agent 工作流（第8-9周）"></a>阶段五：多 Agent 工作流（第8-9周）</h3><p><strong>目标：</strong> 复杂任务能拆解执行，进度实时推送，支持人工审批</p>
+<ul>
+<li><input disabled="" type="checkbox"> <code>t_task</code>、<code>t_task_step</code>、<code>t_agent_trace</code> 建表</li>
+<li><input disabled="" type="checkbox"> <code>TaskController</code> + <code>TaskService</code></li>
+<li><input disabled="" type="checkbox"> Java 侧：<code>TaskMessageProducer</code>、<code>TaskProgressConsumer</code>、<code>TaskResultConsumer</code></li>
+<li><input disabled="" type="checkbox"> Python 侧：<code>SupervisorAgent</code> + <code>WorkflowAgent</code> 基础骨架（LangGraph）</li>
+<li><input disabled="" type="checkbox"> Python 侧：工具集（WebSearchTool、CodeExecutorTool、FileTools）</li>
+<li><input disabled="" type="checkbox"> Python 侧：Kafka 消费 task.input，执行，发送 progress&#x2F;result</li>
+<li><input disabled="" type="checkbox"> WebSocket 集成：前端订阅任务进度</li>
+<li><input disabled="" type="checkbox"> Human-in-the-loop：Python 触发审批 → Kafka → Java → WebSocket → 前端弹窗 → 用户决策 → Kafka → Python 恢复</li>
+</ul>
+<p><strong>验收标准：</strong> 创建工作流任务，前端实时看到步骤执行进度，邮件发送工具触发审批弹窗</p>
+<hr>
+<h3 id="阶段六：流式输出优化（第10周）"><a href="#阶段六：流式输出优化（第10周）" class="headerlink" title="阶段六：流式输出优化（第10周）"></a>阶段六：流式输出优化（第10周）</h3><p><strong>目标：</strong> 对话回复逐字流式显示，提升用户体验</p>
+<ul>
+<li><input disabled="" type="checkbox"> Python gRPC <code>ChatStream</code> 接口（AsyncGenerator + yield token）</li>
+<li><input disabled="" type="checkbox"> Java 侧流式 gRPC 调用，转为 SSE 或 WebSocket 推送</li>
+<li><input disabled="" type="checkbox"> 前端：消息逐字显示动效</li>
+</ul>
+<p><strong>验收标准：</strong> 发送消息后，回复内容逐字流式出现，体验接近 ChatGPT</p>
+<hr>
+<h3 id="阶段七：可观测性与优化（第11-12周）"><a href="#阶段七：可观测性与优化（第11-12周）" class="headerlink" title="阶段七：可观测性与优化（第11-12周）"></a>阶段七：可观测性与优化（第11-12周）</h3><p><strong>目标：</strong> 项目生产可用，有监控，可 Debug</p>
+<ul>
+<li><input disabled="" type="checkbox"> Prometheus 自定义指标（Java + Python）</li>
+<li><input disabled="" type="checkbox"> Grafana Dashboard 配置</li>
+<li><input disabled="" type="checkbox"> ELK 日志集成（Logstash 采集容器日志）</li>
+<li><input disabled="" type="checkbox"> Resilience4j 熔断测试</li>
+<li><input disabled="" type="checkbox"> 限流测试</li>
+<li><input disabled="" type="checkbox"> Docker Compose 生产配置</li>
+<li><input disabled="" type="checkbox"> Swagger 文档完善</li>
+<li><input disabled="" type="checkbox"> Agent Trace 前端可视化（侧边栏展示推理过程）</li>
+</ul>
+<p><strong>验收标准：</strong> Grafana 能看到 LLM 调用成本、QPS、错误率；Kibana 能搜索日志；Python 服务下线时熔断生效，返回降级响应</p>
+<hr>
+<h2 id="附录：常见问题与注意事项"><a href="#附录：常见问题与注意事项" class="headerlink" title="附录：常见问题与注意事项"></a>附录：常见问题与注意事项</h2><h3 id="A-gRPC-超时设置"><a href="#A-gRPC-超时设置" class="headerlink" title="A. gRPC 超时设置"></a>A. gRPC 超时设置</h3><p>gRPC 调用 LLM 可能耗时较长（尤其工作流任务）。建议：</p>
+<ul>
+<li>Chat 接口：60秒超时</li>
+<li>文档向量化：300秒超时（大文件）</li>
+<li>Java 侧 <code>@GrpcClient</code> 注解配置 deadline</li>
+</ul>
+<h3 id="B-LangGraph-Checkpointer-选型"><a href="#B-LangGraph-Checkpointer-选型" class="headerlink" title="B. LangGraph Checkpointer 选型"></a>B. LangGraph Checkpointer 选型</h3><ul>
+<li>开发阶段：<code>MemorySaver</code>（内存，重启丢失）</li>
+<li>生产阶段：自行实现 Redis Checkpointer 或使用 LangGraph Platform（商业方案）</li>
+<li>简易生产方案：将 state 序列化后存 Redis，key &#x3D; <code>graph:state:{task_id}</code></li>
+</ul>
+<h3 id="C-OpenAI-API-限流处理"><a href="#C-OpenAI-API-限流处理" class="headerlink" title="C. OpenAI API 限流处理"></a>C. OpenAI API 限流处理</h3><ul>
+<li>使用 <code>tenacity</code> 装饰所有 LLM 调用，指数退避重试</li>
+<li>批量 Embedding 时控制并发（使用 <code>asyncio.Semaphore</code>，最大并发 10）</li>
+<li>预估 Token 数，超过模型上下文窗口时截断历史消息（保留最新的）</li>
+</ul>
+<h3 id="D-Docker-代码沙箱安全"><a href="#D-Docker-代码沙箱安全" class="headerlink" title="D. Docker 代码沙箱安全"></a>D. Docker 代码沙箱安全</h3><ul>
+<li>每次代码执行创建新容器，执行完立即删除</li>
+<li>容器资源限制：<code>--memory 256m --cpus 0.5</code></li>
+<li>网络隔离：<code>--network none</code></li>
+<li>文件系统只读（除 <code>/tmp</code>）：<code>--read-only --tmpfs /tmp</code></li>
+<li>执行用户：非 root（<code>--user nobody</code>）</li>
+</ul>
+<h3 id="E-向量数据库-ChromaDB-→-Milvus-迁移"><a href="#E-向量数据库-ChromaDB-→-Milvus-迁移" class="headerlink" title="E. 向量数据库 ChromaDB → Milvus 迁移"></a>E. 向量数据库 ChromaDB → Milvus 迁移</h3><p>两者通过 <code>VectorStoreService</code> 接口抽象，迁移时只需：</p>
+<ol>
+<li>实现 <code>MilvusVectorStoreService</code></li>
+<li>修改 <code>settings.py</code> 中的 <code>vector_store_type</code></li>
+<li>数据重新向量化（重新触发所有文档的向量化任务）</li>
+</ol>
+<h3 id="F-项目演示建议"><a href="#F-项目演示建议" class="headerlink" title="F. 项目演示建议"></a>F. 项目演示建议</h3><p>在求职演示时，重点展示以下场景：</p>
+<ol>
+<li><strong>场景一（RAG）：</strong> 上传公司产品手册 PDF → 提问产品细节 → 展示带来源引用的准确回答</li>
+<li><strong>场景二（工作流）：</strong> 触发”竞品分析”工作流 → 展示 Agent 自动搜索、总结、生成报告的过程（重点展示 Trace 面板）</li>
+<li><strong>场景三（Human-in-the-loop）：</strong> 工作流包含发送邮件步骤 → 审批弹窗出现 → 用户确认 → 邮件发出</li>
+<li><strong>场景四（监控）：</strong> 展示 Grafana 大盘中的 LLM Token 消耗、响应时间、工具调用分布</li>
+</ol>
+<hr>
+<p><em>文档结束 — AutoAgent v1.0 设计文档</em></p>
+
+        </div>
+
+        
+
+        
+          <div class="mt-10 grid grid-cols-1 sm:grid-cols-2 gap-4">
+            
+            
+              <a href="/2026/04/23/technology/back-end/design%20patterns1/" class="group p-5 rounded-2xl border border-gray-100 dark:border-gray-700 bg-gray-50 dark:bg-gray-900/40 hover:border-primary-300 dark:hover:border-primary-700 transition-all duration-200 sm:text-right">
+                <div class="text-xs uppercase tracking-wider text-gray-500 dark:text-gray-400 mb-2">下一篇</div>
+                <div class="font-semibold text-gray-900 dark:text-white group-hover:text-primary-600 dark:group-hover:text-primary-400 line-clamp-2">设计模式（一）</div>
+              </a>
+            
+          </div>
+        
+
+        <div class="mt-10 p-6 rounded-2xl bg-gradient-to-br from-primary-50 to-secondary-50 dark:from-primary-900/20 dark:to-secondary-900/20 border border-primary-100 dark:border-primary-800">
+          <div class="flex items-start gap-4">
+            <div class="flex-shrink-0 w-10 h-10 rounded-full bg-gradient-to-br from-primary-500 to-secondary-500 flex items-center justify-center">
+              <svg class="w-5 h-5 text-white" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/></svg>
+            </div>
+            <div class="flex-1 text-sm">
+              <p class="text-gray-700 dark:text-gray-300 font-medium mb-2">本文链接：<a href="https://hiki-loser.github.io/2026/04/25/projects/autoagent/autoagent-intro/" class="text-primary-600 dark:text-primary-400 break-all">https://hiki-loser.github.io/2026/04/25/projects/autoagent/autoagent-intro/</a></p>
+              <p class="text-gray-600 dark:text-gray-400">版权声明：本博客所有文章除特别声明外，均采用<a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank" class="text-primary-600 dark:text-primary-400">CC BY-NC-SA 4.0</a> 许可协议。转载请注明出处！</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    
+  </main>
+
+  
+
+<footer class="mt-16 border-t border-gray-200 dark:border-gray-800">
+  <div class="container mx-auto px-4 max-w-7xl py-8">
+    <div class="flex flex-col md:flex-row items-center justify-between gap-4">
+      <!-- Left: Copyright -->
+      <div class="text-sm text-gray-600 dark:text-gray-400">
+        <p>
+          &copy; 2026
+          <a href="/" class="hover:text-primary-500 transition-colors font-medium">
+            Hiki的小站
+          </a>
+          . All rights reserved.
+        </p>
+        
+          <p class="mt-1 text-xs">保持热爱，奔赴山海</p>
+        
+      </div>
+
+      <!-- Right: Powered by -->
+      
+      <div class="flex items-center gap-4 text-sm text-gray-500 dark:text-gray-400">
+        <span>Powered by</span>
+        <a
+          href="https://hexo.io/"
+          target="_blank"
+          rel="noopener noreferrer"
+          class="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-gradient-to-r from-primary-100 to-secondary-100 dark:from-primary-900/30 dark:to-secondary-900/30 text-primary-700 dark:text-primary-400 hover:from-primary-500 hover:to-secondary-500 hover:text-white transition-all duration-200 font-medium"
+        >
+          <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
+            <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"></path>
+          </svg>
+          Hexo
+        </a>
+        <span>&</span>
+        <span class="px-2.5 py-1 rounded-lg bg-gradient-to-r from-accent-100 to-primary-100 dark:from-accent-900/30 dark:to-primary-900/30 text-accent-700 dark:text-accent-400 font-medium">
+          Akari Theme
+        </span>
+      </div>
+      
+    </div>
+  </div>
+</footer>
+
+  
+</article>
+
+<script src="/js/dark-mode.js"></script>
+<script src="/js/hover-tooltip.js"></script>
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('visible');
+        }
+      });
+    }, { threshold: 0.1 });
+    document.querySelectorAll('h1, h2, h3, h4, p, pre, blockquote').forEach(el => {
+      el.classList.add('animate-on-scroll');
+      observer.observe(el);
+    });
+  });
+</script>
+</body>
+</html>
