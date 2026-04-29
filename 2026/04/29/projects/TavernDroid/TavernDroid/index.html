@@ -1,0 +1,1022 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="description" content="TavernDroid 是 SillyTavern 的 Android 原生客户端，完全兼容 ST 角色卡格式，提供流畅的原生体验。本文是 v1.0 的技术设计文档，详细介绍了架构、模块设计、数据库结构、格式兼容实现、LLM Provider 抽象层等核心技术细节。">
+  <meta name="keywords" content="sillytavern,agent,intro">
+  <title>TavernDroid 技术设计文档 v1.0 | Hiki的小站</title>
+  <link rel="icon" type="image/svg+xml" href="/img/favicon.svg">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            primary: { 50: '#fef7ff', 100: '#faeeff', 200: '#f5dfff', 300: '#edc6ff', 400: '#e2a2ff', 500: '#d675ff', 600: '#c146ff', 700: '#a828f9', 800: '#8d1fd0', 900: '#751eaa', 950: '#4f0d7a' },
+            secondary: { 50: '#f5f3ff', 100: '#ede9fe', 200: '#ddd6fe', 300: '#c4b5fd', 400: '#a78bfa', 500: '#8b5cf6', 600: '#7c3aed', 700: '#6d28d9', 800: '#5b21b6', 900: '#4c1d95' },
+            accent: { 50: '#fdf4ff', 100: '#fae8ff', 200: '#f5d0fe', 300: '#f0abfc', 400: '#e879f9', 500: '#d946ef', 600: '#c026d3', 700: '#a21caf', 800: '#86198f', 900: '#701a75' }
+          },
+          fontFamily: { sans: ['-apple-system', 'BlinkMacSystemFont', 'Helvetica Neue', 'Helvetica', 'Arial', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', 'sans-serif'] }
+        }
+      }
+    }
+  </script>
+  <link rel="stylesheet" href="/css/style.css">
+  <style>
+    .prose { line-height: 1.8; }
+    .prose h1, .prose h2, .prose h3, .prose h4, .prose h5, .prose h6 { font-weight: 700; line-height: 1.3; margin-top: 1.5em; margin-bottom: 0.75em; color: inherit; }
+    .prose h1 { font-size: 2em; } .prose h2 { font-size: 1.5em; } .prose h3 { font-size: 1.25em; }
+    .prose p { margin-bottom: 1em; }
+    .prose a { color: #d675ff; text-decoration: none; border-bottom: 1px solid transparent; transition: border-color 0.2s; }
+    .prose a:hover { border-bottom-color: #d675ff; }
+    .dark .prose a { color: #c4b5fd; }
+    .prose img { max-width: 100%; height: auto; margin: 1em auto; border-radius: 12px; display: block; }
+    .prose blockquote { border-left: 4px solid #d675ff; padding-left: 1em; margin: 1em 0; font-style: italic; color: #6b7280; }
+    .dark .prose blockquote { color: #9ca3af; }
+    .prose ul, .prose ol { margin: 1em 0; padding-left: 1.5em; }
+    .prose li { margin: 0.5em 0; }
+    .prose table { width: 100%; border-collapse: collapse; margin: 1em 0; }
+    .prose th, .prose td { border: 1px solid #e5e7eb; padding: 0.75em; text-align: left; }
+    .dark .prose th, .dark .prose td { border-color: #374151; }
+    .prose th { background: rgba(214, 117, 255, 0.1); font-weight: 600; }
+  </style>
+<meta name="generator" content="Hexo 8.1.1"></head>
+<body class="bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100 min-h-screen transition-colors duration-300" style="--background-image-api: url('https://uapis.cn/api/v1/random/image?category=landscape');">
+
+<article class="min-h-screen">
+  
+
+<header class="sticky top-0 z-50 backdrop-blur-md bg-white/90 dark:bg-gray-900/90 border-b border-gray-200 dark:border-gray-800 shadow-sm">
+  <div class="container mx-auto px-4 max-w-7xl">
+    <div class="flex items-center justify-between h-16">
+      <!-- Logo / Site Title -->
+      <a href="/" class="flex items-center gap-3 group">
+        <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-primary-500 to-secondary-600 flex items-center justify-center transform group-hover:scale-105 transition-transform duration-300 shadow-lg shadow-primary-500/25">
+          <span class="text-white font-bold text-lg">H</span>
+        </div>
+        <span class="text-xl font-bold bg-gradient-to-r from-primary-600 to-secondary-600 bg-clip-text text-transparent hidden sm:block">
+          Hiki的小站
+        </span>
+      </a>
+
+      <!-- Navigation -->
+      <nav class="hidden md:flex items-center gap-1">
+        
+          <a
+            href="/"
+            
+            class="px-4 py-2 rounded-lg text-gray-700 dark:text-gray-300 hover:bg-primary-50 dark:hover:bg-primary-900/20 hover:text-primary-600 dark:hover:text-primary-400 transition-all duration-200 font-medium relative group"
+          >
+            首页
+            <span class="absolute bottom-0 left-0 w-0 h-0.5 bg-gradient-to-r from-primary-500 to-secondary-600 transition-all duration-300 group-hover:w-full"></span>
+          </a>
+        
+          <a
+            href="/archives/"
+            
+            class="px-4 py-2 rounded-lg text-gray-700 dark:text-gray-300 hover:bg-primary-50 dark:hover:bg-primary-900/20 hover:text-primary-600 dark:hover:text-primary-400 transition-all duration-200 font-medium relative group"
+          >
+            归档
+            <span class="absolute bottom-0 left-0 w-0 h-0.5 bg-gradient-to-r from-primary-500 to-secondary-600 transition-all duration-300 group-hover:w-full"></span>
+          </a>
+        
+          <a
+            href="/quiz/"
+            
+            class="px-4 py-2 rounded-lg text-gray-700 dark:text-gray-300 hover:bg-primary-50 dark:hover:bg-primary-900/20 hover:text-primary-600 dark:hover:text-primary-400 transition-all duration-200 font-medium relative group"
+          >
+            趣味测试
+            <span class="absolute bottom-0 left-0 w-0 h-0.5 bg-gradient-to-r from-primary-500 to-secondary-600 transition-all duration-300 group-hover:w-full"></span>
+          </a>
+        
+          <a
+            href="/tags/"
+            
+            class="px-4 py-2 rounded-lg text-gray-700 dark:text-gray-300 hover:bg-primary-50 dark:hover:bg-primary-900/20 hover:text-primary-600 dark:hover:text-primary-400 transition-all duration-200 font-medium relative group"
+          >
+            标签
+            <span class="absolute bottom-0 left-0 w-0 h-0.5 bg-gradient-to-r from-primary-500 to-secondary-600 transition-all duration-300 group-hover:w-full"></span>
+          </a>
+        
+          <a
+            href="/about/"
+            
+            class="px-4 py-2 rounded-lg text-gray-700 dark:text-gray-300 hover:bg-primary-50 dark:hover:bg-primary-900/20 hover:text-primary-600 dark:hover:text-primary-400 transition-all duration-200 font-medium relative group"
+          >
+            关于
+            <span class="absolute bottom-0 left-0 w-0 h-0.5 bg-gradient-to-r from-primary-500 to-secondary-600 transition-all duration-300 group-hover:w-full"></span>
+          </a>
+        
+      </nav>
+
+      <!-- Right Actions -->
+      <div class="flex items-center gap-2">
+        <!-- Search Button (Optional) -->
+        <button class="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors duration-200" aria-label="搜索">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+          </svg>
+        </button>
+
+        <!-- Dark Mode Toggle -->
+        <button
+          id="dark-mode-toggle"
+          class="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors duration-200 relative group"
+          aria-label="切换深色模式"
+        >
+          <!-- Sun Icon -->
+          <svg class="w-5 h-5 hidden dark:block text-yellow-500 transition-transform duration-300 group-hover:rotate-12" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"></path>
+          </svg>
+          <!-- Moon Icon -->
+          <svg class="w-5 h-5 dark:hidden text-gray-700 transition-transform duration-300 group-hover:rotate-12" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-6.646z"></path>
+          </svg>
+        </button>
+
+        <!-- Mobile Menu Button -->
+        <button
+          id="mobile-menu-button"
+          class="md:hidden p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors duration-200"
+          aria-label="菜单"
+        >
+          <svg class="w-6 h-6 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+          </svg>
+        </button>
+      </div>
+    </div>
+
+    <!-- Mobile Menu -->
+    <div id="mobile-menu" class="md:hidden hidden pb-4 space-y-2 animate-fade-in">
+      
+        <a
+          href="/"
+          
+          class="block px-4 py-2 rounded-lg text-gray-700 dark:text-gray-300 hover:bg-primary-50 dark:hover:bg-primary-900/20 hover:text-primary-600 transition-all duration-200"
+        >
+          首页
+        </a>
+      
+        <a
+          href="/archives/"
+          
+          class="block px-4 py-2 rounded-lg text-gray-700 dark:text-gray-300 hover:bg-primary-50 dark:hover:bg-primary-900/20 hover:text-primary-600 transition-all duration-200"
+        >
+          归档
+        </a>
+      
+        <a
+          href="/quiz/"
+          
+          class="block px-4 py-2 rounded-lg text-gray-700 dark:text-gray-300 hover:bg-primary-50 dark:hover:bg-primary-900/20 hover:text-primary-600 transition-all duration-200"
+        >
+          趣味测试
+        </a>
+      
+        <a
+          href="/tags/"
+          
+          class="block px-4 py-2 rounded-lg text-gray-700 dark:text-gray-300 hover:bg-primary-50 dark:hover:bg-primary-900/20 hover:text-primary-600 transition-all duration-200"
+        >
+          标签
+        </a>
+      
+        <a
+          href="/about/"
+          
+          class="block px-4 py-2 rounded-lg text-gray-700 dark:text-gray-300 hover:bg-primary-50 dark:hover:bg-primary-900/20 hover:text-primary-600 transition-all duration-200"
+        >
+          关于
+        </a>
+      
+    </div>
+  </div>
+</header>
+
+<script>
+  // Mobile menu toggle
+  document.getElementById('mobile-menu-button')?.addEventListener('click', function() {
+    const menu = document.getElementById('mobile-menu');
+    menu?.classList.toggle('hidden');
+  });
+</script>
+
+
+  <main class="container mx-auto px-4 py-8 max-w-4xl">
+    <a href="/" class="inline-flex items-center gap-2 text-gray-600 dark:text-gray-400 hover:text-primary-500 dark:hover:text-primary-400 transition-colors mb-6 group">
+      <svg class="w-5 h-5 transform group-hover:-translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path></svg>
+      <span class="font-medium">返回</span>
+    </a>
+
+    <div class="bg-white dark:bg-gray-800 rounded-3xl shadow-xl overflow-hidden border border-gray-100 dark:border-gray-700">
+      
+
+      <div class="p-6 sm:p-10">
+        <header class="mb-8">
+          <h1 class="text-3xl sm:text-4xl font-bold mb-4 bg-gradient-to-r from-primary-600 to-secondary-600 bg-clip-text text-transparent">TavernDroid 技术设计文档 v1.0</h1>
+
+          <div class="flex flex-wrap items-center gap-4 text-sm text-gray-500 dark:text-gray-400">
+            <time class="flex items-center gap-1.5">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+              2026年4月29日
+            </time>
+
+            
+              <div class="flex items-center gap-2">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"></path></svg>
+                
+                  <a href="/categories/projects-TavernDroid/" class="px-2.5 py-1 rounded-lg bg-primary-100 dark:bg-primary-900/30 text-primary-700 dark:text-primary-400 hover:bg-primary-500 hover:text-white transition-colors">projects/TavernDroid</a>
+                
+              </div>
+            
+
+            
+              <div class="flex items-center gap-2">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"></path></svg>
+                
+                  <a href="/tags/sillytavern/" class="px-2.5 py-1 rounded-lg bg-secondary-100 dark:bg-secondary-900/30 text-secondary-700 dark:text-secondary-400 hover:bg-secondary-500 hover:text-white transition-colors">sillytavern</a>
+                
+                  <a href="/tags/agent/" class="px-2.5 py-1 rounded-lg bg-secondary-100 dark:bg-secondary-900/30 text-secondary-700 dark:text-secondary-400 hover:bg-secondary-500 hover:text-white transition-colors">agent</a>
+                
+                  <a href="/tags/intro/" class="px-2.5 py-1 rounded-lg bg-secondary-100 dark:bg-secondary-900/30 text-secondary-700 dark:text-secondary-400 hover:bg-secondary-500 hover:text-white transition-colors">intro</a>
+                
+              </div>
+            
+          </div>
+        </header>
+
+        <div class="prose prose-lg dark:prose-invert max-w-none">
+          <h1 id="TavernDroid-—-SillyTavern-Android-客户端"><a href="#TavernDroid-—-SillyTavern-Android-客户端" class="headerlink" title="TavernDroid — SillyTavern Android 客户端"></a>TavernDroid — SillyTavern Android 客户端</h1><h2 id="v1-0-技术设计文档"><a href="#v1-0-技术设计文档" class="headerlink" title="v1.0 技术设计文档"></a>v1.0 技术设计文档</h2><blockquote>
+<p><strong>文档版本</strong>：1.0.0<br><strong>目标读者</strong>：具备 Java&#x2F;Kotlin 基础、熟悉 SpringBoot 分层架构、有 LLM API 使用经验的开发者<br><strong>v1.0 目标</strong>：可发布到 GitHub 获得初始 Star，核心功能闭环可用，架构具备良好扩展性</p>
+</blockquote>
+<hr>
+<h2 id="目录"><a href="#目录" class="headerlink" title="目录"></a>目录</h2><ol>
+<li><a href="#1-%E9%A1%B9%E7%9B%AE%E5%AE%9A%E4%BD%8D%E4%B8%8E-v10-%E8%8C%83%E5%9B%B4">项目定位与 v1.0 范围</a></li>
+<li><a href="#2-%E6%95%B4%E4%BD%93%E6%9E%B6%E6%9E%84%E8%AE%BE%E8%AE%A1">整体架构设计</a></li>
+<li><a href="#3-%E6%A8%A1%E5%9D%97%E8%AF%A6%E7%BB%86%E8%AE%BE%E8%AE%A1">模块详细设计</a></li>
+<li><a href="#4-%E6%95%B0%E6%8D%AE%E5%BA%93%E8%AE%BE%E8%AE%A1">数据库设计</a></li>
+<li><a href="#5-%E6%A0%BC%E5%BC%8F%E5%85%BC%E5%AE%B9%E5%B1%82%E8%AE%BE%E8%AE%A1">格式兼容层设计</a></li>
+<li><a href="#6-llm-provider-%E6%8A%BD%E8%B1%A1%E5%B1%82">LLM Provider 抽象层</a></li>
+<li><a href="#7-%E5%88%86%E6%AD%A5%E5%AE%9E%E7%8E%B0%E8%AE%A1%E5%88%92">分步实现计划</a></li>
+<li><a href="#8-%E5%B7%A5%E7%A8%8B%E9%85%8D%E7%BD%AE%E4%B8%8E%E7%8E%AF%E5%A2%83%E6%90%AD%E5%BB%BA">工程配置与环境搭建</a></li>
+<li><a href="#9-%E6%B5%8B%E8%AF%95%E7%AD%96%E7%95%A5">测试策略</a></li>
+<li><a href="#10-%E5%8F%91%E5%B8%83%E4%B8%8E%E8%BF%90%E8%90%A5">发布与运营</a></li>
+<li><a href="#11-v10-%E4%B9%8B%E5%90%8E%E7%9A%84%E6%89%A9%E5%B1%95%E8%B7%AF%E7%BA%BF">v1.0 之后的扩展路线</a></li>
+</ol>
+<hr>
+<h2 id="1-项目定位与-v1-0-范围"><a href="#1-项目定位与-v1-0-范围" class="headerlink" title="1. 项目定位与 v1.0 范围"></a>1. 项目定位与 v1.0 范围</h2><h3 id="1-1-核心价值主张"><a href="#1-1-核心价值主张" class="headerlink" title="1.1 核心价值主张"></a>1.1 核心价值主张</h3><p>TavernDroid 是 SillyTavern 的 Android 原生客户端，<strong>不依赖任何本地服务器</strong>，除调用远程 LLM API 外，所有逻辑均在设备本地运行。</p>
+<p><strong>与现有方案的差异化</strong>：</p>
+<table>
+<thead>
+<tr>
+<th>方案</th>
+<th>门槛</th>
+<th>ST格式兼容</th>
+<th>原生体验</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Termux + SillyTavern</td>
+<td>极高，需手动配置</td>
+<td>完整</td>
+<td>差（浏览器访问）</td>
+</tr>
+<tr>
+<td>ChatterUI</td>
+<td>低</td>
+<td>无</td>
+<td>好</td>
+</tr>
+<tr>
+<td>Maid</td>
+<td>低</td>
+<td>无</td>
+<td>好</td>
+</tr>
+<tr>
+<td><strong>TavernDroid</strong></td>
+<td><strong>极低</strong></td>
+<td><strong>完整</strong></td>
+<td><strong>好</strong></td>
+</tr>
+</tbody></table>
+<p>格式兼容是核心护城河，也是获得 Star 的最主要理由。</p>
+<h3 id="1-2-v1-0-功能范围"><a href="#1-2-v1-0-功能范围" class="headerlink" title="1.2 v1.0 功能范围"></a>1.2 v1.0 功能范围</h3><p><strong>纳入 v1.0（必须实现）</strong>：</p>
+<ul>
+<li>角色卡导入与管理（PNG&#x2F;CHARX 两种格式）</li>
+<li>基于角色卡的对话（含角色人设注入）</li>
+<li>OpenAI 兼容格式 API 接入（SSE 流式输出）</li>
+<li>Claude API 接入（与 OpenAI 格式有差异）</li>
+<li>聊天记录本地持久化与管理</li>
+<li>基础 World Info &#x2F; 世界书注入（关键词触发）</li>
+<li>Markdown 渲染（对话气泡内）</li>
+<li>多 API 配置管理（可配置多个端点并切换）</li>
+</ul>
+<p><strong>推迟到 v1.x（架构预留但不实现）</strong>：</p>
+<ul>
+<li>表情&#x2F;立绘显示系统</li>
+<li>TTS 语音</li>
+<li>Prompt 预设管理（高级）</li>
+<li>World Info 高级逻辑（深度注入、权重排序）</li>
+<li>导入&#x2F;导出聊天记录到 ST 格式 JSON</li>
+</ul>
+<p><strong>明确不做（超出定位）</strong>：</p>
+<ul>
+<li>本地模型运行（llama.cpp 等）</li>
+<li>图像生成</li>
+<li>扩展插件系统</li>
+</ul>
+<h3 id="1-3-项目命名与仓库建议"><a href="#1-3-项目命名与仓库建议" class="headerlink" title="1.3 项目命名与仓库建议"></a>1.3 项目命名与仓库建议</h3><p>推荐仓库名：<code>TavernDroid</code> 或 <code>SillyTavernAndroid</code><br>推荐 Topic 标签：<code>sillytavern</code>, <code>character-ai</code>, <code>llm</code>, <code>android</code>, <code>roleplay</code>, <code>character-card</code></p>
+<hr>
+<h2 id="2-整体架构设计"><a href="#2-整体架构设计" class="headerlink" title="2. 整体架构设计"></a>2. 整体架构设计</h2><h3 id="2-1-架构图"><a href="#2-1-架构图" class="headerlink" title="2.1 架构图"></a>2.1 架构图</h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line">┌─────────────────────────────────────────────────────────────┐</span><br><span class="line">│                        UI 层 (Compose)                       │</span><br><span class="line">│  CharacterListScreen  │  ChatScreen  │  SettingsScreen       │</span><br><span class="line">└───────────────────────┬─────────────────────────────────────┘</span><br><span class="line">                        │ 观察 StateFlow / 触发 Intent</span><br><span class="line">┌───────────────────────▼─────────────────────────────────────┐</span><br><span class="line">│                     ViewModel 层                             │</span><br><span class="line">│  CharacterViewModel   │  ChatViewModel  │  SettingsViewModel │</span><br><span class="line">└───────────┬───────────┴────────┬────────────────────────────┘</span><br><span class="line">            │                    │</span><br><span class="line">┌───────────▼──────┐   ┌─────────▼──────────────────────────┐</span><br><span class="line">│  Repository 层   │   │         Repository 层               │</span><br><span class="line">│  CharacterRepo   │   │  ChatRepo  │  WorldInfoRepo          │</span><br><span class="line">└───────┬──────────┘   └─────────┬──────────────────────────┘</span><br><span class="line">        │                        │</span><br><span class="line">┌───────▼──────────┐   ┌─────────▼──────────┐   ┌──────────────────┐</span><br><span class="line">│   Room Database  │   │   LLM Provider层    │   │  格式兼容层       │</span><br><span class="line">│  (本地持久化)    │   │  (网络请求/流式)    │   │  (解析角色卡等)  │</span><br><span class="line">└──────────────────┘   └────────────────────┘   └──────────────────┘</span><br></pre></td></tr></table></figure>
+
+<p><strong>与 SpringBoot 的类比</strong>：</p>
+<table>
+<thead>
+<tr>
+<th>SpringBoot 概念</th>
+<th>Android 对应</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>@Controller</code> + 路由</td>
+<td><code>Screen</code> + <code>NavController</code></td>
+<td>处理”进入某个页面”</td>
+</tr>
+<tr>
+<td><code>@Service</code></td>
+<td><code>ViewModel</code></td>
+<td>业务逻辑，持有状态</td>
+</tr>
+<tr>
+<td><code>@Repository</code></td>
+<td><code>Repository</code> + <code>Room DAO</code></td>
+<td>数据访问</td>
+</tr>
+<tr>
+<td><code>application.yml</code></td>
+<td><code>DataStore</code></td>
+<td>配置持久化</td>
+</tr>
+<tr>
+<td>Bean 单例容器</td>
+<td>Hilt 依赖注入</td>
+<td>对象生命周期管理</td>
+</tr>
+<tr>
+<td>HTTP Filter</td>
+<td>Coroutines Flow 操作符</td>
+<td>数据流处理</td>
+</tr>
+</tbody></table>
+<h3 id="2-2-技术栈总览"><a href="#2-2-技术栈总览" class="headerlink" title="2.2 技术栈总览"></a>2.2 技术栈总览</h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br></pre></td><td class="code"><pre><span class="line">语言与运行时：</span><br><span class="line">  Kotlin 1.9+</span><br><span class="line">  Kotlin Coroutines + Flow（异步，类比 CompletableFuture + Stream）</span><br><span class="line">  </span><br><span class="line">UI 框架：</span><br><span class="line">  Jetpack Compose（声明式 UI）</span><br><span class="line">  Material3 设计系统</span><br><span class="line">  Compose Navigation（页面路由）</span><br><span class="line"></span><br><span class="line">本地存储：</span><br><span class="line">  Room 2.6+（SQLite ORM，类比 MyBatis）</span><br><span class="line">  DataStore Preferences（KV 配置存储，类比 Redis/Properties 文件）</span><br><span class="line">  </span><br><span class="line">网络：</span><br><span class="line">  OkHttp 4.x（底层 HTTP 客户端，SSE 流式处理）</span><br><span class="line">  Retrofit 2.x（REST API 声明式封装，类比 Feign）</span><br><span class="line">  kotlinx.serialization（JSON 序列化）</span><br><span class="line"></span><br><span class="line">依赖注入：</span><br><span class="line">  Hilt（基于 Dagger，类比 Spring IoC 容器）</span><br><span class="line"></span><br><span class="line">图片加载：</span><br><span class="line">  Coil 2.x（角色头像加载，异步图片库）</span><br><span class="line"></span><br><span class="line">Markdown 渲染：</span><br><span class="line">  compose-markdown 或 Markwon（聊天气泡内渲染）</span><br><span class="line"></span><br><span class="line">构建工具：</span><br><span class="line">  Gradle 8.x（Kotlin DSL）</span><br><span class="line">  </span><br><span class="line">最低支持：Android 8.0（API 26）</span><br><span class="line">目标版本：Android 14（API 34）</span><br></pre></td></tr></table></figure>
+
+<h3 id="2-3-包结构设计"><a href="#2-3-包结构设计" class="headerlink" title="2.3 包结构设计"></a>2.3 包结构设计</h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br></pre></td><td class="code"><pre><span class="line">com.yourname.taverndroid/</span><br><span class="line">├── di/                          # 依赖注入模块（Hilt）</span><br><span class="line">│   ├── DatabaseModule.kt        # Room 数据库提供</span><br><span class="line">│   ├── NetworkModule.kt         # OkHttp/Retrofit 提供</span><br><span class="line">│   └── RepositoryModule.kt      # Repository 绑定</span><br><span class="line">│</span><br><span class="line">├── data/</span><br><span class="line">│   ├── local/</span><br><span class="line">│   │   ├── db/</span><br><span class="line">│   │   │   ├── AppDatabase.kt   # Room 数据库入口</span><br><span class="line">│   │   │   ├── dao/             # DAO 接口</span><br><span class="line">│   │   │   └── entity/          # 数据库实体</span><br><span class="line">│   │   └── datastore/</span><br><span class="line">│   │       └── AppPreferences.kt # 应用配置</span><br><span class="line">│   ├── remote/</span><br><span class="line">│   │   ├── api/                 # Retrofit 接口定义</span><br><span class="line">│   │   └── model/               # 网络请求/响应模型</span><br><span class="line">│   └── repository/              # Repository 实现类</span><br><span class="line">│</span><br><span class="line">├── domain/</span><br><span class="line">│   ├── model/                   # 领域模型（纯 Kotlin data class）</span><br><span class="line">│   │   ├── Character.kt</span><br><span class="line">│   │   ├── ChatMessage.kt</span><br><span class="line">│   │   ├── WorldInfoEntry.kt</span><br><span class="line">│   │   └── ProviderConfig.kt</span><br><span class="line">│   ├── repository/              # Repository 接口定义（抽象）</span><br><span class="line">│   └── usecase/                 # 业务用例（可选，复杂逻辑抽离）</span><br><span class="line">│</span><br><span class="line">├── format/                      # 格式兼容层（核心差异化）</span><br><span class="line">│   ├── CharacterCardParser.kt   # PNG/CHARX 解析入口</span><br><span class="line">│   ├── PngChunkReader.kt        # PNG tEXt chunk 读取</span><br><span class="line">│   ├── CharxParser.kt           # CHARX ZIP 格式解析</span><br><span class="line">│   └── model/                   # 格式相关数据类</span><br><span class="line">│       ├── CharacterCardV2.kt   # V2 规范 JSON 映射</span><br><span class="line">│       └── WorldInfoBook.kt     # 世界书格式映射</span><br><span class="line">│</span><br><span class="line">├── llm/                         # LLM Provider 抽象层</span><br><span class="line">│   ├── LLMProvider.kt           # Provider 接口</span><br><span class="line">│   ├── ContextBuilder.kt        # 上下文构建（关键逻辑）</span><br><span class="line">│   ├── provider/</span><br><span class="line">│   │   ├── OpenAIProvider.kt</span><br><span class="line">│   │   └── ClaudeProvider.kt</span><br><span class="line">│   └── model/                   # LLM 请求/响应模型</span><br><span class="line">│</span><br><span class="line">├── ui/</span><br><span class="line">│   ├── navigation/</span><br><span class="line">│   │   └── AppNavGraph.kt       # 路由定义</span><br><span class="line">│   ├── screen/</span><br><span class="line">│   │   ├── characterlist/       # 角色卡列表页</span><br><span class="line">│   │   ├── chat/                # 聊天页</span><br><span class="line">│   │   ├── settings/            # 设置页</span><br><span class="line">│   │   └── worldinfo/           # 世界书管理页</span><br><span class="line">│   ├── component/               # 可复用 Compose 组件</span><br><span class="line">│   └── theme/                   # Material3 主题</span><br><span class="line">│</span><br><span class="line">└── MainActivity.kt</span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p><strong>设计原则</strong>：<code>format/</code> 和 <code>llm/</code> 两个包对 Android 框架无依赖，可以单独编写单元测试，也可在未来迁移到其他平台。</p>
+</blockquote>
+<hr>
+<h2 id="3-模块详细设计"><a href="#3-模块详细设计" class="headerlink" title="3. 模块详细设计"></a>3. 模块详细设计</h2><h3 id="3-1-格式兼容层（format-）"><a href="#3-1-格式兼容层（format-）" class="headerlink" title="3.1 格式兼容层（format&#x2F;）"></a>3.1 格式兼容层（format&#x2F;）</h3><p>这是整个项目最核心的模块，也是与竞品最大的差异化来源。</p>
+<h4 id="3-1-1-角色卡格式概述"><a href="#3-1-1-角色卡格式概述" class="headerlink" title="3.1.1 角色卡格式概述"></a>3.1.1 角色卡格式概述</h4><p>SillyTavern 支持两种角色卡文件格式：</p>
+<p><strong>PNG 格式（Character Card V2）</strong>：</p>
+<ul>
+<li>外观是普通 PNG 图片（角色头像）</li>
+<li>角色数据以 JSON 形式编码为 Base64，嵌入 PNG 文件的 <code>tEXt</code> chunk 中</li>
+<li>chunk 的 keyword 为 <code>chara</code></li>
+<li>JSON 遵循 <a target="_blank" rel="noopener" href="https://github.com/malfoyslastname/character-card-spec-v2">Character Card V2 规范</a></li>
+</ul>
+<p><strong>CHARX 格式（Backyard AI）</strong>：</p>
+<ul>
+<li>本质是 ZIP 压缩包，扩展名为 <code>.charx</code></li>
+<li>ZIP 内包含 <code>card.json</code>（角色数据）和可选的 <code>sprites/</code> 目录（立绘图片）</li>
+<li><code>card.json</code> 结构与 V2 规范基本兼容</li>
+</ul>
+<h4 id="3-1-2-解析流程设计"><a href="#3-1-2-解析流程设计" class="headerlink" title="3.1.2 解析流程设计"></a>3.1.2 解析流程设计</h4><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line">用户选择文件（文件选择器 URI）</span><br><span class="line">        │</span><br><span class="line">        ▼</span><br><span class="line">CharacterCardParser.parse(uri)   ← 入口，根据扩展名路由</span><br><span class="line">        │</span><br><span class="line">  ┌─────┴─────┐</span><br><span class="line">  │           │</span><br><span class="line">  ▼           ▼</span><br><span class="line">PNG 流程   CHARX 流程</span><br><span class="line">  │           │</span><br><span class="line">  ▼           ▼</span><br><span class="line">PngChunk  ZipInputStream</span><br><span class="line">Reader        │</span><br><span class="line">  │       card.json</span><br><span class="line">  │           │</span><br><span class="line">  └─────┬─────┘</span><br><span class="line">        │</span><br><span class="line">        ▼</span><br><span class="line">   JSON 字符串</span><br><span class="line">        │</span><br><span class="line">        ▼</span><br><span class="line">  CharacterCardV2      ← kotlinx.serialization 反序列化</span><br><span class="line">  （规范数据模型）</span><br><span class="line">        │</span><br><span class="line">        ▼</span><br><span class="line">    Character          ← 领域模型（应用内使用）</span><br><span class="line">  （数据库存储）</span><br></pre></td></tr></table></figure>
+
+<h4 id="3-1-3-CharacterCardV2-数据模型"><a href="#3-1-3-CharacterCardV2-数据模型" class="headerlink" title="3.1.3 CharacterCardV2 数据模型"></a>3.1.3 CharacterCardV2 数据模型</h4><p>遵循 <a target="_blank" rel="noopener" href="https://github.com/malfoyslastname/character-card-spec-v2/blob/main/spec_v2.md">官方规范</a>，字段与规范严格对应：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line">CharacterCardV2:</span><br><span class="line">  spec: String                    // &quot;chara_card_v2&quot;</span><br><span class="line">  spec_version: String            // &quot;2.0&quot;</span><br><span class="line">  data:</span><br><span class="line">    name: String                  // 角色名称</span><br><span class="line">    description: String           // 角色描述/人设</span><br><span class="line">    personality: String           // 性格描述</span><br><span class="line">    scenario: String              // 场景背景</span><br><span class="line">    first_mes: String             // 开场白（第一条消息）</span><br><span class="line">    mes_example: String           // 示例对话（&lt;START&gt;分隔块）</span><br><span class="line">    system_prompt: String         // 自定义系统提示（覆盖默认）</span><br><span class="line">    post_history_instructions: String  // 历史消息后追加的指令</span><br><span class="line">    creator_notes: String         // 创作者备注（不注入上下文）</span><br><span class="line">    tags: List&lt;String&gt;            // 标签</span><br><span class="line">    creator: String               // 创作者</span><br><span class="line">    character_version: String     // 角色版本</span><br><span class="line">    extensions: Map&lt;String, Any&gt;  // 扩展字段（V2 预留，解析时忽略）</span><br><span class="line">    // V2 核心功能：内嵌世界书</span><br><span class="line">    character_book: CharacterBook? // 内嵌世界书（可选）</span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p><strong>注意</strong>：<code>extensions</code> 字段可能包含第三方扩展数据（如 Risu 的字段），解析时应容忍未知字段，不能报错。使用 <code>kotlinx.serialization</code> 时配置 <code>ignoreUnknownKeys = true</code>。</p>
+</blockquote>
+<h4 id="3-1-4-PNG-chunk-解析原理"><a href="#3-1-4-PNG-chunk-解析原理" class="headerlink" title="3.1.4 PNG chunk 解析原理"></a>3.1.4 PNG chunk 解析原理</h4><p>PNG 文件由若干 chunk（数据块）组成，每个 chunk 结构为：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">[4字节 数据长度] [4字节 类型] [N字节 数据] [4字节 CRC校验]</span><br></pre></td></tr></table></figure>
+
+<p>角色卡数据藏在类型为 <code>tEXt</code> 的 chunk 中，格式为：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">keyword (ASCII字符串) + 0x00 (分隔符) + text (Latin-1编码文本)</span><br></pre></td></tr></table></figure>
+
+<p>当 keyword 为 <code>chara</code> 时，text 即为 Base64 编码的角色 JSON。</p>
+<p>解析步骤：</p>
+<ol>
+<li>跳过 8 字节 PNG 签名</li>
+<li>循环读取每个 chunk</li>
+<li>遇到类型 <code>tEXt</code> 时，读取 keyword</li>
+<li>如果 keyword 是 <code>chara</code>，读取剩余文本并 Base64 解码</li>
+<li>将 UTF-8 字符串反序列化为 <code>CharacterCardV2</code></li>
+</ol>
+<blockquote>
+<p>📖 <strong>参考资料</strong>：PNG 规范文档 <a target="_blank" rel="noopener" href="http://www.libpng.org/pub/png/spec/1.2/PNG-Chunks.html">http://www.libpng.org/pub/png/spec/1.2/PNG-Chunks.html</a></p>
+</blockquote>
+<h3 id="3-2-上下文构建模块（llm-ContextBuilder）"><a href="#3-2-上下文构建模块（llm-ContextBuilder）" class="headerlink" title="3.2 上下文构建模块（llm&#x2F;ContextBuilder）"></a>3.2 上下文构建模块（llm&#x2F;ContextBuilder）</h3><p>这是 SillyTavern 兼容性的另一个核心——上下文是如何组装的，直接影响对话质量。</p>
+<h4 id="3-2-1-ST-的上下文结构"><a href="#3-2-1-ST-的上下文结构" class="headerlink" title="3.2.1 ST 的上下文结构"></a>3.2.1 ST 的上下文结构</h4><p>SillyTavern 发送给 LLM 的消息列表，大致结构如下（从上到下）：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">[system] 主系统提示（可自定义或使用角色的 system_prompt）</span><br><span class="line">[system] World Info 条目（position=0，在角色描述之前）</span><br><span class="line">[system] 角色描述块：</span><br><span class="line">         [描述] &#123;&#123;char&#125;&#125;: &#123;&#123;description&#125;&#125;</span><br><span class="line">         [性格] &#123;&#123;char&#125;&#125;&#x27;s personality: &#123;&#123;personality&#125;&#125;</span><br><span class="line">         [场景] Scenario: &#123;&#123;scenario&#125;&#125;</span><br><span class="line">[system] World Info 条目（position=1，在角色描述之后）</span><br><span class="line">[user]   示例对话（mes_example）转换的消息对</span><br><span class="line">[assistant] ...</span><br><span class="line">...（历史对话，按 token 限制从最近往前截取）</span><br><span class="line">[system] post_history_instructions（最后追加）</span><br><span class="line">[user]   当前用户消息</span><br></pre></td></tr></table></figure>
+
+<h4 id="3-2-2-宏替换"><a href="#3-2-2-宏替换" class="headerlink" title="3.2.2 宏替换"></a>3.2.2 宏替换</h4><p>ST 使用 <code>&#123;&#123;char&#125;&#125;</code>、<code>&#123;&#123;user&#125;&#125;</code> 等宏变量，在注入前需替换：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">&#123;&#123;char&#125;&#125;  → 角色名称</span><br><span class="line">&#123;&#123;user&#125;&#125;  → 用户人设名称（默认 &quot;User&quot;）</span><br><span class="line">&#123;&#123;original&#125;&#125; → 仅在 post_history_instructions 中使用</span><br></pre></td></tr></table></figure>
+
+<p>宏替换应在所有文本注入前统一处理，设计一个 <code>MacroProcessor</code> 工具类。</p>
+<h4 id="3-2-3-World-Info-触发逻辑"><a href="#3-2-3-World-Info-触发逻辑" class="headerlink" title="3.2.3 World Info 触发逻辑"></a>3.2.3 World Info 触发逻辑</h4><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">输入：</span><br><span class="line">  - messages: 最近 N 条对话（扫描范围）</span><br><span class="line">  - worldInfoEntries: 当前角色的世界书条目列表</span><br><span class="line">  - scanDepth: 扫描最近多少条消息（默认5，可配置）</span><br><span class="line"></span><br><span class="line">处理：</span><br><span class="line">  1. 拼接最近 scanDepth 条消息文本为扫描字符串</span><br><span class="line">  2. 对每个 enabled=true 的条目：</span><br><span class="line">     - selectiveLogic=0 (AND ANY): keys 中任意一个出现在扫描字符串中 → 触发</span><br><span class="line">     - selectiveLogic=1 (NOT ALL): keys 不全部出现 → 触发</span><br><span class="line">     - selectiveLogic=2 (NOT ANY): keys 没有任何一个出现 → 触发（常用于&quot;默认注入&quot;）</span><br><span class="line">  3. 触发的条目按 order 字段排序</span><br><span class="line">  4. 按 position 字段分组，插入到上下文的对应位置</span><br><span class="line"></span><br><span class="line">输出：</span><br><span class="line">  - 触发的 WorldInfoEntry 列表，分组后可供 ContextBuilder 使用</span><br></pre></td></tr></table></figure>
+
+<h4 id="3-2-4-Token-预算管理（简化版）"><a href="#3-2-4-Token-预算管理（简化版）" class="headerlink" title="3.2.4 Token 预算管理（简化版）"></a>3.2.4 Token 预算管理（简化版）</h4><p>v1.0 采用简化策略，不做精确 Token 计数：</p>
+<ul>
+<li>允许用户在设置中配置”最大上下文消息数”（默认 20 条）</li>
+<li>历史消息从最新往前取，超出数量截断</li>
+<li>v1.x 版本再引入精确 Token 计数库</li>
+</ul>
+<h3 id="3-3-LLM-Provider-抽象层（llm-provider-）"><a href="#3-3-LLM-Provider-抽象层（llm-provider-）" class="headerlink" title="3.3 LLM Provider 抽象层（llm&#x2F;provider&#x2F;）"></a>3.3 LLM Provider 抽象层（llm&#x2F;provider&#x2F;）</h3><h4 id="3-3-1-Provider-接口设计"><a href="#3-3-1-Provider-接口设计" class="headerlink" title="3.3.1 Provider 接口设计"></a>3.3.1 Provider 接口设计</h4><p>接口只有一个核心方法，返回 <code>Flow&lt;String&gt;</code> 实现流式输出：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">interface LLMProvider &#123;</span><br><span class="line">  val id: String                     // 唯一标识，如 &quot;openai&quot;, &quot;claude&quot;</span><br><span class="line">  val displayName: String            // 显示名称</span><br><span class="line">  </span><br><span class="line">  // 流式对话，每次 emit 一个 token 片段</span><br><span class="line">  fun streamChat(</span><br><span class="line">    messages: List&lt;ChatMessage&gt;,</span><br><span class="line">    config: ProviderConfig           // 包含 apiKey, endpoint, model 等</span><br><span class="line">  ): Flow&lt;String&gt;</span><br><span class="line">  </span><br><span class="line">  // 验证配置是否有效（发送一个测试请求）</span><br><span class="line">  suspend fun validateConfig(config: ProviderConfig): Result&lt;Unit&gt;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h4 id="3-3-2-ProviderConfig-数据模型"><a href="#3-3-2-ProviderConfig-数据模型" class="headerlink" title="3.3.2 ProviderConfig 数据模型"></a>3.3.2 ProviderConfig 数据模型</h4><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">data class ProviderConfig(</span><br><span class="line">  id: String,                // UUID，本地生成</span><br><span class="line">  name: String,              // 用户自定义显示名，如&quot;我的GPT-4配置&quot;</span><br><span class="line">  providerId: String,        // 对应哪个 Provider，如 &quot;openai&quot;</span><br><span class="line">  apiKey: String,            // API 密钥（加密存储）</span><br><span class="line">  endpoint: String,          // 自定义端点，如 &quot;https://api.openai.com/v1&quot;</span><br><span class="line">  model: String,             // 模型名，如 &quot;gpt-4o&quot;</span><br><span class="line">  maxTokens: Int,            // 最大生成 token 数</span><br><span class="line">  temperature: Float,        // 温度参数</span><br><span class="line">  // 可扩展字段：</span><br><span class="line">  extraHeaders: Map&lt;String, String&gt;,  // 自定义请求头（部分中转站需要）</span><br><span class="line">  extraParams: Map&lt;String, String&gt;    // 自定义参数</span><br><span class="line">)</span><br></pre></td></tr></table></figure>
+
+<h4 id="3-3-3-OpenAI-Provider-实现要点"><a href="#3-3-3-OpenAI-Provider-实现要点" class="headerlink" title="3.3.3 OpenAI Provider 实现要点"></a>3.3.3 OpenAI Provider 实现要点</h4><p>OpenAI 接口采用 SSE（Server-Sent Events）流式协议：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">请求格式（POST /v1/chat/completions）：</span><br><span class="line">&#123;</span><br><span class="line">  &quot;model&quot;: &quot;gpt-4o&quot;,</span><br><span class="line">  &quot;stream&quot;: true,</span><br><span class="line">  &quot;messages&quot;: [</span><br><span class="line">    &#123;&quot;role&quot;: &quot;system&quot;, &quot;content&quot;: &quot;...&quot;&#125;,</span><br><span class="line">    &#123;&quot;role&quot;: &quot;user&quot;, &quot;content&quot;: &quot;...&quot;&#125;</span><br><span class="line">  ]</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">SSE 响应格式（每行）：</span><br><span class="line">data: &#123;&quot;choices&quot;:[&#123;&quot;delta&quot;:&#123;&quot;content&quot;:&quot;token片段&quot;&#125;&#125;]&#125;</span><br><span class="line">data: [DONE]</span><br></pre></td></tr></table></figure>
+
+<p>实现要点：</p>
+<ul>
+<li>使用 OkHttp 发送请求，<strong>不用</strong> Retrofit（Retrofit 不支持 SSE 流式读取）</li>
+<li>读取响应 body 的 <code>Source</code>，逐行解析</li>
+<li>每解析出一个 token，向 Flow 中 emit</li>
+<li>需处理错误状态码（401 未授权、429 限流等），转换为自定义异常</li>
+</ul>
+<blockquote>
+<p>📖 <strong>参考资料</strong>：OkHttp 官方文档 <a target="_blank" rel="noopener" href="https://square.github.io/okhttp/">https://square.github.io/okhttp/</a>，重点阅读”Calls”和”Events”章节</p>
+</blockquote>
+<h4 id="3-3-4-Claude-Provider-实现要点"><a href="#3-3-4-Claude-Provider-实现要点" class="headerlink" title="3.3.4 Claude Provider 实现要点"></a>3.3.4 Claude Provider 实现要点</h4><p>Claude API 格式与 OpenAI <strong>有以下关键差异</strong>：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">1. 端点不同：POST /v1/messages</span><br><span class="line">2. 认证头不同：x-api-key 而非 Authorization: Bearer</span><br><span class="line">3. system 消息单独字段，不在 messages 数组中：</span><br><span class="line">   &#123;</span><br><span class="line">     &quot;model&quot;: &quot;claude-3-5-sonnet-20241022&quot;,</span><br><span class="line">     &quot;max_tokens&quot;: 1024,</span><br><span class="line">     &quot;system&quot;: &quot;系统提示文本&quot;,     ← 单独字段</span><br><span class="line">     &quot;messages&quot;: [               ← 只包含 user/assistant 消息</span><br><span class="line">       &#123;&quot;role&quot;: &quot;user&quot;, &quot;content&quot;: &quot;...&quot;&#125;</span><br><span class="line">     ],</span><br><span class="line">     &quot;stream&quot;: true</span><br><span class="line">   &#125;</span><br><span class="line">4. 需要额外头：anthropic-version: 2023-06-01</span><br><span class="line">5. SSE 事件类型不同：content_block_delta 事件包含实际文本</span><br></pre></td></tr></table></figure>
+
+<p>设计建议：在 <code>ContextBuilder</code> 输出后，Provider 负责将统一的 <code>List&lt;ChatMessage&gt;</code> 转换为自己格式，这样上层无需关心差异。</p>
+<hr>
+<h2 id="4-数据库设计"><a href="#4-数据库设计" class="headerlink" title="4. 数据库设计"></a>4. 数据库设计</h2><h3 id="4-1-Room-数据库概述"><a href="#4-1-Room-数据库概述" class="headerlink" title="4.1 Room 数据库概述"></a>4.1 Room 数据库概述</h3><p>Room 是 Android 官方的 SQLite ORM，与 MyBatis 类比：</p>
+<table>
+<thead>
+<tr>
+<th>MyBatis 概念</th>
+<th>Room 概念</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Entity&#x2F;POJO</td>
+<td><code>@Entity</code> 数据类</td>
+</tr>
+<tr>
+<td>Mapper 接口</td>
+<td><code>@Dao</code> 接口</td>
+</tr>
+<tr>
+<td>SQL XML</td>
+<td><code>@Query</code> 注解</td>
+</tr>
+<tr>
+<td>SqlSession</td>
+<td><code>RoomDatabase</code></td>
+</tr>
+</tbody></table>
+<blockquote>
+<p>📖 <strong>学习资料</strong>：<a target="_blank" rel="noopener" href="https://developer.android.com/training/data-storage/room">Room 官方文档</a>，建议先看完”Define data using Room entities”和”Access data using Room DAOs”两节。</p>
+</blockquote>
+<h3 id="4-2-Entity-设计"><a href="#4-2-Entity-设计" class="headerlink" title="4.2 Entity 设计"></a>4.2 Entity 设计</h3><h4 id="4-2-1-CharacterEntity（角色表）"><a href="#4-2-1-CharacterEntity（角色表）" class="headerlink" title="4.2.1 CharacterEntity（角色表）"></a>4.2.1 CharacterEntity（角色表）</h4><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line">表名：characters</span><br><span class="line"></span><br><span class="line">字段：</span><br><span class="line">  id            TEXT PRIMARY KEY    -- UUID，本地生成</span><br><span class="line">  name          TEXT NOT NULL       -- 角色名称</span><br><span class="line">  description   TEXT NOT NULL       -- 角色描述（原始文本）</span><br><span class="line">  personality   TEXT                -- 性格</span><br><span class="line">  scenario      TEXT                -- 场景</span><br><span class="line">  firstMessage  TEXT                -- 开场白</span><br><span class="line">  mesExample    TEXT                -- 示例对话</span><br><span class="line">  systemPrompt  TEXT                -- 自定义系统提示</span><br><span class="line">  postHistoryInstructions TEXT      -- 历史后指令</span><br><span class="line">  tags          TEXT                -- JSON 数组序列化存储</span><br><span class="line">  creator       TEXT</span><br><span class="line">  creatorNotes  TEXT</span><br><span class="line">  avatarPath    TEXT                -- 本地头像文件路径</span><br><span class="line">  charxPath     TEXT                -- 如果是 CHARX，原文件路径（用于提取立绘）</span><br><span class="line">  createdAt     INTEGER NOT NULL    -- 时间戳（毫秒）</span><br><span class="line">  updatedAt     INTEGER NOT NULL</span><br></pre></td></tr></table></figure>
+
+<h4 id="4-2-2-ConversationEntity（会话表）"><a href="#4-2-2-ConversationEntity（会话表）" class="headerlink" title="4.2.2 ConversationEntity（会话表）"></a>4.2.2 ConversationEntity（会话表）</h4><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">表名：conversations</span><br><span class="line"></span><br><span class="line">字段：</span><br><span class="line">  id              TEXT PRIMARY KEY</span><br><span class="line">  characterId     TEXT NOT NULL      -- 外键，关联 characters.id</span><br><span class="line">  title           TEXT               -- 会话标题（可由用户修改）</span><br><span class="line">  lastMessageAt   INTEGER            -- 最后消息时间（用于排序）</span><br><span class="line">  messageCount    INTEGER DEFAULT 0  -- 缓存消息数量（避免 COUNT 查询）</span><br><span class="line">  createdAt       INTEGER NOT NULL</span><br><span class="line">  </span><br><span class="line">外键约束：</span><br><span class="line">  FOREIGN KEY (characterId) REFERENCES characters(id) ON DELETE CASCADE</span><br></pre></td></tr></table></figure>
+
+<h4 id="4-2-3-MessageEntity（消息表）"><a href="#4-2-3-MessageEntity（消息表）" class="headerlink" title="4.2.3 MessageEntity（消息表）"></a>4.2.3 MessageEntity（消息表）</h4><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">表名：messages</span><br><span class="line"></span><br><span class="line">字段：</span><br><span class="line">  id              TEXT PRIMARY KEY</span><br><span class="line">  conversationId  TEXT NOT NULL      -- 外键，关联 conversations.id</span><br><span class="line">  role            TEXT NOT NULL      -- &quot;user&quot; | &quot;assistant&quot; | &quot;system&quot;</span><br><span class="line">  content         TEXT NOT NULL      -- 消息内容</span><br><span class="line">  isStreaming     INTEGER DEFAULT 0  -- 是否正在流式输出（0/1）</span><br><span class="line">  tokenCount      INTEGER            -- token 数（暂时不填，预留）</span><br><span class="line">  createdAt       INTEGER NOT NULL</span><br><span class="line"></span><br><span class="line">外键约束：</span><br><span class="line">  FOREIGN KEY (conversationId) REFERENCES conversations(id) ON DELETE CASCADE</span><br><span class="line">  </span><br><span class="line">索引：</span><br><span class="line">  INDEX idx_messages_conversation ON messages(conversationId, createdAt)</span><br></pre></td></tr></table></figure>
+
+<h4 id="4-2-4-WorldInfoEntryEntity（世界书条目表）"><a href="#4-2-4-WorldInfoEntryEntity（世界书条目表）" class="headerlink" title="4.2.4 WorldInfoEntryEntity（世界书条目表）"></a>4.2.4 WorldInfoEntryEntity（世界书条目表）</h4><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line">表名：world_info_entries</span><br><span class="line"></span><br><span class="line">字段：</span><br><span class="line">  id              TEXT PRIMARY KEY</span><br><span class="line">  characterId     TEXT               -- 关联角色（NULL 表示全局世界书）</span><br><span class="line">  bookName        TEXT               -- 世界书名称（同一角色可有多本）</span><br><span class="line">  uid             INTEGER            -- 条目在书中的顺序 ID</span><br><span class="line">  keys            TEXT NOT NULL      -- JSON 数组，触发关键词</span><br><span class="line">  content         TEXT NOT NULL      -- 注入内容</span><br><span class="line">  enabled         INTEGER DEFAULT 1  -- 是否启用</span><br><span class="line">  position        INTEGER DEFAULT 1  -- 注入位置（0=角色描述前, 1=角色描述后）</span><br><span class="line">  selectiveLogic  INTEGER DEFAULT 0  -- 0=AND_ANY, 1=NOT_ALL, 2=NOT_ANY</span><br><span class="line">  priority        INTEGER DEFAULT 0  -- 优先级/排序</span><br><span class="line">  comment         TEXT               -- 备注（不注入，仅显示用）</span><br><span class="line">  </span><br><span class="line">外键约束：</span><br><span class="line">  FOREIGN KEY (characterId) REFERENCES characters(id) ON DELETE CASCADE</span><br></pre></td></tr></table></figure>
+
+<h4 id="4-2-5-ProviderConfigEntity（Provider-配置表）"><a href="#4-2-5-ProviderConfigEntity（Provider-配置表）" class="headerlink" title="4.2.5 ProviderConfigEntity（Provider 配置表）"></a>4.2.5 ProviderConfigEntity（Provider 配置表）</h4><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">表名：provider_configs</span><br><span class="line"></span><br><span class="line">字段：</span><br><span class="line">  id            TEXT PRIMARY KEY</span><br><span class="line">  name          TEXT NOT NULL        -- 用户自定义名称</span><br><span class="line">  providerId    TEXT NOT NULL        -- &quot;openai&quot; | &quot;claude&quot; | ...</span><br><span class="line">  apiKey        TEXT                 -- 加密存储（见安全设计节）</span><br><span class="line">  endpoint      TEXT NOT NULL</span><br><span class="line">  model         TEXT NOT NULL</span><br><span class="line">  maxTokens     INTEGER DEFAULT 2048</span><br><span class="line">  temperature   REAL DEFAULT 0.7</span><br><span class="line">  isDefault     INTEGER DEFAULT 0    -- 是否为默认配置（同时只有一个）</span><br><span class="line">  extraJson     TEXT                 -- 其余扩展参数，JSON 序列化</span><br><span class="line">  createdAt     INTEGER NOT NULL</span><br></pre></td></tr></table></figure>
+
+<h3 id="4-3-数据库版本管理"><a href="#4-3-数据库版本管理" class="headerlink" title="4.3 数据库版本管理"></a>4.3 数据库版本管理</h3><p>Room 支持 Migration，从一开始就要建立版本管理意识：</p>
+<ul>
+<li>v1.0 数据库版本号：<code>1</code></li>
+<li>每次 schema 变更必须写 <code>Migration</code> 而非直接 <code>fallbackToDestructiveMigration</code></li>
+<li>将 <code>schema</code> 文件导出到 <code>assets/databases/</code> 目录并纳入版本控制</li>
+</ul>
+<hr>
+<h2 id="5-格式兼容层设计"><a href="#5-格式兼容层设计" class="headerlink" title="5. 格式兼容层设计"></a>5. 格式兼容层设计</h2><h3 id="5-1-导入流程完整设计"><a href="#5-1-导入流程完整设计" class="headerlink" title="5.1 导入流程完整设计"></a>5.1 导入流程完整设计</h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br></pre></td><td class="code"><pre><span class="line">用户操作：点击&quot;导入角色卡&quot;按钮</span><br><span class="line">    │</span><br><span class="line">    ▼</span><br><span class="line">Android FileProvider 打开文件选择器</span><br><span class="line">（支持 MIME: image/png, application/zip, application/octet-stream）</span><br><span class="line">    │</span><br><span class="line">    ▼</span><br><span class="line">获取文件 URI</span><br><span class="line">    │</span><br><span class="line">    ▼</span><br><span class="line">CharacterCardParser.parse(context, uri)</span><br><span class="line">    │</span><br><span class="line">    ├─ 判断扩展名或 MIME type</span><br><span class="line">    │</span><br><span class="line">    ├─ .png → PngChunkReader.extractCharaChunk(stream)</span><br><span class="line">    │          → Base64 解码 → JSON 字符串</span><br><span class="line">    │</span><br><span class="line">    └─ .charx → CharxParser.parse(stream)</span><br><span class="line">               → 解压 ZIP → 读取 card.json</span><br><span class="line">    │</span><br><span class="line">    ▼</span><br><span class="line">JSON 字符串</span><br><span class="line">    │</span><br><span class="line">    ▼</span><br><span class="line">kotlinx.serialization 反序列化为 CharacterCardV2</span><br><span class="line">（配置 ignoreUnknownKeys = true，兼容扩展字段）</span><br><span class="line">    │</span><br><span class="line">    ▼</span><br><span class="line">CharacterMapper.toCharacterEntity(card, avatarUri)</span><br><span class="line">（领域模型 → 数据库实体的转换）</span><br><span class="line">    │</span><br><span class="line">    ▼</span><br><span class="line">提取头像图片：</span><br><span class="line">  - PNG 格式：文件本身就是头像</span><br><span class="line">  - CHARX 格式：ZIP 中的 avatar.png 或 card.png</span><br><span class="line">    │</span><br><span class="line">    ▼</span><br><span class="line">复制头像到 app 内部存储：</span><br><span class="line">  getFilesDir()/avatars/&#123;characterId&#125;.png</span><br><span class="line">    │</span><br><span class="line">    ▼</span><br><span class="line">CharacterRepository.insertCharacter(entity)</span><br><span class="line">    │</span><br><span class="line">    ▼</span><br><span class="line">如果角色有内嵌世界书（character_book 字段）：</span><br><span class="line">  → WorldInfoRepository.insertEntries(entries, characterId)</span><br><span class="line">    │</span><br><span class="line">    ▼</span><br><span class="line">导入完成，刷新角色列表</span><br></pre></td></tr></table></figure>
+
+<h3 id="5-2-文件存储策略"><a href="#5-2-文件存储策略" class="headerlink" title="5.2 文件存储策略"></a>5.2 文件存储策略</h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">内部存储布局（getFilesDir()）：</span><br><span class="line">  /avatars/           → 角色头像 PNG 文件</span><br><span class="line">  /charx/             → 原始 CHARX 文件（用于后续提取立绘）</span><br><span class="line">  /exports/           → 导出的聊天记录（v1.x 实现）</span><br></pre></td></tr></table></figure>
+
+<p>不要使用外部存储（SD卡），避免 Android 11+ 的 Scoped Storage 权限问题。内部存储不需要运行时权限申请。</p>
+<hr>
+<h2 id="6-LLM-Provider-抽象层"><a href="#6-LLM-Provider-抽象层" class="headerlink" title="6. LLM Provider 抽象层"></a>6. LLM Provider 抽象层</h2><h3 id="6-1-SSE-流式输出实现原理"><a href="#6-1-SSE-流式输出实现原理" class="headerlink" title="6.1 SSE 流式输出实现原理"></a>6.1 SSE 流式输出实现原理</h3><p>SSE 是一种服务器向客户端推送事件的协议，格式为：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">data: &#123;&quot;choices&quot;:[&#123;&quot;delta&quot;:&#123;&quot;content&quot;:&quot;Hello&quot;&#125;&#125;]&#125;</span><br><span class="line"></span><br><span class="line">data: &#123;&quot;choices&quot;:[&#123;&quot;delta&quot;:&#123;&quot;content&quot;:&quot; World&quot;&#125;&#125;]&#125;</span><br><span class="line"></span><br><span class="line">data: [DONE]</span><br></pre></td></tr></table></figure>
+
+<p>在 Android 中，使用 OkHttp 实现 SSE 读取的思路：</p>
+<ol>
+<li>构造普通 HTTP POST 请求，添加 <code>Accept: text/event-stream</code> 请求头</li>
+<li>用 <code>call.execute()</code> 获取响应（同步，在 Coroutine 中调用）</li>
+<li>用 <code>response.body.source()</code> 获取 Okio <code>Source</code> 对象</li>
+<li>循环调用 <code>source.readUtf8Line()</code> 逐行读取</li>
+<li>解析每行，提取 <code>data:</code> 后的 JSON</li>
+<li>从 JSON 中提取 <code>choices[0].delta.content</code></li>
+<li>向外部 <code>Flow</code> 的 <code>ProducerScope</code> 发送（<code>send(token)</code>）</li>
+</ol>
+<blockquote>
+<p>📖 <strong>关键技术</strong>：需要掌握 Kotlin <code>callbackFlow</code> 或 <code>flow &#123;&#125;</code> 构建器。推荐阅读 <a target="_blank" rel="noopener" href="https://kotlinlang.org/docs/flow.html">Kotlin Flow 官方文档</a> 中的”Flow builders”一节。</p>
+</blockquote>
+<h3 id="6-2-错误处理设计"><a href="#6-2-错误处理设计" class="headerlink" title="6.2 错误处理设计"></a>6.2 错误处理设计</h3><p>定义统一的异常体系，Provider 层将网络错误转换为这些异常：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">sealed class LLMException(message: String) : Exception(message) &#123;</span><br><span class="line">  class AuthenticationError(message: String) : LLMException(message)  // 401</span><br><span class="line">  class RateLimitError(message: String) : LLMException(message)       // 429</span><br><span class="line">  class ContextLengthError(message: String) : LLMException(message)   // 超出上下文长度</span><br><span class="line">  class NetworkError(cause: Throwable) : LLMException(cause.message ?: &quot;&quot;)</span><br><span class="line">  class ApiError(val code: Int, message: String) : LLMException(message)</span><br><span class="line">  class StreamInterrupted(message: String) : LLMException(message)    // 流中断</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>在 ViewModel 中，通过 <code>catch</code> 操作符捕获并转换为 UI 状态：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">provider.streamChat(...)</span><br><span class="line">  .catch &#123; e -&gt;</span><br><span class="line">    when (e) &#123;</span><br><span class="line">      is LLMException.AuthenticationError → _uiState.update &#123; it.copy(error = &quot;API Key 错误&quot;) &#125;</span><br><span class="line">      is LLMException.RateLimitError → _uiState.update &#123; it.copy(error = &quot;请求频率超限，请稍后再试&quot;) &#125;</span><br><span class="line">      ...</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">  .collect &#123; token → appendToCurrentMessage(token) &#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="6-3-API-Key-安全存储"><a href="#6-3-API-Key-安全存储" class="headerlink" title="6.3 API Key 安全存储"></a>6.3 API Key 安全存储</h3><p>API Key 属于敏感数据，不能明文存储在数据库或 SharedPreferences 中：</p>
+<ul>
+<li>Android 提供 <code>EncryptedSharedPreferences</code>（基于 Keystore 系统），透明加密</li>
+<li>使用 <code>androidx.security:security-crypto</code> 库</li>
+<li>存储方案：ProviderConfig 存数据库，API Key 单独存入 <code>EncryptedSharedPreferences</code>，以 <code>config.id</code> 为 key</li>
+</ul>
+<hr>
+<h2 id="7-分步实现计划"><a href="#7-分步实现计划" class="headerlink" title="7. 分步实现计划"></a>7. 分步实现计划</h2><h3 id="7-1-总体时间预估"><a href="#7-1-总体时间预估" class="headerlink" title="7.1 总体时间预估"></a>7.1 总体时间预估</h3><p>假设每天可投入 2-3 小时，全部完成约需 10-14 周。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">阶段1：Android 基础学习（Week 1-2）</span><br><span class="line">阶段2：工程搭建（Week 3）</span><br><span class="line">阶段3：格式兼容层（Week 4-5）  ← 最核心</span><br><span class="line">阶段4：数据库与本地功能（Week 6-7）</span><br><span class="line">阶段5：LLM 接入（Week 8-9）</span><br><span class="line">阶段6：UI 完善与集成（Week 10-11）</span><br><span class="line">阶段7：测试与 v1.0 发布（Week 12-14）</span><br></pre></td></tr></table></figure>
+
+<hr>
+<h3 id="阶段一：Android-基础学习（Week-1-2）"><a href="#阶段一：Android-基础学习（Week-1-2）" class="headerlink" title="阶段一：Android 基础学习（Week 1-2）"></a>阶段一：Android 基础学习（Week 1-2）</h3><p><strong>目标</strong>：建立 Android 开发心智模型，避免后续踩坑。</p>
+<p><strong>必学内容清单</strong>（按顺序）：</p>
+<ol>
+<li><p><strong>Kotlin 基础语法补强</strong>（1-2天）</p>
+<ul>
+<li>如果你已有 Java 基础，重点看：data class、object、sealed class、扩展函数、lambda、<code>?.</code> 和 <code>?:</code> 操作符</li>
+<li>推荐：<a target="_blank" rel="noopener" href="https://play.kotlinlang.org/koans/overview">Kotlin 官方 Koans 练习</a>，在线交互，1天内可过完</li>
+</ul>
+</li>
+<li><p><strong>Kotlin Coroutines</strong>（2-3天）—— <strong>最重要</strong></p>
+<ul>
+<li>理解 <code>suspend</code> 函数、<code>CoroutineScope</code>、<code>viewModelScope</code></li>
+<li>理解 <code>Flow</code>：类比 Java Stream，但是异步的</li>
+<li>推荐：<a target="_blank" rel="noopener" href="https://kotlinlang.org/docs/coroutines-overview.html">官方 Coroutines 文档</a>，重点看前4节</li>
+<li><strong>重点理解</strong>：<code>StateFlow</code> &#x3D; 当前状态的”只读发布者”，类比 Spring 事件总线中的状态发布</li>
+</ul>
+</li>
+<li><p><strong>Jetpack Compose 基础</strong>（3-4天）</p>
+<ul>
+<li>理解声明式 UI：状态变了 → UI 自动重组（类比 React&#x2F;Vue，不是命令式操作 View）</li>
+<li>必学：<code>@Composable</code>、<code>remember</code>、<code>mutableStateOf</code>、<code>LazyColumn</code>、<code>Column/Row</code></li>
+<li>推荐：<a target="_blank" rel="noopener" href="https://developer.android.com/codelabs/jetpack-compose-basics">Compose 官方 Codelab - Basics</a>，约3小时</li>
+</ul>
+</li>
+<li><p><strong>ViewModel + StateFlow 模式</strong>（1-2天）</p>
+<ul>
+<li>这是 Android 的 Service 层 + 状态管理</li>
+<li>推荐：<a target="_blank" rel="noopener" href="https://developer.android.com/topic/libraries/architecture/viewmodel">官方 ViewModel 文档</a></li>
+<li><strong>关键理解</strong>：Activity 会在转屏时销毁重建，ViewModel 不会；所有状态放 ViewModel，不放 Activity</li>
+</ul>
+</li>
+<li><p><strong>Android 文件操作与 FileProvider</strong>（1天）</p>
+<ul>
+<li>理解 URI 与文件路径的区别（Android 不暴露真实路径）</li>
+<li>理解 <code>Intent.ACTION_OPEN_DOCUMENT</code> 打开文件选择器</li>
+</ul>
+</li>
+</ol>
+<p><strong>验证目标</strong>：能够独立写出一个”点击按钮，显示计数”的 Compose App，并在 ViewModel 里维护状态。</p>
+<hr>
+<h3 id="阶段二：工程搭建（Week-3）"><a href="#阶段二：工程搭建（Week-3）" class="headerlink" title="阶段二：工程搭建（Week 3）"></a>阶段二：工程搭建（Week 3）</h3><p><strong>目标</strong>：搭建可运行的空项目，配置好所有依赖，验证架构可行。</p>
+<p><strong>Step 1：创建 Android 项目</strong></p>
+<p>打开 Android Studio，选择 “Empty Activity”（Compose 模板）：</p>
+<ul>
+<li>Language: Kotlin</li>
+<li>Minimum SDK: API 26 (Android 8.0)</li>
+<li>Build configuration language: Kotlin DSL</li>
+</ul>
+<p><strong>Step 2：配置 build.gradle.kts 依赖</strong></p>
+<p>在 <code>app/build.gradle.kts</code> 的 <code>dependencies</code> 块添加以下依赖（版本号以实际最新稳定版为准）：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br></pre></td><td class="code"><pre><span class="line">// Compose</span><br><span class="line">implementation(&quot;androidx.compose.ui:ui&quot;)</span><br><span class="line">implementation(&quot;androidx.compose.material3:material3&quot;)</span><br><span class="line">implementation(&quot;androidx.compose.ui:ui-tooling-preview&quot;)</span><br><span class="line">implementation(&quot;androidx.activity:activity-compose:1.8.x&quot;)</span><br><span class="line"></span><br><span class="line">// Navigation</span><br><span class="line">implementation(&quot;androidx.navigation:navigation-compose:2.7.x&quot;)</span><br><span class="line"></span><br><span class="line">// ViewModel</span><br><span class="line">implementation(&quot;androidx.lifecycle:lifecycle-viewmodel-compose:2.7.x&quot;)</span><br><span class="line"></span><br><span class="line">// Room</span><br><span class="line">implementation(&quot;androidx.room:room-runtime:2.6.x&quot;)</span><br><span class="line">implementation(&quot;androidx.room:room-ktx:2.6.x&quot;)</span><br><span class="line">ksp(&quot;androidx.room:room-compiler:2.6.x&quot;)  // 需要 KSP 插件</span><br><span class="line"></span><br><span class="line">// DataStore</span><br><span class="line">implementation(&quot;androidx.datastore:datastore-preferences:1.0.x&quot;)</span><br><span class="line"></span><br><span class="line">// Hilt</span><br><span class="line">implementation(&quot;com.google.dagger:hilt-android:2.x&quot;)</span><br><span class="line">ksp(&quot;com.google.dagger:hilt-compiler:2.x&quot;)</span><br><span class="line">implementation(&quot;androidx.hilt:hilt-navigation-compose:1.1.x&quot;)</span><br><span class="line"></span><br><span class="line">// Network</span><br><span class="line">implementation(&quot;com.squareup.okhttp3:okhttp:4.x&quot;)</span><br><span class="line">implementation(&quot;com.squareup.retrofit2:retrofit:2.x&quot;)</span><br><span class="line"></span><br><span class="line">// Serialization</span><br><span class="line">implementation(&quot;org.jetbrains.kotlinx:kotlinx-serialization-json:1.6.x&quot;)</span><br><span class="line"></span><br><span class="line">// Coil</span><br><span class="line">implementation(&quot;io.coil-kt:coil-compose:2.x&quot;)</span><br><span class="line"></span><br><span class="line">// Security</span><br><span class="line">implementation(&quot;androidx.security:security-crypto:1.1.x&quot;)</span><br><span class="line"></span><br><span class="line">// Markdown（选择一个）</span><br><span class="line">implementation(&quot;com.github.jeziellago:compose-markdown:0.x&quot;)</span><br></pre></td></tr></table></figure>
+
+<p><strong>Step 3：配置 Hilt</strong></p>
+<ol>
+<li>在根 <code>build.gradle.kts</code> 添加 Hilt Gradle 插件</li>
+<li>在 <code>app/build.gradle.kts</code> 应用 <code>com.google.dagger.hilt.android</code> 和 <code>com.google.devtools.ksp</code> 插件</li>
+<li>创建继承 <code>@HiltAndroidApp</code> 的 <code>Application</code> 类</li>
+</ol>
+<p><strong>Step 4：验证</strong></p>
+<p>运行空项目，确认编译通过、模拟器能显示默认 UI。</p>
+<hr>
+<h3 id="阶段三：格式兼容层（Week-4-5）"><a href="#阶段三：格式兼容层（Week-4-5）" class="headerlink" title="阶段三：格式兼容层（Week 4-5）"></a>阶段三：格式兼容层（Week 4-5）</h3><p><strong>这是整个项目最重要的阶段，完成后即可作为技术亮点。</strong></p>
+<p><strong>Step 1：定义 CharacterCardV2 数据模型</strong></p>
+<p>在 <code>format/model/</code> 下创建 <code>CharacterCardV2.kt</code>，使用 <code>@Serializable</code> 注解，字段与规范严格对应。注意：</p>
+<ul>
+<li>所有字段设为可空（<code>?</code>），规范字段不总是存在</li>
+<li>配置 <code>@SerialName(&quot;mes_example&quot;)</code> 处理 JSON 字段名与 Kotlin 命名规范的差异</li>
+</ul>
+<p><strong>Step 2：实现 PngChunkReader</strong></p>
+<p>纯 Kotlin 实现，无需任何第三方库：</p>
+<ol>
+<li>读取 <code>InputStream</code> 为 <code>ByteArray</code></li>
+<li>验证前8字节是否为 PNG 签名（<code>89 50 4E 47 0D 0A 1A 0A</code>）</li>
+<li>循环解析 chunk：读取4字节长度（大端序）→ 读取4字节类型 → 读取 N 字节数据 → 跳过4字节 CRC</li>
+<li>匹配 <code>tEXt</code> 类型，分割 keyword 和 text</li>
+<li>keyword 为 <code>chara</code> 时，Base64 解码并返回</li>
+</ol>
+<p><strong>测试方法</strong>：从 SillyTavern 下载任意角色卡 PNG，用 JUnit 测试解析结果。</p>
+<p><strong>Step 3：实现 CharxParser</strong></p>
+<p>使用标准库 <code>java.util.zip.ZipInputStream</code>：</p>
+<ol>
+<li>打开 ZIP 流</li>
+<li>遍历 <code>ZipEntry</code>，找到 <code>card.json</code></li>
+<li>读取字节，转 UTF-8 字符串</li>
+<li>同时收集 <code>avatar.png</code> 或 <code>card.png</code>（头像）</li>
+</ol>
+<p><strong>Step 4：实现 CharacterCardParser（入口类）</strong></p>
+<p>根据 URI 的文件扩展名（或 MIME type）路由到对应解析器，统一返回 <code>Result&lt;CharacterCardV2&gt;</code> 处理错误。</p>
+<p><strong>Step 5：实现 CharacterMapper</strong></p>
+<p>将 <code>CharacterCardV2</code>（格式层模型）转换为 <code>Character</code>（领域模型），同时处理空字段的默认值。</p>
+<p><strong>验证目标</strong>：写 JUnit 测试，导入真实角色卡文件，验证 name、description 等字段解析正确。</p>
+<hr>
+<h3 id="阶段四：数据库与本地功能（Week-6-7）"><a href="#阶段四：数据库与本地功能（Week-6-7）" class="headerlink" title="阶段四：数据库与本地功能（Week 6-7）"></a>阶段四：数据库与本地功能（Week 6-7）</h3><p><strong>Step 1：定义 Room Entity</strong></p>
+<p>按第4章的设计创建所有 Entity 类，注意：</p>
+<ul>
+<li>使用 <code>@TypeConverter</code> 处理 <code>List&lt;String&gt;</code> 字段（序列化为 JSON 字符串存储）</li>
+<li>定义 <code>@ForeignKey</code> 和 <code>@Index</code></li>
+</ul>
+<p><strong>Step 2：定义 DAO 接口</strong></p>
+<p>每个 Entity 对应一个 DAO，常用方法：</p>
+<ul>
+<li><code>@Insert(onConflict = OnConflictStrategy.REPLACE)</code></li>
+<li><code>@Delete</code></li>
+<li><code>@Update</code></li>
+<li><code>@Query(&quot;SELECT * FROM characters ORDER BY updatedAt DESC&quot;)</code></li>
+<li>返回类型用 <code>Flow&lt;List&lt;...&gt;&gt;</code>，Room 会自动在数据变化时重新发射</li>
+</ul>
+<p><strong>Step 3：创建 AppDatabase</strong></p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">@Database(</span><br><span class="line">  entities = [CharacterEntity::class, ConversationEntity::class, </span><br><span class="line">              MessageEntity::class, WorldInfoEntryEntity::class,</span><br><span class="line">              ProviderConfigEntity::class],</span><br><span class="line">  version = 1,</span><br><span class="line">  exportSchema = true   // 导出 schema 文件，纳入版本控制</span><br><span class="line">)</span><br></pre></td></tr></table></figure>
+
+<p><strong>Step 4：实现 Repository</strong></p>
+<ul>
+<li><code>CharacterRepository</code>：封装 DAO，处理头像文件复制逻辑</li>
+<li><code>ConversationRepository</code>：封装会话和消息的 CRUD</li>
+<li><code>WorldInfoRepository</code>：封装世界书条目的 CRUD</li>
+</ul>
+<p><strong>Step 5：配置 Hilt 注入</strong></p>
+<p>在 <code>DatabaseModule</code> 中提供 <code>AppDatabase</code> 和各 DAO 的单例。</p>
+<p><strong>验证目标</strong>：能通过 Repository 保存一个角色并读取出来。</p>
+<hr>
+<h3 id="阶段五：LLM-接入（Week-8-9）"><a href="#阶段五：LLM-接入（Week-8-9）" class="headerlink" title="阶段五：LLM 接入（Week 8-9）"></a>阶段五：LLM 接入（Week 8-9）</h3><p><strong>Step 1：定义领域模型</strong></p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">data class ChatMessage(</span><br><span class="line">  val id: String,</span><br><span class="line">  val role: MessageRole,   // enum: SYSTEM, USER, ASSISTANT</span><br><span class="line">  val content: String</span><br><span class="line">)</span><br></pre></td></tr></table></figure>
+
+<p><strong>Step 2：实现 ContextBuilder</strong></p>
+<p>这是 SillyTavern 兼容性的核心逻辑，按以下顺序实现：</p>
+<ol>
+<li><code>MacroProcessor</code>：实现 <code>&#123;&#123;char&#125;&#125;</code> 和 <code>&#123;&#123;user&#125;&#125;</code> 替换</li>
+<li><code>WorldInfoMatcher</code>：实现关键词匹配，返回触发的条目列表</li>
+<li><code>ContextBuilder.build()</code>：<ul>
+<li>组装 system 消息（包含角色描述、触发的 World Info、system_prompt）</li>
+<li>将 <code>mes_example</code> 解析为示例消息对（按 <code>&lt;START&gt;</code> 分割）</li>
+<li>追加历史消息（按消息数量截断）</li>
+<li>追加 <code>post_history_instructions</code></li>
+<li>返回 <code>List&lt;ChatMessage&gt;</code></li>
+</ul>
+</li>
+</ol>
+<p><strong>Step 3：实现 OpenAIProvider</strong></p>
+<ol>
+<li>构造 JSON 请求体（使用 kotlinx.serialization）</li>
+<li>使用 OkHttp 发送 POST 请求</li>
+<li>用 <code>callbackFlow &#123;&#125;</code> 包裹 SSE 读取循环</li>
+<li>实现 <code>validateConfig</code>：发送一个简单请求检验 API Key</li>
+</ol>
+<p><strong>Step 4：实现 ClaudeProvider</strong></p>
+<p>参考第3章的差异说明，主要处理：</p>
+<ul>
+<li><code>system</code> 字段分离</li>
+<li><code>x-api-key</code> 认证头</li>
+<li><code>anthropic-version</code> 头</li>
+<li>SSE 事件格式差异（<code>content_block_delta</code>）</li>
+</ul>
+<p><strong>Step 5：Provider 注册表</strong></p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">object ProviderRegistry &#123;</span><br><span class="line">  val providers: Map&lt;String, LLMProvider&gt; = mapOf(</span><br><span class="line">    &quot;openai&quot; to OpenAIProvider(),</span><br><span class="line">    &quot;claude&quot; to ClaudeProvider(),</span><br><span class="line">  )</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><strong>验证目标</strong>：用命令行或 Android 测试，能向 OpenAI API 发送请求并打印流式响应。</p>
+<hr>
+<h3 id="阶段六：UI-实现（Week-10-11）"><a href="#阶段六：UI-实现（Week-10-11）" class="headerlink" title="阶段六：UI 实现（Week 10-11）"></a>阶段六：UI 实现（Week 10-11）</h3><p><strong>页面清单与优先级</strong>：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">高优先级（必须完成）：</span><br><span class="line">  1. 角色卡列表页（CharacterListScreen）</span><br><span class="line">  2. 聊天页（ChatScreen）</span><br><span class="line">  3. 设置页 - Provider 配置（SettingsScreen）</span><br><span class="line"></span><br><span class="line">中优先级：</span><br><span class="line">  4. 会话列表页（ConversationListScreen）</span><br><span class="line">  5. 导入引导页/欢迎页</span><br><span class="line"></span><br><span class="line">低优先级（可简化）：</span><br><span class="line">  6. 世界书查看页（只读即可，v1.1 再做编辑）</span><br></pre></td></tr></table></figure>
+
+<p><strong>角色卡列表页设计要点</strong>：</p>
+<ul>
+<li><code>LazyColumn</code> 展示角色列表，每个 item 显示头像（Coil 加载）、名称、标签</li>
+<li>右上角 FAB（浮动按钮）触发文件选择器导入</li>
+<li>长按角色显示删除确认对话框</li>
+<li>点击角色进入会话列表</li>
+</ul>
+<p><strong>聊天页设计要点</strong>：</p>
+<ul>
+<li>顶部：角色名称 + 切换 Provider 下拉菜单</li>
+<li>中部：<code>LazyColumn</code> 展示消息列表，用户消息右对齐，AI 消息左对齐</li>
+<li>AI 消息使用 Markdown 渲染组件</li>
+<li>流式输出时，显示”打字光标”动画（最后一个字符后加 <code>▌</code>，用 <code>AnimatedContent</code> 或简单计时器）</li>
+<li>底部：多行输入框 + 发送按钮，发送中变为停止按钮（支持中断流式输出）</li>
+<li>首次进入时，如果角色有 <code>first_mes</code>，自动显示为 AI 的第一条消息</li>
+</ul>
+<p><strong>设置页设计要点</strong>：</p>
+<ul>
+<li>Provider 配置列表，可新增&#x2F;编辑&#x2F;删除</li>
+<li>新增 Provider 配置：选择 Provider 类型 → 填写 API Key、Endpoint、Model</li>
+<li>“测试连接”按钮，调用 <code>validateConfig</code></li>
+<li>全局设置：用户名（<code>&#123;&#123;user&#125;&#125;</code> 宏替换）、最大上下文消息数</li>
+</ul>
+<p><strong>ChatViewModel 核心状态</strong>：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">data class ChatUiState(</span><br><span class="line">  val messages: List&lt;MessageUiModel&gt;,    // 显示的消息列表</span><br><span class="line">  val isStreaming: Boolean,              // 是否正在流式输出</span><br><span class="line">  val inputText: String,                 // 输入框内容</span><br><span class="line">  val error: String?,                    // 错误信息</span><br><span class="line">  val character: Character?,             // 当前角色</span><br><span class="line">  val activeProvider: ProviderConfig?,   // 当前 Provider</span><br><span class="line">)</span><br></pre></td></tr></table></figure>
+
+<p><strong>停止生成的实现</strong>：</p>
+<ul>
+<li>在 ChatViewModel 中持有当前的 <code>Job</code>（Coroutine Job）</li>
+<li>点击”停止”时调用 <code>job.cancel()</code></li>
+<li>Flow 会自动取消，不会再继续接收 token</li>
+</ul>
+<hr>
+<h3 id="阶段七：测试与发布（Week-12-14）"><a href="#阶段七：测试与发布（Week-12-14）" class="headerlink" title="阶段七：测试与发布（Week 12-14）"></a>阶段七：测试与发布（Week 12-14）</h3><p><strong>Step 1：关键功能测试</strong></p>
+<p>格式兼容层（纯 JUnit 测试）：</p>
+<ul>
+<li>准备10个以上真实角色卡文件（从 <a target="_blank" rel="noopener" href="https://characterhub.org/">Character Hub</a> 或 <a target="_blank" rel="noopener" href="https://chub.ai/">Chub.ai</a> 下载）</li>
+<li>验证 PNG 解析成功率</li>
+<li>验证有世界书的角色卡能正确提取 World Info</li>
+</ul>
+<p>LLM 集成测试：</p>
+<ul>
+<li>用真实 API Key 测试 OpenAI 流式输出</li>
+<li>测试错误处理：故意填错 API Key，验证错误提示</li>
+</ul>
+<p><strong>Step 2：体验优化 Checklist</strong></p>
+<p>发布前必须完成：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">□ 角色卡列表为空时显示引导（&quot;点击 + 导入你的第一张角色卡&quot;）</span><br><span class="line">□ 发送消息后输入框自动清空并关闭软键盘</span><br><span class="line">□ 消息列表在新消息时自动滚动到底部</span><br><span class="line">□ 流式输出中途 App 切换到后台，不会崩溃</span><br><span class="line">□ 导入格式错误的文件时，显示友好错误提示</span><br><span class="line">□ 无网络时发送消息，显示错误提示</span><br><span class="line">□ 深色模式（Material3 自动支持，确认样式正确）</span><br><span class="line">□ 旋转屏幕不丢失聊天内容（ViewModel 保证）</span><br></pre></td></tr></table></figure>
+
+<p><strong>Step 3：构建 Release APK</strong></p>
+<ol>
+<li>在 <code>build.gradle.kts</code> 配置签名：<code>signingConfigs &#123; release &#123; ... &#125; &#125;</code></li>
+<li><code>./gradlew assembleRelease</code></li>
+<li>验证 APK 可以在未安装 Android Studio 的设备上安装</li>
+</ol>
+<hr>
+<h2 id="8-工程配置与环境搭建"><a href="#8-工程配置与环境搭建" class="headerlink" title="8. 工程配置与环境搭建"></a>8. 工程配置与环境搭建</h2><h3 id="8-1-开发环境"><a href="#8-1-开发环境" class="headerlink" title="8.1 开发环境"></a>8.1 开发环境</h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">IDE：Android Studio Hedgehog（2023.1.1）或更新版本</span><br><span class="line">  下载：https://developer.android.com/studio</span><br><span class="line"></span><br><span class="line">JDK：Android Studio 内置 JDK 17（无需单独安装）</span><br><span class="line"></span><br><span class="line">Android SDK：</span><br><span class="line">  在 SDK Manager 中安装：</span><br><span class="line">  - Android 14 (API 34) 平台</span><br><span class="line">  - Android Emulator</span><br><span class="line">  - Build Tools 34.x</span><br><span class="line"></span><br><span class="line">模拟器配置：</span><br><span class="line">  - Pixel 7 Pro 或 Pixel 6（推荐，代表主流屏幕比例）</span><br><span class="line">  - Android 14 系统镜像</span><br><span class="line">  - 分配至少 2GB RAM</span><br></pre></td></tr></table></figure>
+
+<h3 id="8-2-版本控制规范"><a href="#8-2-版本控制规范" class="headerlink" title="8.2 版本控制规范"></a>8.2 版本控制规范</h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line">分支策略：</span><br><span class="line">  main         → 始终可发布的稳定代码</span><br><span class="line">  develop      → 开发分支</span><br><span class="line">  feature/xxx  → 功能分支，从 develop 切出，完成后 PR 合并</span><br><span class="line"></span><br><span class="line">Commit 规范（Conventional Commits）：</span><br><span class="line">  feat: 新功能</span><br><span class="line">  fix: 修复 bug</span><br><span class="line">  refactor: 重构（不影响功能）</span><br><span class="line">  docs: 文档</span><br><span class="line">  test: 测试</span><br><span class="line">  chore: 构建/工具变更</span><br><span class="line"></span><br><span class="line">Tag 规范：</span><br><span class="line">  v1.0.0-alpha.1  → 早期测试版</span><br><span class="line">  v1.0.0-beta.1   → 功能完整，等待测试</span><br><span class="line">  v1.0.0          → 正式发布</span><br></pre></td></tr></table></figure>
+
+<h3 id="8-3-GitHub-仓库配置"><a href="#8-3-GitHub-仓库配置" class="headerlink" title="8.3 GitHub 仓库配置"></a>8.3 GitHub 仓库配置</h3><p>必须配置的文件：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">README.md         → 参见第10章详细说明</span><br><span class="line">LICENSE           → 推荐 AGPL-3.0（与 SillyTavern 保持一致）</span><br><span class="line">.gitignore        → Android 标准模板 + 添加 /local.properties</span><br><span class="line">CHANGELOG.md      → 版本更新日志</span><br><span class="line">CONTRIBUTING.md   → 贡献指南（吸引社区参与）</span><br><span class="line">.github/</span><br><span class="line">  ISSUE_TEMPLATE/</span><br><span class="line">    bug_report.md</span><br><span class="line">    feature_request.md</span><br><span class="line">  workflows/</span><br><span class="line">    build.yml     → GitHub Actions 自动构建 APK</span><br></pre></td></tr></table></figure>
+
+<p><strong>GitHub Actions 自动构建</strong>（重要）：<br>配置在每次 push tag 时自动编译 Release APK 并上传到 GitHub Releases，用户可直接下载安装，无需自己编译。这对获取 Star 至关重要。</p>
+<hr>
+<h2 id="9-测试策略"><a href="#9-测试策略" class="headerlink" title="9. 测试策略"></a>9. 测试策略</h2><h3 id="9-1-分层测试"><a href="#9-1-分层测试" class="headerlink" title="9.1 分层测试"></a>9.1 分层测试</h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line">单元测试（src/test/）  ← 不需要 Android 设备，速度快</span><br><span class="line">  - PngChunkReader</span><br><span class="line">  - CharxParser</span><br><span class="line">  - CharacterMapper</span><br><span class="line">  - ContextBuilder</span><br><span class="line">  - WorldInfoMatcher</span><br><span class="line">  - MacroProcessor</span><br><span class="line">  目标覆盖率：格式兼容层 &gt; 80%</span><br><span class="line"></span><br><span class="line">集成测试（src/androidTest/）  ← 需要模拟器或设备</span><br><span class="line">  - Room 数据库 CRUD</span><br><span class="line">  - Repository 层</span><br><span class="line">  目标：核心 CRUD 操作全覆盖</span><br><span class="line"></span><br><span class="line">手动测试清单</span><br><span class="line">  - 从不同来源（ChHub、Character.AI 导出等）导入角色卡</span><br><span class="line">  - 测试各 Provider 的流式输出</span><br><span class="line">  - 测试 World Info 触发</span><br></pre></td></tr></table></figure>
+
+<h3 id="9-2-测试数据准备"><a href="#9-2-测试数据准备" class="headerlink" title="9.2 测试数据准备"></a>9.2 测试数据准备</h3><p>建议在 <code>src/test/resources/</code> 目录下放置测试用角色卡文件：</p>
+<ul>
+<li><code>test_v2_basic.png</code>：基础 V2 格式角色卡</li>
+<li><code>test_v2_with_worldinfo.png</code>：含内嵌世界书的角色卡</li>
+<li><code>test_charx_basic.charx</code>：基础 CHARX 格式</li>
+<li><code>test_charx_with_sprites.charx</code>：含立绘的 CHARX（用于验证未来立绘功能）</li>
+<li><code>test_malformed.png</code>：非角色卡 PNG（用于测试错误处理）</li>
+</ul>
+<hr>
+<h2 id="10-发布与运营"><a href="#10-发布与运营" class="headerlink" title="10. 发布与运营"></a>10. 发布与运营</h2><h3 id="10-1-README-结构（决定-Star-数量的关键）"><a href="#10-1-README-结构（决定-Star-数量的关键）" class="headerlink" title="10.1 README 结构（决定 Star 数量的关键）"></a>10.1 README 结构（决定 Star 数量的关键）</h3><p>README 是获得 Star 最重要的因素，结构建议：</p>
+<figure class="highlight markdown"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br></pre></td><td class="code"><pre><span class="line"><span class="section"># TavernDroid</span></span><br><span class="line"></span><br><span class="line">[徽章：GitHub Release] [徽章：License] [徽章：Android API]</span><br><span class="line"></span><br><span class="line"><span class="quote">&gt; SillyTavern 的 Android 原生客户端，直接导入你的角色卡，无需 Termux 或任何服务器。</span></span><br><span class="line"></span><br><span class="line"><span class="section">## 演示 GIF（最重要！）</span></span><br><span class="line">（录制：导入角色卡 → 开始对话 → 流式输出的完整流程，约15秒）</span><br><span class="line"></span><br><span class="line"><span class="section">## 功能特性</span></span><br><span class="line"><span class="bullet">-</span> ✅ 完整兼容 SillyTavern 角色卡（PNG/CHARX）</span><br><span class="line"><span class="bullet">-</span> ✅ World Info / 世界书注入</span><br><span class="line"><span class="bullet">-</span> ✅ 支持 OpenAI、Claude 及所有 OpenAI 兼容接口</span><br><span class="line"><span class="bullet">-</span> ✅ 流式输出，Markdown 渲染</span><br><span class="line"><span class="bullet">-</span> ✅ 本地聊天记录</span><br><span class="line"><span class="bullet">-</span> ✅ Material You 设计</span><br><span class="line"></span><br><span class="line"><span class="section">## 安装</span></span><br><span class="line">[直接下载 APK] - 指向 GitHub Releases 最新版本</span><br><span class="line"></span><br><span class="line"><span class="section">## 使用说明</span></span><br><span class="line"><span class="bullet">1.</span> 在设置中配置 API Key</span><br><span class="line"><span class="bullet">2.</span> 点击 + 导入角色卡（.png 或 .charx）</span><br><span class="line"><span class="bullet">3.</span> 点击角色开始对话</span><br><span class="line"></span><br><span class="line"><span class="section">## 与 SillyTavern 的兼容性</span></span><br><span class="line">| 功能 | TavernDroid | 说明 |</span><br><span class="line">...</span><br><span class="line"></span><br><span class="line"><span class="section">## 贡献</span></span><br><span class="line">欢迎 PR 和 Issue。尤其需要：更多 Provider 支持，翻译。</span><br><span class="line"></span><br><span class="line"><span class="section">## 致谢</span></span><br><span class="line">本项目基于 SillyTavern 的角色卡规范实现...</span><br></pre></td></tr></table></figure>
+
+<h3 id="10-2-发布渠道（按优先级）"><a href="#10-2-发布渠道（按优先级）" class="headerlink" title="10.2 发布渠道（按优先级）"></a>10.2 发布渠道（按优先级）</h3><p><strong>第一优先级（精准用户）</strong>：</p>
+<ul>
+<li>SillyTavern 官方 Discord 的 <code>#related-projects</code> 或 <code>#mobile-clients</code> 频道</li>
+<li>Reddit <code>r/SillyTavernAI</code> — 发帖标题建议：「I made a native Android app that directly imports your ST character cards - no Termux needed」</li>
+</ul>
+<p><strong>第二优先级（扩散流量）</strong>：</p>
+<ul>
+<li>Reddit <code>r/LocalLLaMA</code> — 强调多 Provider 支持</li>
+<li>Reddit <code>r/CharacterAI</code> — 强调角色扮演功能</li>
+</ul>
+<p><strong>第三优先级（长尾流量）</strong>：</p>
+<ul>
+<li>F-Droid 提交（开源 Android 应用市场，吸引技术用户）</li>
+<li>GitHub Trending（如果发布初期获得足够 Star）</li>
+</ul>
+<h3 id="10-3-现实-Star-预期"><a href="#10-3-现实-Star-预期" class="headerlink" title="10.3 现实 Star 预期"></a>10.3 现实 Star 预期</h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">发布当天（好的情况）：  20-50 stars</span><br><span class="line">第一个月：            100-300 stars</span><br><span class="line">v1.0 稳定后：         300-800 stars</span><br><span class="line">破千需要：            被大 V 推荐 或 ST 官方提及</span><br></pre></td></tr></table></figure>
+
+<hr>
+<h2 id="11-v1-0-之后的扩展路线"><a href="#11-v1-0-之后的扩展路线" class="headerlink" title="11. v1.0 之后的扩展路线"></a>11. v1.0 之后的扩展路线</h2><p>架构已为以下功能预留接口，v1.1 可按需实现：</p>
+<h3 id="11-1-表情-立绘系统（v1-1）"><a href="#11-1-表情-立绘系统（v1-1）" class="headerlink" title="11.1 表情&#x2F;立绘系统（v1.1）"></a>11.1 表情&#x2F;立绘系统（v1.1）</h3><ul>
+<li><code>CharxParser</code> 已保存原始 CHARX 文件路径</li>
+<li>实现 <code>SpriteExtractor</code>：从 CHARX 的 <code>sprites/</code> 目录提取立绘</li>
+<li>实现 <code>EmotionDetector</code>：扫描 AI 回复，关键词匹配情绪</li>
+<li>在 ChatScreen 中添加立绘显示区域（Coil 加载）</li>
+</ul>
+<h3 id="11-2-更多-Provider（v1-1）"><a href="#11-2-更多-Provider（v1-1）" class="headerlink" title="11.2 更多 Provider（v1.1）"></a>11.2 更多 Provider（v1.1）</h3><p>Provider 接口已定义，新增 Provider 只需：</p>
+<ol>
+<li>实现 <code>LLMProvider</code> 接口</li>
+<li>注册到 <code>ProviderRegistry</code></li>
+<li>添加对应 UI 配置项</li>
+</ol>
+<p>优先级：Google Gemini（OpenAI 兼容）、Ollama（本地模型）、OpenRouter</p>
+<h3 id="11-3-ST-格式聊天记录导入-导出（v1-2）"><a href="#11-3-ST-格式聊天记录导入-导出（v1-2）" class="headerlink" title="11.3 ST 格式聊天记录导入&#x2F;导出（v1.2）"></a>11.3 ST 格式聊天记录导入&#x2F;导出（v1.2）</h3><p>SillyTavern 聊天记录格式为 JSONL：</p>
+<ul>
+<li>第一行：元数据（角色名、时间等）</li>
+<li>后续行：每条消息的 JSON</li>
+</ul>
+<p>实现双向转换：</p>
+<ul>
+<li>导入：解析 JSONL → 存入 Room</li>
+<li>导出：Room 消息 → JSONL 文件</li>
+</ul>
+<h3 id="11-4-Prompt-预设管理（v1-2）"><a href="#11-4-Prompt-预设管理（v1-2）" class="headerlink" title="11.4 Prompt 预设管理（v1.2）"></a>11.4 Prompt 预设管理（v1.2）</h3><ul>
+<li>数据库添加 <code>PromptPreset</code> 表</li>
+<li>UI 添加预设选择&#x2F;编辑界面</li>
+<li><code>ContextBuilder</code> 接受预设参数</li>
+</ul>
+<h3 id="11-5-TTS-语音（v1-3）"><a href="#11-5-TTS-语音（v1-3）" class="headerlink" title="11.5 TTS 语音（v1.3）"></a>11.5 TTS 语音（v1.3）</h3><ul>
+<li>定义 <code>TTSEngine</code> 接口</li>
+<li>实现 Android 内置 <code>TextToSpeech</code>（免费）</li>
+<li>预留 OpenAI TTS、Edge TTS 接口</li>
+<li>AI 消息生成完毕后，可选触发朗读</li>
+</ul>
+<hr>
+<h2 id="附录"><a href="#附录" class="headerlink" title="附录"></a>附录</h2><h3 id="A-关键外部资源"><a href="#A-关键外部资源" class="headerlink" title="A. 关键外部资源"></a>A. 关键外部资源</h3><table>
+<thead>
+<tr>
+<th>资源</th>
+<th>地址</th>
+<th>用途</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Character Card V2 规范</td>
+<td><a target="_blank" rel="noopener" href="https://github.com/malfoyslastname/character-card-spec-v2">https://github.com/malfoyslastname/character-card-spec-v2</a></td>
+<td>角色卡格式参考</td>
+</tr>
+<tr>
+<td>SillyTavern 文档</td>
+<td><a target="_blank" rel="noopener" href="https://docs.sillytavern.app/">https://docs.sillytavern.app</a></td>
+<td>功能行为参考</td>
+</tr>
+<tr>
+<td>Character Hub</td>
+<td><a target="_blank" rel="noopener" href="https://characterhub.org/">https://characterhub.org</a></td>
+<td>测试用角色卡下载</td>
+</tr>
+<tr>
+<td>Chub.ai</td>
+<td><a target="_blank" rel="noopener" href="https://chub.ai/">https://chub.ai</a></td>
+<td>测试用角色卡下载</td>
+</tr>
+<tr>
+<td>Android Compose Codelab</td>
+<td><a target="_blank" rel="noopener" href="https://developer.android.com/codelabs/jetpack-compose-basics">https://developer.android.com/codelabs/jetpack-compose-basics</a></td>
+<td>Compose 入门</td>
+</tr>
+<tr>
+<td>Kotlin Flow 文档</td>
+<td><a target="_blank" rel="noopener" href="https://kotlinlang.org/docs/flow.html">https://kotlinlang.org/docs/flow.html</a></td>
+<td>流式处理学习</td>
+</tr>
+<tr>
+<td>Room 数据库文档</td>
+<td><a target="_blank" rel="noopener" href="https://developer.android.com/training/data-storage/room">https://developer.android.com/training/data-storage/room</a></td>
+<td>Room 使用参考</td>
+</tr>
+<tr>
+<td>OkHttp 文档</td>
+<td><a target="_blank" rel="noopener" href="https://square.github.io/okhttp">https://square.github.io/okhttp</a></td>
+<td>SSE 实现参考</td>
+</tr>
+<tr>
+<td>PNG 规范（Chunks）</td>
+<td><a target="_blank" rel="noopener" href="http://www.libpng.org/pub/png/spec/1.2/PNG-Chunks.html">http://www.libpng.org/pub/png/spec/1.2/PNG-Chunks.html</a></td>
+<td>PNG 解析参考</td>
+</tr>
+</tbody></table>
+<h3 id="B-常见坑与解决方案"><a href="#B-常见坑与解决方案" class="headerlink" title="B. 常见坑与解决方案"></a>B. 常见坑与解决方案</h3><p><strong>坑1：转屏后 AI 正在生成的消息消失</strong></p>
+<ul>
+<li>原因：消息状态保存在 Activity 而非 ViewModel</li>
+<li>解决：所有流式接收的 token 实时更新到 ViewModel 的 <code>StateFlow</code></li>
+</ul>
+<p><strong>坑2：<code>FileNotFoundException</code> 打开用户选择的文件</strong></p>
+<ul>
+<li>原因：Android 权限问题，需要在打开文件选择器后立即持久化 URI 权限</li>
+<li>解决：<code>contentResolver.takePersistableUriPermission(uri, Intent.FLAG_GRANT_READ_URI_PERMISSION)</code></li>
+</ul>
+<p><strong>坑3：Room 在主线程访问崩溃</strong></p>
+<ul>
+<li>原因：Room 默认禁止主线程数据库访问</li>
+<li>解决：所有 DAO 调用放在 <code>suspend</code> 函数或 <code>Flow</code> 中，在 <code>viewModelScope</code> 里调用</li>
+</ul>
+<p><strong>坑4：OkHttp SSE 流在 App 进后台后中断</strong></p>
+<ul>
+<li>原因：Android 系统限制后台网络</li>
+<li>解决：发送消息时使用 Foreground Service，或在设置中提示用户保持 App 在前台</li>
+</ul>
+<p><strong>坑5：kotlinx.serialization 遇到 unknown key 崩溃</strong></p>
+<ul>
+<li>原因：角色卡可能包含扩展字段（如 RisuAI、Silly 自己的扩展）</li>
+<li>解决：<code>Json &#123; ignoreUnknownKeys = true &#125;</code> 配置全局 Json 实例</li>
+</ul>
+<h3 id="C-v1-0-功能完成度自查表"><a href="#C-v1-0-功能完成度自查表" class="headerlink" title="C. v1.0 功能完成度自查表"></a>C. v1.0 功能完成度自查表</h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br></pre></td><td class="code"><pre><span class="line">格式兼容：</span><br><span class="line">  □ PNG 角色卡解析（Character Card V2）</span><br><span class="line">  □ CHARX 角色卡解析</span><br><span class="line">  □ 内嵌世界书提取</span><br><span class="line">  □ 错误格式友好提示</span><br><span class="line"></span><br><span class="line">对话功能：</span><br><span class="line">  □ 角色人设注入（description/personality/scenario）</span><br><span class="line">  □ system_prompt 支持</span><br><span class="line">  □ first_mes 显示</span><br><span class="line">  □ mes_example 注入</span><br><span class="line">  □ post_history_instructions 支持</span><br><span class="line">  □ &#123;&#123;char&#125;&#125; &#123;&#123;user&#125;&#125; 宏替换</span><br><span class="line">  □ World Info 关键词触发（基础）</span><br><span class="line"></span><br><span class="line">LLM 接入：</span><br><span class="line">  □ OpenAI 格式流式输出</span><br><span class="line">  □ Claude API 接入</span><br><span class="line">  □ 错误处理（401/429/网络错误）</span><br><span class="line">  □ 停止生成</span><br><span class="line"></span><br><span class="line">本地功能：</span><br><span class="line">  □ 角色卡列表/导入/删除</span><br><span class="line">  □ 会话创建/切换/删除</span><br><span class="line">  □ 消息持久化</span><br><span class="line">  □ Provider 配置增删改</span><br><span class="line">  □ API Key 加密存储</span><br><span class="line"></span><br><span class="line">UI/UX：</span><br><span class="line">  □ 流式输出打字动画</span><br><span class="line">  □ Markdown 渲染</span><br><span class="line">  □ 深色模式</span><br><span class="line">  □ 空状态引导页</span><br><span class="line">  □ 错误 Toast 提示</span><br></pre></td></tr></table></figure>
+        </div>
+
+        
+
+        
+          <div class="mt-10 grid grid-cols-1 sm:grid-cols-2 gap-4">
+            
+            
+              <a href="/2026/04/27/technology/python/python-intro/" class="group p-5 rounded-2xl border border-gray-100 dark:border-gray-700 bg-gray-50 dark:bg-gray-900/40 hover:border-primary-300 dark:hover:border-primary-700 transition-all duration-200 sm:text-right">
+                <div class="text-xs uppercase tracking-wider text-gray-500 dark:text-gray-400 mb-2">下一篇</div>
+                <div class="font-semibold text-gray-900 dark:text-white group-hover:text-primary-600 dark:group-hover:text-primary-400 line-clamp-2">Python 入门指南</div>
+              </a>
+            
+          </div>
+        
+
+        <div class="mt-10 p-6 rounded-2xl bg-gradient-to-br from-primary-50 to-secondary-50 dark:from-primary-900/20 dark:to-secondary-900/20 border border-primary-100 dark:border-primary-800">
+          <div class="flex items-start gap-4">
+            <div class="flex-shrink-0 w-10 h-10 rounded-full bg-gradient-to-br from-primary-500 to-secondary-500 flex items-center justify-center">
+              <svg class="w-5 h-5 text-white" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/></svg>
+            </div>
+            <div class="flex-1 text-sm">
+              <p class="text-gray-700 dark:text-gray-300 font-medium mb-2">本文链接：<a href="https://hiki-loser.github.io/2026/04/29/projects/TavernDroid/TavernDroid/" class="text-primary-600 dark:text-primary-400 break-all">https://hiki-loser.github.io/2026/04/29/projects/TavernDroid/TavernDroid/</a></p>
+              <p class="text-gray-600 dark:text-gray-400">版权声明：本博客所有文章除特别声明外，均采用<a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank" class="text-primary-600 dark:text-primary-400">CC BY-NC-SA 4.0</a> 许可协议。转载请注明出处！</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    
+  </main>
+
+  
+
+<footer class="mt-16 border-t border-gray-200 dark:border-gray-800">
+  <div class="container mx-auto px-4 max-w-7xl py-8">
+    <div class="flex flex-col md:flex-row items-center justify-between gap-4">
+      <!-- Left: Copyright -->
+      <div class="text-sm text-gray-600 dark:text-gray-400">
+        <p>
+          &copy; 2026
+          <a href="/" class="hover:text-primary-500 transition-colors font-medium">
+            Hiki的小站
+          </a>
+          . All rights reserved.
+        </p>
+        
+          <p class="mt-1 text-xs">保持热爱，奔赴山海</p>
+        
+      </div>
+
+      <!-- Right: Powered by -->
+      
+      <div class="flex items-center gap-4 text-sm text-gray-500 dark:text-gray-400">
+        <span>Powered by</span>
+        <a
+          href="https://hexo.io/"
+          target="_blank"
+          rel="noopener noreferrer"
+          class="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-gradient-to-r from-primary-100 to-secondary-100 dark:from-primary-900/30 dark:to-secondary-900/30 text-primary-700 dark:text-primary-400 hover:from-primary-500 hover:to-secondary-500 hover:text-white transition-all duration-200 font-medium"
+        >
+          <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
+            <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"></path>
+          </svg>
+          Hexo
+        </a>
+        <span>&</span>
+        <span class="px-2.5 py-1 rounded-lg bg-gradient-to-r from-accent-100 to-primary-100 dark:from-accent-900/30 dark:to-primary-900/30 text-accent-700 dark:text-accent-400 font-medium">
+          Akari Theme
+        </span>
+      </div>
+      
+    </div>
+  </div>
+</footer>
+
+  
+</article>
+
+<script src="/js/dark-mode.js"></script>
+<script src="/js/hover-tooltip.js"></script>
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('visible');
+        }
+      });
+    }, { threshold: 0.1 });
+    document.querySelectorAll('h1, h2, h3, h4, p, pre, blockquote').forEach(el => {
+      el.classList.add('animate-on-scroll');
+      observer.observe(el);
+    });
+  });
+</script>
+</body>
+</html>

@@ -1,0 +1,706 @@
+/*
+ * Akari Theme - Main Stylesheet
+ * ACG Style Hexo Theme
+ */
+
+/* ========================================
+   Base Styles
+   ======================================== */
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Helvetica Neue', 'Helvetica', 'Arial', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  background: #f9fafb;
+  background-size: cover;
+  background-attachment: fixed;
+  background-position: center;
+}
+
+.dark body {
+  background: #111827;
+}
+
+/* Background image from API */
+body::before {
+  content: '';
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-image: var(--background-image-api, url('https://uapis.cn/api/v1/random/image?category=landscape'));
+  background-size: cover;
+  background-position: center;
+  background-attachment: fixed;
+  opacity: 0.1;
+  z-index: -1;
+}
+
+.dark body::before {
+  opacity: 0.2;
+}
+
+/* ========================================
+   Custom Scrollbar
+   ======================================== */
+
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: linear-gradient(to bottom, #d675ff, #8b5cf6);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(to bottom, #c146ff, #7c3aed);
+}
+
+/* Dark mode scrollbar */
+.dark ::-webkit-scrollbar-thumb {
+  background: linear-gradient(to bottom, #a828f9, #6d28d9);
+}
+
+/* ========================================
+   Selection Colors
+   ======================================== */
+
+::selection {
+  background-color: rgba(214, 117, 255, 0.3);
+  color: inherit;
+}
+
+.dark ::selection {
+  background-color: rgba(168, 40, 249, 0.4);
+}
+
+/* ========================================
+   Card Animations
+   ======================================== */
+
+.card-hover {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.card-hover:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+}
+
+.dark .card-hover:hover {
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.3), 0 10px 10px -5px rgba(0, 0, 0, 0.2);
+}
+
+/* Glow effect on hover */
+.glow-hover {
+  position: relative;
+}
+
+.glow-hover::after {
+  content: '';
+  position: absolute;
+  inset: -2px;
+  border-radius: inherit;
+  background: linear-gradient(45deg, #d675ff, #8b5cf6, #d946ef);
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  z-index: -1;
+  filter: blur(8px);
+}
+
+.glow-hover:hover::after {
+  opacity: 0.6;
+}
+
+/* ========================================
+   Gradient Text
+   ======================================== */
+
+.gradient-text {
+  background: linear-gradient(to right, #d675ff, #8b5cf6, #d946ef);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+/* ========================================
+   Button Styles
+   ======================================== */
+
+.btn-primary {
+  position: relative;
+  overflow: hidden;
+  transition: all 0.3s ease;
+}
+
+.btn-primary::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+  transition: left 0.5s ease;
+}
+
+.btn-primary:hover::before {
+  left: 100%;
+}
+
+/* ========================================
+   Image Hover Effects
+   ======================================== */
+
+.img-zoom-container {
+  overflow: hidden;
+}
+
+.img-zoom {
+  transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.img-zoom-container:hover .img-zoom {
+  transform: scale(1.1);
+}
+
+/* ========================================
+   Loading Animation
+   ======================================== */
+
+@keyframes shimmer {
+  0% {
+    background-position: -1000px 0;
+  }
+  100% {
+    background-position: 1000px 0;
+  }
+}
+
+.loading-shimmer {
+  background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+  background-size: 1000px 100%;
+  animation: shimmer 2s infinite;
+}
+
+.dark .loading-shimmer {
+  background: linear-gradient(90deg, #1a1a1a 25%, #2a2a2a 50%, #1a1a1a 75%);
+}
+
+/* ========================================
+   Fade In Animation
+   ======================================== */
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-on-scroll {
+  opacity: 0;
+  transform: translateY(30px);
+  transition: opacity 0.6s ease, transform 0.6s ease;
+}
+
+.animate-on-scroll.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* ========================================
+   Line Clamp Utility
+   ======================================== */
+
+.line-clamp-1 {
+  display: -webkit-box;
+  line-clamp: 1;
+  -webkit-line-clamp: 1;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.line-clamp-2 {
+  display: -webkit-box;
+  line-clamp: 2;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.line-clamp-3 {
+  display: -webkit-box;
+  line-clamp: 3;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+/* ========================================
+   Glassmorphism
+   ======================================== */
+
+.glass {
+  background: rgba(255, 255, 255, 0.8);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+.dark .glass {
+  background: rgba(31, 41, 55, 0.8);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+/* ========================================
+   Typography Enhancements
+   ======================================== */
+
+.prose {
+  max-width: none;
+}
+
+.prose h1,
+.prose h2,
+.prose h3,
+.prose h4,
+.prose h5,
+.prose h6 {
+  font-weight: 700;
+  line-height: 1.3;
+  margin-top: 1.5em;
+  margin-bottom: 0.75em;
+}
+
+.prose h1 {
+  font-size: 2em;
+}
+
+.prose h2 {
+  font-size: 1.5em;
+}
+
+.prose h3 {
+  font-size: 1.25em;
+}
+
+.prose p {
+  line-height: 1.8;
+  margin-bottom: 1em;
+}
+
+.prose a {
+  color: #d675ff;
+  text-decoration: none;
+  border-bottom: 1px solid transparent;
+  transition: border-color 0.2s;
+}
+
+.prose a:hover {
+  border-bottom-color: #d675ff;
+}
+
+.dark .prose a {
+  color: #c4b5fd;
+}
+
+/* ========================================
+   Inline Tooltip Hint
+   ======================================== */
+
+.prose .hover-tip {
+  position: relative;
+  display: inline-block;
+  font-weight: 700;
+  padding: 0 0.35em;
+  margin: 0 0.06em;
+  border-radius: 0.35rem;
+  color: #7c3aed;
+  background: rgba(214, 117, 255, 0.14);
+  cursor: help;
+  transition: all 0.2s ease;
+}
+
+.prose .hover-tip:hover,
+.prose .hover-tip:focus-visible {
+  background: rgba(214, 117, 255, 0.22);
+}
+
+.prose .hover-tip::after {
+  content: attr(data-tip);
+  position: absolute;
+  left: 50%;
+  bottom: calc(100% + 8px);
+  transform: translateX(-50%) translateY(6px);
+  min-width: 180px;
+  max-width: 340px;
+  width: max-content;
+  padding: 0.5rem 0.65rem;
+  border-radius: 0.55rem;
+  background: rgba(17, 24, 39, 0.96);
+  color: #f9fafb;
+  font-size: 0.86rem;
+  font-weight: 500;
+  line-height: 1.45;
+  text-align: left;
+  white-space: normal;
+  box-shadow: 0 10px 28px rgba(2, 6, 23, 0.35);
+  z-index: 60;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.2s ease, transform 0.2s ease;
+}
+
+.prose .hover-tip:hover::after,
+.prose .hover-tip:focus-visible::after {
+  opacity: 1;
+  transform: translateX(-50%) translateY(0);
+}
+
+.dark .prose .hover-tip {
+  color: #e9d5ff;
+  background: rgba(168, 40, 249, 0.2);
+}
+
+.dark .prose .hover-tip:hover,
+.dark .prose .hover-tip:focus-visible {
+  background: rgba(168, 40, 249, 0.3);
+}
+
+/* Global tooltip mode: render in body to avoid overflow clipping */
+body.has-global-tooltip .prose .hover-tip::after {
+  content: none !important;
+  display: none !important;
+}
+
+#global-hover-tooltip {
+  position: fixed;
+  top: 0;
+  left: 0;
+  max-width: min(360px, calc(100vw - 20px));
+  padding: 0.5rem 0.65rem;
+  border-radius: 0.55rem;
+  background: rgba(17, 24, 39, 0.96);
+  color: #f9fafb;
+  font-size: 0.86rem;
+  font-weight: 500;
+  line-height: 1.45;
+  text-align: left;
+  white-space: pre-wrap;
+  box-shadow: 0 10px 28px rgba(2, 6, 23, 0.35);
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  transform: translateY(6px);
+  transition: opacity 0.18s ease, transform 0.18s ease, visibility 0.18s ease;
+  z-index: 9999;
+}
+
+#global-hover-tooltip.is-visible {
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(0);
+}
+
+.dark #global-hover-tooltip {
+  background: rgba(3, 7, 18, 0.96);
+  color: #f3f4f6;
+}
+
+/* ========================================
+   Code Blocks
+   ======================================== */
+
+.prose code {
+  font-family: 'JetBrains Mono', 'Fira Code', 'SFMono-Regular', Consolas, 'Liberation Mono', monospace;
+  font-size: 0.875em;
+}
+
+.prose p code,
+.prose li code,
+.prose td code,
+.prose th code {
+  padding: 0.18em 0.45em;
+  border-radius: 0.45rem;
+  background: rgba(214, 117, 255, 0.12);
+  color: #a855f7;
+  border: 1px solid rgba(214, 117, 255, 0.18);
+}
+
+.dark .prose p code,
+.dark .prose li code,
+.dark .prose td code,
+.dark .prose th code {
+  background: rgba(168, 40, 249, 0.18);
+  color: #e9d5ff;
+  border-color: rgba(168, 40, 249, 0.2);
+}
+
+.prose figure.highlight,
+.prose pre {
+  margin: 1.5em 0;
+}
+
+.prose figure.highlight {
+  --code-bg: #f8fafc;
+  --code-surface: #eef2f7;
+  --code-border: #d8dee9;
+  --code-text: #1f2937;
+  --code-muted: #64748b;
+  --code-line: #cbd5e1;
+  --code-keyword: #7c3aed;
+  --code-built-in: #0f766e;
+  --code-string: #b45309;
+  --code-number: #0ea5e9;
+  --code-comment: #64748b;
+  --code-function: #2563eb;
+  --code-class: #b42318;
+  --code-operator: #475569;
+  --code-punctuation: #64748b;
+  --code-attr: #d946ef;
+  --code-addition: #15803d;
+  --code-deletion: #dc2626;
+  background: var(--code-bg);
+  border: 1px solid var(--code-border);
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: 0 12px 30px rgba(15, 23, 42, 0.08);
+}
+
+.dark .prose figure.highlight {
+  --code-bg: #0f172a;
+  --code-surface: #111827;
+  --code-border: #334155;
+  --code-text: #e5e7eb;
+  --code-muted: #94a3b8;
+  --code-line: #475569;
+  --code-keyword: #c084fc;
+  --code-built-in: #38bdf8;
+  --code-string: #fbbf24;
+  --code-number: #34d399;
+  --code-comment: #94a3b8;
+  --code-function: #60a5fa;
+  --code-class: #fca5a5;
+  --code-operator: #cbd5e1;
+  --code-punctuation: #94a3b8;
+  --code-attr: #f472b6;
+  --code-addition: #4ade80;
+  --code-deletion: #f87171;
+  box-shadow: 0 16px 36px rgba(2, 6, 23, 0.45);
+}
+
+.prose figure.highlight table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 0;
+}
+
+.prose figure.highlight td {
+  border: 0;
+  padding: 0;
+  vertical-align: top;
+}
+
+.prose figure.highlight td.gutter {
+  width: 1%;
+  user-select: none;
+  background: var(--code-surface);
+  border-right: 1px solid var(--code-border);
+  color: var(--code-muted);
+  text-align: right;
+}
+
+.prose figure.highlight td.gutter pre {
+  margin: 0;
+  padding: 0.65rem 0.8rem;
+  min-width: 3.5rem;
+  font-family: 'JetBrains Mono', 'Fira Code', 'SFMono-Regular', Consolas, 'Liberation Mono', monospace;
+  font-size: 1rem;
+  line-height: 0.8;
+}
+
+.prose figure.highlight td.gutter .line {
+  display: block;
+  color: var(--code-line);
+}
+
+.prose figure.highlight td.code {
+  width: 100%;
+}
+
+.prose figure.highlight td.code pre {
+  margin: 0;
+  padding: 0.65rem 1rem;
+  overflow-x: auto;
+  background: transparent;
+  color: var(--code-text);
+  font-family: 'JetBrains Mono', 'Fira Code', 'SFMono-Regular', Consolas, 'Liberation Mono', monospace;
+  font-size: 1rem;
+  line-height: 0.8;
+  tab-size: 2;
+}
+
+.prose figure.highlight .line {
+  display: block;
+  white-space: pre;
+}
+
+.prose figure.highlight .keyword,
+.prose figure.highlight .literal,
+.prose figure.highlight .type,
+.prose figure.highlight .variable.language {
+  color: var(--code-keyword);
+}
+
+.prose figure.highlight .built_in,
+.prose figure.highlight .selector-tag {
+  color: var(--code-built-in);
+}
+
+.prose figure.highlight .title.function_,
+.prose figure.highlight .title.function,
+.prose figure.highlight .function_,
+.prose figure.highlight .function {
+  color: var(--code-function);
+}
+
+.prose figure.highlight .title.class_,
+.prose figure.highlight .title.class {
+  color: var(--code-class);
+}
+
+.prose figure.highlight .params {
+  color: var(--code-text);
+}
+
+.prose figure.highlight .string,
+.prose figure.highlight .symbol,
+.prose figure.highlight .attr,
+.prose figure.highlight .attribute,
+.prose figure.highlight .selector-id,
+.prose figure.highlight .selector-class,
+.prose figure.highlight .quote {
+  color: var(--code-string);
+}
+
+.prose figure.highlight .number,
+.prose figure.highlight .regexp,
+.prose figure.highlight .link {
+  color: var(--code-number);
+}
+
+.prose figure.highlight .comment,
+.prose figure.highlight .meta,
+.prose figure.highlight .doctype {
+  color: var(--code-comment);
+  font-style: italic;
+}
+
+.prose figure.highlight .operator,
+.prose figure.highlight .punctuation {
+  color: var(--code-operator);
+}
+
+.prose figure.highlight .property,
+.prose figure.highlight .tag,
+.prose figure.highlight .name,
+.prose figure.highlight .attr,
+.prose figure.highlight .variable {
+  color: var(--code-attr);
+}
+
+.prose figure.highlight .addition {
+  color: var(--code-addition);
+}
+
+.prose figure.highlight .deletion {
+  color: var(--code-deletion);
+}
+
+.prose figure.highlight .emphasis {
+  font-style: italic;
+}
+
+.prose figure.highlight .strong {
+  font-weight: 700;
+}
+
+.prose figure.highlight .line:hover {
+  background: rgba(214, 117, 255, 0.05);
+}
+
+.dark .prose figure.highlight .line:hover {
+  background: rgba(168, 40, 249, 0.08);
+}
+
+/* ========================================
+   Blockquote
+   ======================================== */
+
+blockquote {
+  border-left: 4px solid #d675ff;
+  padding-left: 1em;
+  margin: 1em 0;
+  font-style: italic;
+  color: #6b7280;
+}
+
+.dark blockquote {
+  color: #9ca3af;
+}
+
+/* ========================================
+   Mobile Responsive
+   ======================================== */
+
+@media (max-width: 640px) {
+  .container {
+    padding-left: 1rem;
+    padding-right: 1rem;
+  }
+
+  h1 {
+    font-size: 1.75rem;
+  }
+
+  h2 {
+    font-size: 1.5rem;
+  }
+}
+
+/* ========================================
+   Print Styles
+   ======================================== */
+
+@media print {
+  body {
+    background: white;
+    color: black;
+  }
+
+  .no-print {
+    display: none !important;
+  }
+}
