@@ -1,0 +1,503 @@
+
+
+
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="description" content="Python 分类总览，涵盖基础语法、数据结构与常用库的学习路线。">
+  <meta name="keywords" content="intro,python">
+
+  <title>Python 分类导读 | Hiki的小站</title>
+
+  
+  
+
+
+
+<link rel="canonical" href="https://hiki-loser.github.io/2026/04/27/technology/python/python-intro/">
+
+
+<meta name="robots" content="index, follow">
+
+
+
+<link rel="alternate" type="application/atom+xml" title="Hiki的小站" href="https://hiki-loser.github.io/atom.xml">
+
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="Hiki的小站">
+<meta property="og:title" content="Python 分类导读 | Hiki的小站">
+<meta property="og:description" content="Python 分类总览，涵盖基础语法、数据结构与常用库的学习路线。">
+<meta property="og:url" content="https://hiki-loser.github.io/2026/04/27/technology/python/python-intro/">
+<meta property="og:image" content="https://hiki-loser.github.io/img/avatar.svg">
+<meta property="og:locale" content="zh_CN">
+
+
+<meta property="article:published_time" content="2026-04-27T11:20:00.000Z">
+
+<meta property="article:modified_time" content="2026-04-27T11:20:00.000Z">
+
+
+<meta property="article:tag" content="intro">
+
+<meta property="article:tag" content="python">
+
+
+
+<meta property="article:section" content="technology/python">
+
+
+
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Python 分类导读 | Hiki的小站">
+<meta name="twitter:description" content="Python 分类总览，涵盖基础语法、数据结构与常用库的学习路线。">
+<meta name="twitter:image" content="https://hiki-loser.github.io/img/avatar.svg">
+
+
+  <link rel="icon" type="image/svg+xml" href="/img/favicon.svg">
+
+  
+  <script>
+    (function () {
+      try {
+        var pref = localStorage.getItem('akari-dark-mode') || 'auto';
+        if (pref === 'dark' || (pref === 'auto' && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+          document.documentElement.classList.add('dark');
+        }
+      } catch (e) { /* private mode / storage disabled — fall back to light */ }
+    })();
+  </script>
+
+  
+  <link rel="stylesheet" href="/css/tailwind.css">
+  <link rel="stylesheet" href="/css/style.css">
+<meta name="generator" content="Hexo 8.1.1"></head>
+<body class="bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100 min-h-screen transition-colors duration-300">
+
+
+<a href="#main" class="skip-link">跳到主要内容</a>
+
+<div class="min-h-screen">
+  
+
+<header class="sticky top-0 z-50 backdrop-blur-md bg-white/90 dark:bg-gray-900/90 border-b border-gray-200 dark:border-gray-800 shadow-sm">
+  <div class="container mx-auto px-4 max-w-7xl">
+    <div class="flex items-center justify-between h-16">
+      <!-- Logo / Site Title -->
+      <a href="/" class="flex items-center gap-3 group">
+        <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-primary-500 to-secondary-600 flex items-center justify-center transform group-hover:scale-105 transition-transform duration-300 shadow-lg shadow-primary-500/25">
+          <span class="text-white font-bold text-lg" aria-hidden="true">H</span>
+        </div>
+        <span class="text-xl font-bold bg-gradient-to-r from-primary-600 to-secondary-600 bg-clip-text text-transparent hidden sm:block">
+          Hiki的小站
+        </span>
+      </a>
+
+      <!-- Navigation -->
+      <nav class="hidden md:flex items-center gap-1" aria-label="主导航">
+        
+          <a
+            href="/"
+            
+            class="px-4 py-2 rounded-lg text-gray-700 dark:text-gray-300 hover:bg-primary-50 dark:hover:bg-primary-900/20 hover:text-primary-600 dark:hover:text-primary-400 transition-all duration-200 font-medium relative group"
+          >
+            首页
+            <span class="absolute bottom-0 left-0 w-0 h-0.5 bg-gradient-to-r from-primary-500 to-secondary-600 transition-all duration-300 group-hover:w-full" aria-hidden="true"></span>
+          </a>
+        
+          <a
+            href="/archives/"
+            
+            class="px-4 py-2 rounded-lg text-gray-700 dark:text-gray-300 hover:bg-primary-50 dark:hover:bg-primary-900/20 hover:text-primary-600 dark:hover:text-primary-400 transition-all duration-200 font-medium relative group"
+          >
+            归档
+            <span class="absolute bottom-0 left-0 w-0 h-0.5 bg-gradient-to-r from-primary-500 to-secondary-600 transition-all duration-300 group-hover:w-full" aria-hidden="true"></span>
+          </a>
+        
+          <a
+            href="/quiz/"
+            
+            class="px-4 py-2 rounded-lg text-gray-700 dark:text-gray-300 hover:bg-primary-50 dark:hover:bg-primary-900/20 hover:text-primary-600 dark:hover:text-primary-400 transition-all duration-200 font-medium relative group"
+          >
+            趣味测试
+            <span class="absolute bottom-0 left-0 w-0 h-0.5 bg-gradient-to-r from-primary-500 to-secondary-600 transition-all duration-300 group-hover:w-full" aria-hidden="true"></span>
+          </a>
+        
+          <a
+            href="/tags/"
+            
+            class="px-4 py-2 rounded-lg text-gray-700 dark:text-gray-300 hover:bg-primary-50 dark:hover:bg-primary-900/20 hover:text-primary-600 dark:hover:text-primary-400 transition-all duration-200 font-medium relative group"
+          >
+            标签
+            <span class="absolute bottom-0 left-0 w-0 h-0.5 bg-gradient-to-r from-primary-500 to-secondary-600 transition-all duration-300 group-hover:w-full" aria-hidden="true"></span>
+          </a>
+        
+          <a
+            href="/about/"
+            
+            class="px-4 py-2 rounded-lg text-gray-700 dark:text-gray-300 hover:bg-primary-50 dark:hover:bg-primary-900/20 hover:text-primary-600 dark:hover:text-primary-400 transition-all duration-200 font-medium relative group"
+          >
+            关于
+            <span class="absolute bottom-0 left-0 w-0 h-0.5 bg-gradient-to-r from-primary-500 to-secondary-600 transition-all duration-300 group-hover:w-full" aria-hidden="true"></span>
+          </a>
+        
+      </nav>
+
+      <!-- Right Actions -->
+      <div class="flex items-center gap-2">
+        
+        
+          <button
+            type="button"
+            id="search-trigger"
+            class="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors duration-200"
+            aria-label="搜索"
+            aria-haspopup="dialog"
+            aria-controls="search-dialog"
+            aria-expanded="false"
+          >
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+            </svg>
+          </button>
+        
+
+        <!-- Dark Mode Toggle -->
+        <button
+          type="button"
+          id="dark-mode-toggle"
+          class="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors duration-200 relative group"
+          aria-label="切换深色模式"
+          aria-pressed="false"
+        >
+          <!-- aria-pressed is kept in sync with the .dark class by js/ui.js -->
+          <svg class="w-5 h-5 hidden dark:block text-yellow-500 transition-transform duration-300 group-hover:rotate-12" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"></path>
+          </svg>
+          <svg class="w-5 h-5 dark:hidden text-gray-700 transition-transform duration-300 group-hover:rotate-12" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-6.646z"></path>
+          </svg>
+        </button>
+
+        <!-- Mobile Menu Button -->
+        <button
+          type="button"
+          id="mobile-menu-button"
+          class="md:hidden p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors duration-200"
+          aria-label="菜单"
+          aria-controls="mobile-menu"
+          aria-expanded="false"
+        >
+          <svg class="w-6 h-6 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+          </svg>
+        </button>
+      </div>
+    </div>
+
+    <!-- Mobile Menu. aria-expanded/aria-controls live on the button above and
+         are maintained by js/ui.js, which also locks page scroll while open. -->
+    <nav id="mobile-menu" class="md:hidden hidden pb-4 space-y-2 animate-fade-in" aria-label="移动导航">
+      
+        <a
+          href="/"
+          
+          class="block px-4 py-2 rounded-lg text-gray-700 dark:text-gray-300 hover:bg-primary-50 dark:hover:bg-primary-900/20 hover:text-primary-600 transition-all duration-200"
+        >
+          首页
+        </a>
+      
+        <a
+          href="/archives/"
+          
+          class="block px-4 py-2 rounded-lg text-gray-700 dark:text-gray-300 hover:bg-primary-50 dark:hover:bg-primary-900/20 hover:text-primary-600 transition-all duration-200"
+        >
+          归档
+        </a>
+      
+        <a
+          href="/quiz/"
+          
+          class="block px-4 py-2 rounded-lg text-gray-700 dark:text-gray-300 hover:bg-primary-50 dark:hover:bg-primary-900/20 hover:text-primary-600 transition-all duration-200"
+        >
+          趣味测试
+        </a>
+      
+        <a
+          href="/tags/"
+          
+          class="block px-4 py-2 rounded-lg text-gray-700 dark:text-gray-300 hover:bg-primary-50 dark:hover:bg-primary-900/20 hover:text-primary-600 transition-all duration-200"
+        >
+          标签
+        </a>
+      
+        <a
+          href="/about/"
+          
+          class="block px-4 py-2 rounded-lg text-gray-700 dark:text-gray-300 hover:bg-primary-50 dark:hover:bg-primary-900/20 hover:text-primary-600 transition-all duration-200"
+        >
+          关于
+        </a>
+      
+    </nav>
+  </div>
+</header>
+
+
+  
+    <div id="reading-progress" role="presentation"></div>
+  
+
+  <main id="main" class="container mx-auto px-4 py-8 max-w-4xl">
+    
+
+
+<a href="/" class="inline-flex items-center gap-2 text-gray-600 dark:text-gray-400 hover:text-primary-500 dark:hover:text-primary-400 transition-colors mb-6 group">
+  <svg class="w-5 h-5 transform group-hover:-translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path></svg>
+  <span class="font-medium">返回</span>
+</a>
+
+<div class="bg-white dark:bg-gray-800 rounded-3xl shadow-xl overflow-hidden border border-gray-100 dark:border-gray-700">
+  
+
+  <div class="p-6 sm:p-10">
+    <header class="mb-8">
+      <h1 class="text-3xl sm:text-4xl font-bold mb-4 bg-gradient-to-r from-primary-600 to-secondary-600 bg-clip-text text-transparent">Python 分类导读</h1>
+
+      <div class="flex flex-wrap items-center gap-4 text-sm text-gray-500 dark:text-gray-400">
+        <time class="flex items-center gap-1.5">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+          2026年4月27日
+        </time>
+
+        
+          <div class="flex items-center gap-2">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"></path></svg>
+            
+              
+              <a href="/categories/technology-python/" class="px-2.5 py-1 rounded-lg bg-primary-100 dark:bg-primary-900/30 text-primary-700 dark:text-primary-400 hover:bg-primary-500 hover:text-white transition-colors">Python</a>
+            
+          </div>
+        
+
+        
+          <div class="flex items-center gap-2">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"></path></svg>
+            
+              <a href="/tags/intro/" class="px-2.5 py-1 rounded-lg bg-secondary-100 dark:bg-secondary-900/30 text-secondary-700 dark:text-secondary-400 hover:bg-secondary-500 hover:text-white transition-colors">intro</a>
+            
+              <a href="/tags/python/" class="px-2.5 py-1 rounded-lg bg-secondary-100 dark:bg-secondary-900/30 text-secondary-700 dark:text-secondary-400 hover:bg-secondary-500 hover:text-white transition-colors">python</a>
+            
+          </div>
+        
+      </div>
+    </header>
+
+    <div class="prose prose-lg dark:prose-invert max-w-none">
+      <h1 id="Python-分类导读"><a href="#Python-分类导读" class="headerlink" title="Python 分类导读"></a>Python 分类导读</h1><p>欢迎来到 Python 分类 🐍</p>
+<p>这是一篇分类封面文章，用来帮助你快速定位 Python 学习内容。</p>
+<h2 id="这个分类在写什么"><a href="#这个分类在写什么" class="headerlink" title="这个分类在写什么"></a>这个分类在写什么</h2><ul>
+<li>基础语法：变量、流程控制、函数与作用域</li>
+<li>数据结构：列表、字典、集合、元组，以及各自的适用场景</li>
+<li>常用库：标准库中的高频模块，以及第三方生态的选型思路</li>
+<li>工程实践：虚拟环境与依赖管理、代码组织、打包与发布</li>
+</ul>
+<p>后续还会逐步补充：</p>
+<ul>
+<li>面向对象与常用设计模式在 Python 中的写法</li>
+<li>迭代器、生成器与装饰器</li>
+<li>异步编程（asyncio）</li>
+<li>类型标注与静态检查</li>
+<li>测试与调试</li>
+</ul>
+<h2 id="建议阅读顺序"><a href="#建议阅读顺序" class="headerlink" title="建议阅读顺序"></a>建议阅读顺序</h2><ol>
+<li>先掌握基础语法与数据结构，把「用 Python 表达逻辑」变成本能</li>
+<li>再熟悉标准库里最常用的那部分，很多轮子不必自己造</li>
+<li>然后进入工程实践：环境管理、依赖锁定、项目结构</li>
+<li>最后按需深入异步、类型标注与性能优化</li>
+</ol>
+<h2 id="一点建议"><a href="#一点建议" class="headerlink" title="一点建议"></a>一点建议</h2><p>Python 的入门门槛低，但「能跑」和「写得好」之间距离不小。初学阶段值得刻意练习两件事：</p>
+<ul>
+<li><strong>优先使用内置类型和标准库</strong>，而不是手写循环和临时结构；</li>
+<li><strong>把依赖显式声明出来</strong>（<code>pyproject.toml</code> + 锁文件），别让环境成为以后的重建障碍。</li>
+</ul>
+<p>你可以从分类页点击进入后，查看该分类下的全部文章。</p>
+
+    </div>
+
+    
+
+    
+      <div class="mt-10 grid grid-cols-1 sm:grid-cols-2 gap-4">
+        
+          <a href="/2026/04/29/projects/TavernDroid/TavernDroid/" class="group p-5 rounded-2xl border border-gray-100 dark:border-gray-700 bg-gray-50 dark:bg-gray-900/40 hover:border-primary-300 dark:hover:border-primary-700 transition-all duration-200">
+            <div class="text-xs uppercase tracking-wider text-gray-500 dark:text-gray-400 mb-2">上一篇</div>
+            <div class="font-semibold text-gray-900 dark:text-white group-hover:text-primary-600 dark:group-hover:text-primary-400 line-clamp-2">TavernDroid 技术设计文档 v1.0</div>
+          </a>
+        
+        
+          <a href="/2026/04/25/projects/autoagent/autoagent-intro/" class="group p-5 rounded-2xl border border-gray-100 dark:border-gray-700 bg-gray-50 dark:bg-gray-900/40 hover:border-primary-300 dark:hover:border-primary-700 transition-all duration-200 sm:text-right">
+            <div class="text-xs uppercase tracking-wider text-gray-500 dark:text-gray-400 mb-2">下一篇</div>
+            <div class="font-semibold text-gray-900 dark:text-white group-hover:text-primary-600 dark:group-hover:text-primary-400 line-clamp-2">AutoAgent — 多模态智能工作流平台设计文档</div>
+          </a>
+        
+      </div>
+    
+
+    <div class="mt-10 p-6 rounded-2xl bg-gradient-to-br from-primary-50 to-secondary-50 dark:from-primary-900/20 dark:to-secondary-900/20 border border-primary-100 dark:border-primary-800">
+      <div class="flex items-start gap-4">
+        <div class="flex-shrink-0 w-10 h-10 rounded-full bg-gradient-to-br from-primary-500 to-secondary-500 flex items-center justify-center">
+          <svg class="w-5 h-5 text-white" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/></svg>
+        </div>
+        <div class="flex-1 text-sm">
+          <p class="text-gray-700 dark:text-gray-300 font-medium mb-2">本文链接：<a href="https://hiki-loser.github.io/2026/04/27/technology/python/python-intro/" class="text-primary-600 dark:text-primary-400 break-all">https://hiki-loser.github.io/2026/04/27/technology/python/python-intro/</a></p>
+          <p class="text-gray-600 dark:text-gray-400">版权声明：本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank" class="text-primary-600 dark:text-primary-400">CC BY-NC-SA 4.0</a> 许可协议。转载请注明出处！</p>
+        </div>
+      </div>
+    </div>
+
+    
+
+
+
+  </div>
+</div>
+
+
+
+  </main>
+
+  
+
+<footer class="mt-16 border-t border-gray-200 dark:border-gray-800">
+  <div class="container mx-auto px-4 max-w-7xl py-8">
+    <div class="flex flex-col md:flex-row items-center justify-between gap-4">
+      <!-- Left: Copyright -->
+      <div class="text-sm text-gray-600 dark:text-gray-400">
+        <p>
+          &copy; 2026
+          <a href="/" class="hover:text-primary-500 transition-colors font-medium">
+            Hiki的小站
+          </a>
+          . All rights reserved.
+        </p>
+        
+          <p class="mt-1 text-xs">保持热爱，奔赴山海</p>
+        
+      </div>
+
+      <!-- Right: Powered by -->
+      
+      <div class="flex items-center gap-4 text-sm text-gray-500 dark:text-gray-400">
+        <span>Powered by</span>
+        <a
+          href="https://hexo.io/"
+          target="_blank"
+          rel="noopener noreferrer"
+          class="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-gradient-to-r from-primary-100 to-secondary-100 dark:from-primary-900/30 dark:to-secondary-900/30 text-primary-700 dark:text-primary-400 hover:from-primary-500 hover:to-secondary-500 hover:text-white transition-all duration-200 font-medium"
+        >
+          <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
+            <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"></path>
+          </svg>
+          Hexo
+        </a>
+        <span>&</span>
+        <span class="px-2.5 py-1 rounded-lg bg-gradient-to-r from-accent-100 to-primary-100 dark:from-accent-900/30 dark:to-primary-900/30 text-accent-700 dark:text-accent-400 font-medium">
+          Akari Theme
+        </span>
+      </div>
+      
+    </div>
+
+    
+    
+      <div class="mt-6 pt-6 border-t border-gray-100 dark:border-gray-800 flex flex-wrap items-center justify-center gap-x-5 gap-y-1 text-xs text-gray-500 dark:text-gray-400">
+        <span>15 篇文章</span>
+        <span>约 25,972 字</span>
+        
+          <span>更新于 2026年5月</span>
+        
+        <a href="/atom.xml" class="hover:text-primary-500 transition-colors">订阅</a>
+      </div>
+    
+
+    
+
+
+
+  </div>
+</footer>
+
+
+  <button type="button" id="back-to-top" aria-label="回到顶部">
+    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7"></path></svg>
+  </button>
+
+  
+
+  
+    
+
+
+<div
+  id="search-dialog"
+  class="fixed inset-0 z-[100] hidden items-start justify-center bg-black/50 p-4 pt-[10vh] backdrop-blur-sm"
+  role="dialog"
+  aria-modal="true"
+  aria-labelledby="search-dialog-title"
+  data-search-url="/search.json"
+  data-search-max="20"
+>
+  <div class="w-full max-w-2xl rounded-2xl bg-white dark:bg-gray-800 shadow-2xl border border-gray-200 dark:border-gray-700 overflow-hidden">
+    <h2 id="search-dialog-title" class="sr-only">搜索</h2>
+
+    <div class="flex items-center gap-3 px-4 border-b border-gray-100 dark:border-gray-700">
+      <svg class="w-5 h-5 flex-shrink-0 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+      </svg>
+      <input
+        type="search"
+        id="search-input"
+        class="flex-1 py-4 bg-transparent text-gray-900 dark:text-gray-100 placeholder-gray-400 focus:outline-none"
+        placeholder="搜索文章…"
+        autocomplete="off"
+        autocorrect="off"
+        autocapitalize="off"
+        spellcheck="false"
+        aria-describedby="search-hint"
+        aria-controls="search-results"
+      >
+      <kbd class="hidden sm:inline-flex items-center px-2 py-1 text-xs rounded border border-gray-200 dark:border-gray-600 text-gray-400">Esc</kbd>
+    </div>
+
+    <p id="search-hint" class="px-4 pt-3 text-xs text-gray-400">输入关键词，Esc 关闭</p>
+
+    <ul id="search-results" class="max-h-[50vh] overflow-y-auto py-2 m-0 list-none" role="listbox" aria-label="搜索结果"></ul>
+
+    <p id="search-status" class="sr-only" role="status" aria-live="polite"></p>
+  </div>
+</div>
+
+  
+</div>
+
+<script src="/js/dark-mode.js"></script>
+<script src="/js/ui.js"></script>
+
+<script src="/js/hover-tooltip.js"></script>
+
+
+<script src="/js/reveal.js"></script>
+
+
+
+<script src="/js/api-image.js"></script>
+
+
+
+<script src="/js/search.js"></script>
+
+</body>
+</html>

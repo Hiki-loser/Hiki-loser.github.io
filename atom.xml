@@ -1,0 +1,230 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+  <author>
+    <name>Hiki</name>
+  </author>
+  <generator uri="https://hexo.io/">Hexo</generator>
+  <id>https://hiki-loser.github.io/</id>
+  <link href="https://hiki-loser.github.io/" rel="alternate"/>
+  <link href="https://hiki-loser.github.io/atom.xml" rel="self"/>
+  <rights>All rights reserved 2026, Hiki</rights>
+  <subtitle>记录生活与技术</subtitle>
+  <title>Hiki的小站</title>
+  <updated>2026-05-09T16:00:00.000Z</updated>
+  <entry>
+    <author>
+      <name>Hiki</name>
+    </author>
+    <category term="api" scheme="https://hiki-loser.github.io/tags/api/"/>
+    <category term="deepseek" scheme="https://hiki-loser.github.io/tags/deepseek/"/>
+    <category term="documentation" scheme="https://hiki-loser.github.io/tags/documentation/"/>
+    <category term="technology/documentation" scheme="https://hiki-loser.github.io/categories/technology-documentation/"/>
+    <id>https://hiki-loser.github.io/2026/05/09/technology/documentation/deepseek/</id>
+    <link href="https://hiki-loser.github.io/2026/05/09/technology/documentation/deepseek/"/>
+    <published>2026-05-09T16:00:00.000Z</published>
+    <summary>DeepSeek API 的接入与使用指南，涵盖鉴权、对话补全、流式输出与多轮上下文等常用能力。</summary>
+    <title>DeepSeek API 使用指南</title>
+    <updated>2026-05-09T16:00:00.000Z</updated>
+  </entry>
+  <entry>
+    <author>
+      <name>Hiki</name>
+    </author>
+    <category term="Agent" scheme="https://hiki-loser.github.io/tags/Agent/"/>
+    <category term="intro" scheme="https://hiki-loser.github.io/tags/intro/"/>
+    <category term="projects/TavernDroid" scheme="https://hiki-loser.github.io/categories/projects-TavernDroid/"/>
+    <category term="sillytavern" scheme="https://hiki-loser.github.io/tags/sillytavern/"/>
+    <id>https://hiki-loser.github.io/2026/04/29/projects/TavernDroid/TavernDroid/</id>
+    <link href="https://hiki-loser.github.io/2026/04/29/projects/TavernDroid/TavernDroid/"/>
+    <published>2026-04-29T15:49:00.000Z</published>
+    <summary>TavernDroid 是 SillyTavern 的 Android 原生客户端，完全兼容 ST 角色卡格式，提供流畅的原生体验。本文是 v1.0 的技术设计文档，详细介绍了架构、模块设计、数据库结构、格式兼容实现、LLM Provider 抽象层等核心技术细节。</summary>
+    <title>TavernDroid 技术设计文档 v1.0</title>
+    <updated>2026-04-29T15:49:00.000Z</updated>
+  </entry>
+  <entry>
+    <author>
+      <name>Hiki</name>
+    </author>
+    <category term="intro" scheme="https://hiki-loser.github.io/tags/intro/"/>
+    <category term="python" scheme="https://hiki-loser.github.io/tags/python/"/>
+    <category term="technology/python" scheme="https://hiki-loser.github.io/categories/technology-python/"/>
+    <id>https://hiki-loser.github.io/2026/04/27/technology/python/python-intro/</id>
+    <link href="https://hiki-loser.github.io/2026/04/27/technology/python/python-intro/"/>
+    <published>2026-04-27T11:20:00.000Z</published>
+    <summary>Python 分类总览，涵盖基础语法、数据结构与常用库的学习路线。</summary>
+    <title>Python 分类导读</title>
+    <updated>2026-04-27T11:20:00.000Z</updated>
+  </entry>
+  <entry>
+    <author>
+      <name>Hiki</name>
+    </author>
+    <category term="AI" scheme="https://hiki-loser.github.io/tags/AI/"/>
+    <category term="Agent" scheme="https://hiki-loser.github.io/tags/Agent/"/>
+    <category term="LLM" scheme="https://hiki-loser.github.io/tags/LLM/"/>
+    <category term="projects/autoagent" scheme="https://hiki-loser.github.io/categories/projects-autoagent/"/>
+    <id>https://hiki-loser.github.io/2026/04/25/projects/autoagent/autoagent-intro/</id>
+    <link href="https://hiki-loser.github.io/2026/04/25/projects/autoagent/autoagent-intro/"/>
+    <published>2026-04-25T16:00:00.000Z</published>
+    <summary>从零到一的企业级多模态智能工作流平台设计文档，涵盖架构、技术选型、模块设计与开发流程。</summary>
+    <title>AutoAgent — 多模态智能工作流平台设计文档</title>
+    <updated>2026-04-25T16:00:00.000Z</updated>
+  </entry>
+  <entry>
+    <author>
+      <name>Hiki</name>
+    </author>
+    <category term="design patterns" scheme="https://hiki-loser.github.io/tags/design-patterns/"/>
+    <category term="technology/back-end" scheme="https://hiki-loser.github.io/categories/technology-back-end/"/>
+    <id>https://hiki-loser.github.io/2026/04/23/technology/back-end/design-patterns/</id>
+    <link href="https://hiki-loser.github.io/2026/04/23/technology/back-end/design-patterns/"/>
+    <published>2026-04-23T03:02:00.000Z</published>
+    <summary>设计模式是软件开发中常用的解决方案，本文介绍了常见的设计模式及其应用场景，帮助开发者提高代码的可维护性和扩展性。</summary>
+    <title>设计模式（一）</title>
+    <updated>2026-04-23T03:02:00.000Z</updated>
+  </entry>
+  <entry>
+    <author>
+      <name>Hiki</name>
+    </author>
+    <category term="computer" scheme="https://hiki-loser.github.io/tags/computer/"/>
+    <category term="technology/computer-science" scheme="https://hiki-loser.github.io/categories/technology-computer-science/"/>
+    <category term="操作系统" scheme="https://hiki-loser.github.io/tags/%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F/"/>
+    <id>https://hiki-loser.github.io/2026/04/22/technology/computer-science/operating-system/</id>
+    <link href="https://hiki-loser.github.io/2026/04/22/technology/computer-science/operating-system/"/>
+    <published>2026-04-22T13:36:00.000Z</published>
+    <summary>操作系统的基本原理和概念介绍。</summary>
+    <title>操作系统原理(一)</title>
+    <updated>2026-04-22T13:36:00.000Z</updated>
+  </entry>
+  <entry>
+    <author>
+      <name>Hiki</name>
+    </author>
+    <category term="computer science" scheme="https://hiki-loser.github.io/tags/computer-science/"/>
+    <category term="intro" scheme="https://hiki-loser.github.io/tags/intro/"/>
+    <category term="technology/computer-science" scheme="https://hiki-loser.github.io/categories/technology-computer-science/"/>
+    <id>https://hiki-loser.github.io/2026/04/22/technology/computer-science/computer-science-intro/</id>
+    <link href="https://hiki-loser.github.io/2026/04/22/technology/computer-science/computer-science-intro/"/>
+    <published>2026-04-22T13:27:00.000Z</published>
+    <summary>计算机科学的基本概念和发展历程介绍。</summary>
+    <title>计算机科学导论</title>
+    <updated>2026-04-22T13:27:00.000Z</updated>
+  </entry>
+  <entry>
+    <author>
+      <name>Hiki</name>
+    </author>
+    <category term="Java" scheme="https://hiki-loser.github.io/tags/Java/"/>
+    <category term="multithreading" scheme="https://hiki-loser.github.io/tags/multithreading/"/>
+    <category term="technology/java" scheme="https://hiki-loser.github.io/categories/technology-java/"/>
+    <id>https://hiki-loser.github.io/2026/04/19/technology/java/multithreading1/</id>
+    <link href="https://hiki-loser.github.io/2026/04/19/technology/java/multithreading1/"/>
+    <published>2026-04-19T13:33:00.000Z</published>
+    <summary>Java 多线程编程入门，介绍线程的基本概念、创建线程的方法以及线程的生命周期。</summary>
+    <title>Java 多线程编程（一）</title>
+    <updated>2026-04-19T13:33:00.000Z</updated>
+  </entry>
+  <entry>
+    <author>
+      <name>Hiki</name>
+    </author>
+    <category term="database" scheme="https://hiki-loser.github.io/tags/database/"/>
+    <category term="intro" scheme="https://hiki-loser.github.io/tags/intro/"/>
+    <category term="technology/database" scheme="https://hiki-loser.github.io/categories/technology-database/"/>
+    <id>https://hiki-loser.github.io/2026/04/19/technology/database/database-intro/</id>
+    <link href="https://hiki-loser.github.io/2026/04/19/technology/database/database-intro/"/>
+    <published>2026-04-19T12:30:00.000Z</published>
+    <summary>Database 分类总览，收录 SQL 与正则表达式等内容。</summary>
+    <title>Database 分类导读</title>
+    <updated>2026-04-19T12:30:00.000Z</updated>
+  </entry>
+  <entry>
+    <author>
+      <name>Hiki</name>
+    </author>
+    <category term="back-end" scheme="https://hiki-loser.github.io/tags/back-end/"/>
+    <category term="server" scheme="https://hiki-loser.github.io/tags/server/"/>
+    <category term="technology/back-end" scheme="https://hiki-loser.github.io/categories/technology-back-end/"/>
+    <id>https://hiki-loser.github.io/2026/04/19/technology/back-end/back-end-intro/</id>
+    <link href="https://hiki-loser.github.io/2026/04/19/technology/back-end/back-end-intro/"/>
+    <published>2026-04-19T11:52:00.000Z</published>
+    <summary>后端开发基础知识介绍，包括服务器、数据库、API 等核心概念，以及常用技术栈和工具的概览。</summary>
+    <title>后端开发入门</title>
+    <updated>2026-04-19T11:52:00.000Z</updated>
+  </entry>
+  <entry>
+    <author>
+      <name>Hiki</name>
+    </author>
+    <category term="database" scheme="https://hiki-loser.github.io/tags/database/"/>
+    <category term="regex" scheme="https://hiki-loser.github.io/tags/regex/"/>
+    <category term="regular expression" scheme="https://hiki-loser.github.io/tags/regular-expression/"/>
+    <category term="technology/database" scheme="https://hiki-loser.github.io/categories/technology-database/"/>
+    <id>https://hiki-loser.github.io/2026/04/19/technology/database/regex1/</id>
+    <link href="https://hiki-loser.github.io/2026/04/19/technology/database/regex1/"/>
+    <published>2026-04-19T06:10:00.000Z</published>
+    <summary>总结学到的正则表达式相关知识</summary>
+    <title>正则表达式 (一)</title>
+    <updated>2026-04-19T06:10:00.000Z</updated>
+  </entry>
+  <entry>
+    <author>
+      <name>Hiki</name>
+    </author>
+    <category term="SQL" scheme="https://hiki-loser.github.io/tags/SQL/"/>
+    <category term="database" scheme="https://hiki-loser.github.io/tags/database/"/>
+    <category term="technology/database" scheme="https://hiki-loser.github.io/categories/technology-database/"/>
+    <id>https://hiki-loser.github.io/2026/04/18/technology/database/sql1/</id>
+    <link href="https://hiki-loser.github.io/2026/04/18/technology/database/sql1/"/>
+    <published>2026-04-18T13:23:00.000Z</published>
+    <summary>SQL 语法入门与进阶，涵盖基本查询、数据操作、表结构修改、连接查询、分组与排序等内容。</summary>
+    <title>SQL 基础语法 (一)</title>
+    <updated>2026-04-18T13:23:00.000Z</updated>
+  </entry>
+  <entry>
+    <author>
+      <name>Hiki</name>
+    </author>
+    <category term="Java" scheme="https://hiki-loser.github.io/tags/Java/"/>
+    <category term="intro" scheme="https://hiki-loser.github.io/tags/intro/"/>
+    <category term="technology/java" scheme="https://hiki-loser.github.io/categories/technology-java/"/>
+    <category term="后端" scheme="https://hiki-loser.github.io/tags/%E5%90%8E%E7%AB%AF/"/>
+    <category term="编程" scheme="https://hiki-loser.github.io/tags/%E7%BC%96%E7%A8%8B/"/>
+    <id>https://hiki-loser.github.io/2026/04/17/technology/java/java-intro/</id>
+    <link href="https://hiki-loser.github.io/2026/04/17/technology/java/java-intro/"/>
+    <published>2026-04-17T11:21:00.000Z</published>
+    <summary>Java 分类总览，从语言基础到工程实践的学习路线。</summary>
+    <title>Java 分类导读</title>
+    <updated>2026-04-17T11:21:00.000Z</updated>
+  </entry>
+  <entry>
+    <author>
+      <name>Hiki</name>
+    </author>
+    <category term="AI" scheme="https://hiki-loser.github.io/tags/AI/"/>
+    <category term="Agent" scheme="https://hiki-loser.github.io/tags/Agent/"/>
+    <category term="intro" scheme="https://hiki-loser.github.io/tags/intro/"/>
+    <category term="technology/agent" scheme="https://hiki-loser.github.io/categories/technology-agent/"/>
+    <id>https://hiki-loser.github.io/2026/04/17/technology/agent/agent-intro/</id>
+    <link href="https://hiki-loser.github.io/2026/04/17/technology/agent/agent-intro/"/>
+    <published>2026-04-17T11:20:00.000Z</published>
+    <summary>Agent 分类总览，聚焦智能体系统设计与实践。</summary>
+    <title>Agent 分类导读</title>
+    <updated>2026-04-17T11:20:00.000Z</updated>
+  </entry>
+  <entry>
+    <author>
+      <name>Hiki</name>
+    </author>
+    <category term="essay/reflections" scheme="https://hiki-loser.github.io/categories/essay-reflections/"/>
+    <category term="感悟" scheme="https://hiki-loser.github.io/tags/%E6%84%9F%E6%82%9F/"/>
+    <category term="随笔" scheme="https://hiki-loser.github.io/tags/%E9%9A%8F%E7%AC%94/"/>
+    <id>https://hiki-loser.github.io/2026/04/16/essay/reflections/first-post/</id>
+    <link href="https://hiki-loser.github.io/2026/04/16/essay/reflections/first-post/"/>
+    <published>2026-04-16T16:00:00.000Z</published>
+    <summary>这是博客的第一篇文章，记录了建立博客的初衷和一些思考。</summary>
+    <title>写在开头</title>
+    <updated>2026-04-16T16:00:00.000Z</updated>
+  </entry>
+</feed>
